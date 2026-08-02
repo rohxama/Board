@@ -37,15 +37,26 @@ function Shape({ shape, nodeRef, onDragMove, onDragEnd, onTransformEnd, onEdit, 
 export default function CanvasStage({ stageRef, view, setView }) {
   const { state, dispatch } = useAppState()
   const { shapes, commit } = useHistory()
-  const nodes = useRef({}); const refCallbacks = useRef({}); const transformer = useRef(); const editorRef = useRef()
-  const [size, setSize] = useState({ width: innerWidth, height: innerHeight })
+  const hostRef = useRef(); const nodes = useRef({}); const refCallbacks = useRef({}); const transformer = useRef(); const editorRef = useRef()
+  const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight })
   const [draft, setDraft] = useState(null); const draftRef = useRef(null)
   const [laser, setLaser] = useState(null); const [editing, setEditing] = useState(null); const [guides, setGuides] = useState([])
   const start = useRef(null); const pan = useRef(null); const space = useRef(false)
   const { stageProps } = useStageZoomPan(stageRef, view, setView)
 
   const updateDraft = next => { draftRef.current = next; setDraft(next) }
-  useEffect(() => { const resize=()=>setSize({width:innerWidth,height:innerHeight}); const key=e=>{if(e.code==='Space')space.current=e.type==='keydown'}; addEventListener('resize',resize); addEventListener('keydown',key); addEventListener('keyup',key); return()=>{removeEventListener('resize',resize);removeEventListener('keydown',key);removeEventListener('keyup',key)} }, [])
+  useEffect(() => {
+    const resize = () => {
+      const rect = hostRef.current?.getBoundingClientRect()
+      setSize({ width: Math.round(rect?.width || window.innerWidth), height: Math.round(rect?.height || window.innerHeight) })
+    }
+    const observer = new ResizeObserver(resize)
+    if (hostRef.current) observer.observe(hostRef.current)
+    resize()
+    const key=e=>{if(e.code==='Space')space.current=e.type==='keydown'}
+    addEventListener('keydown',key); addEventListener('keyup',key)
+    return()=>{observer.disconnect();removeEventListener('keydown',key);removeEventListener('keyup',key)}
+  }, [])
   useEffect(() => { if (!editing) return; const frame=requestAnimationFrame(()=>editorRef.current?.focus()); return()=>cancelAnimationFrame(frame) }, [editing])
   useEffect(() => { const selected=state.selectedShapeIds.map(id=>nodes.current[id]).filter(Boolean); transformer.current?.nodes(selected); transformer.current?.getLayer()?.batchDraw() }, [state.selectedShapeIds, shapes])
   useEffect(() => { const liveIds=new Set(shapes.map(shape=>shape.id)); Object.keys(refCallbacks.current).forEach(id=>{if(!liveIds.has(id)){delete refCallbacks.current[id];delete nodes.current[id]}}) }, [shapes])
@@ -99,5 +110,5 @@ export default function CanvasStage({ stageRef, view, setView }) {
   }
   const refFor = id => refCallbacks.current[id] || (refCallbacks.current[id] = node => { if(node) nodes.current[id]=node; else delete nodes.current[id] })
   const editShape = shape => { if(shape.type==='text') setEditing({id:shape.id,x:shape.x,y:shape.y,value:shape.text}) }
-  return <div className="canvas-host"><Stage ref={stageRef} width={size.width} height={size.height} {...stageProps} onMouseDown={down} onMouseMove={move} onMouseUp={up} onContextMenu={event=>event.evt.preventDefault()}><Grid {...size}/><Layer>{shapes.map(shape=><Shape key={shape.id} shape={shape} nodeRef={refFor(shape.id)} onDragMove={event=>previewSnap(shape,event)} onDragEnd={event=>{const offset=shape.type==='ellipse'?{x:shape.width/2,y:shape.height/2}:{x:0,y:0};commitPosition(shape.id,{x:event.target.x()-offset.x,y:event.target.y()-offset.y})}} onTransformEnd={event=>commitTransform(shape,event.target)} onEdit={()=>editShape(shape)}/>)}{draft&&<Shape shape={draft} draggable={false} nodeRef={()=>{}} onDragMove={()=>{}} onDragEnd={()=>{}} onTransformEnd={()=>{}} onEdit={()=>{}}/>}</Layer><Layer name="overlay">{guides.map((guide,index)=><Line key={index} listening={false} points={guide.orientation==='vertical'?[guide.value,-10000,guide.value,10000]:[-10000,guide.value,10000,guide.value]} stroke="#6366f1" dash={[5,5]}/>) }{laser&&<Line listening={false} points={laser.points} stroke="#ef4444" strokeWidth={4} lineCap="round" lineJoin="round" opacity={laser.opacity ?? .8}/>}<Transformer ref={transformer} rotateEnabled flipEnabled={false} boundBoxFunc={(oldBox,newBox)=>newBox.width<8||newBox.height<8?oldBox:newBox} enabledAnchors={['top-left','top-right','bottom-left','bottom-right']} /></Layer></Stage>{editing&&<textarea ref={editorRef} className="text-editor" style={{left:editing.x*view.scale+view.x,top:editing.y*view.scale+view.y}} value={editing.value} onChange={event=>setEditing({...editing,value:event.target.value})} onBlur={finishText} onKeyDown={event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();finishText()}if(event.key==='Escape')setEditing(null)}}/>}</div>
+  return <div ref={hostRef} className="canvas-host"><Stage ref={stageRef} width={size.width} height={size.height} {...stageProps} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} onContextMenu={event=>event.evt.preventDefault()}><Grid {...size}/><Layer>{shapes.map(shape=><Shape key={shape.id} shape={shape} nodeRef={refFor(shape.id)} onDragMove={event=>previewSnap(shape,event)} onDragEnd={event=>{const offset=shape.type==='ellipse'?{x:shape.width/2,y:shape.height/2}:{x:0,y:0};commitPosition(shape.id,{x:event.target.x()-offset.x,y:event.target.y()-offset.y})}} onTransformEnd={event=>commitTransform(shape,event.target)} onEdit={()=>editShape(shape)}/>)}{draft&&<Shape shape={draft} draggable={false} nodeRef={()=>{}} onDragMove={()=>{}} onDragEnd={()=>{}} onTransformEnd={()=>{}} onEdit={()=>{}}/>}</Layer><Layer name="overlay">{guides.map((guide,index)=><Line key={index} listening={false} points={guide.orientation==='vertical'?[guide.value,-10000,guide.value,10000]:[-10000,guide.value,10000,guide.value]} stroke="#6366f1" dash={[5,5]}/>) }{laser&&<Line listening={false} points={laser.points} stroke="#ef4444" strokeWidth={4} lineCap="round" lineJoin="round" opacity={laser.opacity ?? .8}/>}<Transformer ref={transformer} rotateEnabled flipEnabled={false} boundBoxFunc={(oldBox,newBox)=>newBox.width<8||newBox.height<8?oldBox:newBox} enabledAnchors={['top-left','top-right','bottom-left','bottom-right']} /></Layer></Stage>{editing&&<textarea ref={editorRef} className="text-editor" style={{left:editing.x*view.scale+view.x,top:editing.y*view.scale+view.y}} value={editing.value} onChange={event=>setEditing({...editing,value:event.target.value})} onBlur={finishText} onKeyDown={event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();finishText()}if(event.key==='Escape')setEditing(null)}}/>}</div>
 }
