@@ -1,0 +1,38 @@
+import { useEffect, useMemo } from 'react'
+import { useAppState } from '../../context/AppStateContext'
+import { useHistory } from '../../context/HistoryContext'
+
+const colors=['#1e293b','#2563eb','#7c3aed','#db2777','#dc2626','#ea580c','#16a34a','#ffffff']
+
+function Section({ title, children }) { return <section className="inspector-section"><h3>{title}</h3>{children}</section> }
+function Field({ label, children }) { return <label className="inspector-field"><span>{label}</span>{children}</label> }
+
+export default function StylePanel() {
+  const { state, dispatch } = useAppState()
+  const { shapes, commit } = useHistory()
+  const selected = useMemo(() => shapes.filter(shape => state.selectedShapeIds.includes(shape.id)), [shapes, state.selectedShapeIds])
+  const selectedShape = selected[0]
+  const visible = state.activeTool !== 'select' || selected.length
+  useEffect(() => { if (!selectedShape) return; const { stroke, strokeWidth, dash, fill, opacity, cornerRadius, fontSize } = selectedShape; dispatch({ type: 'SET_STYLE', style: { stroke, strokeWidth, dash, fill, opacity, cornerRadius: cornerRadius ?? 4, fontSize: fontSize ?? 20 } }) }, [selectedShape?.id])
+  if (!visible) return null
+  const update = style => {
+    dispatch({ type: 'SET_STYLE', style })
+    if (selected.length) commit(shapes.map(shape => state.selectedShapeIds.includes(shape.id) ? { ...shape, ...style } : shape))
+  }
+  const isText = selectedShape?.type === 'text' || state.activeTool === 'text'
+  const isRectangle = selectedShape?.type === 'rectangle' || state.activeTool === 'rectangle'
+  return <aside className="style-panel" aria-label="Properties inspector">
+    <header className="inspector-header"><div><span className="eyebrow">Properties</span><h2>{selected.length > 1 ? `${selected.length} objects` : selectedShape ? selectedShape.type : 'Default style'}</h2></div><span className="selection-dot"/></header>
+    <Section title="Appearance">
+      <Field label="Stroke"><div className="swatches">{colors.map(color=><button key={color} title={color} aria-label={`Stroke ${color}`} className={state.activeStyle.stroke===color?'chosen':''} style={{background:color}} onClick={()=>update({stroke:color})}/>)}</div></Field>
+      <Field label="Fill"><div className="fill-control"><input type="color" aria-label="Fill color" value={state.activeStyle.fill==='transparent'?'#ffffff':state.activeStyle.fill} onChange={e=>update({fill:e.target.value})}/><button className="clear-fill" onClick={()=>update({fill:'transparent'})}>No fill</button></div></Field>
+      <Field label="Opacity"><div className="range-control"><input type="range" min="10" max="100" value={Math.round((state.activeStyle.opacity ?? 1)*100)} onChange={e=>update({opacity:+e.target.value/100})}/><output>{Math.round((state.activeStyle.opacity ?? 1)*100)}%</output></div></Field>
+    </Section>
+    <Section title="Stroke">
+      <Field label="Width"><div className="range-control"><input type="range" min="1" max="16" value={state.activeStyle.strokeWidth} onChange={e=>update({strokeWidth:+e.target.value})}/><output>{state.activeStyle.strokeWidth}px</output></div></Field>
+      <Field label="Style"><select value={state.activeStyle.dash} onChange={e=>update({dash:e.target.value})}><option value="solid">Solid</option><option value="dashed">Dashed</option><option value="dotted">Dotted</option></select></Field>
+    </Section>
+    {isRectangle && <Section title="Shape"><Field label="Corner radius"><div className="range-control"><input type="range" min="0" max="32" value={state.activeStyle.cornerRadius ?? 4} onChange={e=>update({cornerRadius:+e.target.value})}/><output>{state.activeStyle.cornerRadius ?? 4}</output></div></Field></Section>}
+    {isText && <Section title="Typography"><Field label="Size"><div className="range-control"><input type="range" min="12" max="64" value={state.activeStyle.fontSize ?? 20} onChange={e=>update({fontSize:+e.target.value})}/><output>{state.activeStyle.fontSize ?? 20}px</output></div></Field></Section>}
+  </aside>
+}
