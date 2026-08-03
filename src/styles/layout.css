@@ -104,6 +104,22 @@
   border-radius: 6px;
   box-shadow: 0 0 0 2px #eef2ff;
 }
+.board-name-input {
+  border: none;
+  background: transparent;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  min-width: 60px;
+  max-width: 180px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  outline: none;
+}
+.board-name-input:focus {
+  box-shadow: 0 0 0 2px #6366f1;
+}
 .divider {
   width: 1px;
   height: 24px;
