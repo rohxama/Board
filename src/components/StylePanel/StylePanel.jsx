@@ -12,27 +12,34 @@ export default function StylePanel() {
   const { shapes, commit } = useHistory()
   const selected = useMemo(() => shapes.filter(shape => state.selectedShapeIds.includes(shape.id)), [shapes, state.selectedShapeIds])
   const selectedShape = selected[0]
-  const visible = state.activeTool !== 'select' || selected.length
-  useEffect(() => { if (!selectedShape) return; const { stroke, strokeWidth, dash, fill, opacity, cornerRadius, fontSize } = selectedShape; dispatch({ type: 'SET_STYLE', style: { stroke, strokeWidth, dash, fill, opacity, cornerRadius: cornerRadius ?? 4, fontSize: fontSize ?? 20 } }) }, [selectedShape?.id])
+  const visible = (state.activeTool !== 'select' && state.activeTool !== 'pan') || selected.length
+  useEffect(() => { if (!selectedShape) return; if(selectedShape.type==='image'){dispatch({type:'SET_STYLE',style:{opacity:selectedShape.opacity ?? 1}});return} const { stroke, strokeWidth, dash, fill, opacity, cornerRadius, fontSize } = selectedShape; dispatch({ type: 'SET_STYLE', style: { stroke, strokeWidth, dash, fill, opacity, cornerRadius: cornerRadius ?? 4, fontSize: fontSize ?? 20 } }) }, [selectedShape?.id])
   if (!visible) return null
   const update = style => {
     dispatch({ type: 'SET_STYLE', style })
-    if (selected.length) commit(shapes.map(shape => state.selectedShapeIds.includes(shape.id) ? { ...shape, ...style } : shape))
+    if (selected.length) commit(shapes.map(shape => state.selectedShapeIds.includes(shape.id) && !shape.locked ? { ...shape, ...style } : shape))
   }
+  const updateImages = (updateShape, includeLocked=false) => commit(shapes.map(shape => state.selectedShapeIds.includes(shape.id) && shape.type==='image' && (includeLocked||!shape.locked) ? updateShape(shape) : shape))
+  const toggleImage = property => updateImages(shape => ({ ...shape, [property]: !shape[property] }))
+  const toggleLock = () => { const lock=selected.some(shape=>shape.type==='image'&&!shape.locked); updateImages(shape=>({...shape,locked:lock}),true) }
+  const reorder = direction => { const ids=new Set(state.selectedShapeIds); const selectedShapes=shapes.filter(shape=>ids.has(shape.id)); const otherShapes=shapes.filter(shape=>!ids.has(shape.id)); commit(direction==='front'?[...otherShapes,...selectedShapes]:[...selectedShapes,...otherShapes]) }
   const isText = selectedShape?.type === 'text' || state.activeTool === 'text'
   const isRectangle = selectedShape?.type === 'rectangle' || state.activeTool === 'rectangle'
+  const hasImage = selected.some(shape=>shape.type==='image')
+  const imagesOnly = selected.length>0 && selected.every(shape=>shape.type==='image')
   return <aside className="style-panel" aria-label="Properties inspector">
     <header className="inspector-header"><div><span className="eyebrow">Properties</span><h2>{selected.length > 1 ? `${selected.length} objects` : selectedShape ? selectedShape.type : 'Default style'}</h2></div><span className="selection-dot"/></header>
     <Section title="Appearance">
-      <Field label="Stroke"><div className="swatches">{colors.map(color=><button key={color} title={color} aria-label={`Stroke ${color}`} className={state.activeStyle.stroke===color?'chosen':''} style={{background:color}} onClick={()=>update({stroke:color})}/>)}</div></Field>
-      <Field label="Fill"><div className="fill-control"><input type="color" aria-label="Fill color" value={state.activeStyle.fill==='transparent'?'#ffffff':state.activeStyle.fill} onChange={e=>update({fill:e.target.value})}/><button className="clear-fill" onClick={()=>update({fill:'transparent'})}>No fill</button></div></Field>
+      {!imagesOnly && <Field label="Stroke"><div className="swatches">{colors.map(color=><button key={color} title={color} aria-label={`Stroke ${color}`} className={state.activeStyle.stroke===color?'chosen':''} style={{background:color}} onClick={()=>update({stroke:color})}/>)}</div></Field>}
+      {!imagesOnly && <Field label="Fill"><div className="fill-control"><input type="color" aria-label="Fill color" value={state.activeStyle.fill==='transparent'?'#ffffff':state.activeStyle.fill} onChange={e=>update({fill:e.target.value})}/><button className="clear-fill" onClick={()=>update({fill:'transparent'})}>No fill</button></div></Field>}
       <Field label="Opacity"><div className="range-control"><input type="range" min="10" max="100" value={Math.round((state.activeStyle.opacity ?? 1)*100)} onChange={e=>update({opacity:+e.target.value/100})}/><output>{Math.round((state.activeStyle.opacity ?? 1)*100)}%</output></div></Field>
     </Section>
-    <Section title="Stroke">
+    {!imagesOnly && <Section title="Stroke">
       <Field label="Width"><div className="range-control"><input type="range" min="1" max="16" value={state.activeStyle.strokeWidth} onChange={e=>update({strokeWidth:+e.target.value})}/><output>{state.activeStyle.strokeWidth}px</output></div></Field>
       <Field label="Style"><select value={state.activeStyle.dash} onChange={e=>update({dash:e.target.value})}><option value="solid">Solid</option><option value="dashed">Dashed</option><option value="dotted">Dotted</option></select></Field>
-    </Section>
+    </Section>}
     {isRectangle && <Section title="Shape"><Field label="Corner radius"><div className="range-control"><input type="range" min="0" max="32" value={state.activeStyle.cornerRadius ?? 4} onChange={e=>update({cornerRadius:+e.target.value})}/><output>{state.activeStyle.cornerRadius ?? 4}</output></div></Field></Section>}
     {isText && <Section title="Typography"><Field label="Size"><div className="range-control"><input type="range" min="12" max="64" value={state.activeStyle.fontSize ?? 20} onChange={e=>update({fontSize:+e.target.value})}/><output>{state.activeStyle.fontSize ?? 20}px</output></div></Field></Section>}
+    {hasImage && <Section title="Image"><div className="image-actions"><button onClick={()=>toggleImage('flipX')}>Flip horizontal</button><button onClick={()=>toggleImage('flipY')}>Flip vertical</button><button onClick={toggleLock}>{selected.every(shape=>shape.type!=='image'||shape.locked)?'Unlock':'Lock'}</button></div><div className="image-actions"><button onClick={()=>reorder('front')}>Bring to front</button><button onClick={()=>reorder('back')}>Send to back</button></div></Section>}
   </aside>
 }
