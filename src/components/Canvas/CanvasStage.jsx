@@ -1,10 +1,11 @@
 import { memo, useCallback, useEffect, useReducer, useRef, useState } from 'react'
-import { Arrow, Ellipse, Layer, Line, Rect, Stage, Text, Transformer } from 'react-konva'
+import { Arrow, Ellipse, Image as KonvaImage, Layer, Line, Rect, Stage, Text, Transformer } from 'react-konva'
 import { useAppState } from '../../context/AppStateContext'
 import { useHistory } from '../../context/HistoryContext'
 import { newId } from '../../lib/idGenerator'
 import { snapToGrid } from '../../lib/snapping'
 import { useStageZoomPan } from '../../hooks/useStageZoomPan'
+import { useImageAsset } from '../../hooks/useImageAsset'
 
 const MIN_SIZE = 5
 const dashValue = dash => dash === 'dashed' ? [10, 6] : dash === 'dotted' ? [2, 6] : []
@@ -15,6 +16,16 @@ function interactionReducer(state, action) {
   if (action.type === 'START') return { mode: action.mode }
   return state
 }
+
+const ImageShape = memo(function ImageShape({ shape, nodeRef, onEdit, draggable = true }) {
+  const image = useImageAsset(shape.src)
+  const shapeRef = useRef(shape)
+  shapeRef.current = shape
+  const onEditShape = useCallback(() => onEdit(shapeRef.current), [onEdit])
+  const flipX = Boolean(shape.flipX)
+  const flipY = Boolean(shape.flipY)
+  return <KonvaImage id={shape.id} shapeId={shape.id} ref={nodeRef} draggable={draggable && !shape.locked} onDblClick={onEditShape} onDblTap={onEditShape} image={image} x={shape.x + (flipX ? shape.width : 0)} y={shape.y + (flipY ? shape.height : 0)} width={shape.width} height={shape.height} scaleX={flipX ? -1 : 1} scaleY={flipY ? -1 : 1} rotation={shape.rotation || 0} opacity={shape.opacity ?? 1} imageSmoothingEnabled perfectDrawEnabled />
+})
 
 const Shape = memo(function Shape({ shape, nodeRef, onEdit, draggable = true, hitScale = 1 }) {
   const shapeRef = useRef(shape)
@@ -27,6 +38,7 @@ const Shape = memo(function Shape({ shape, nodeRef, onEdit, draggable = true, hi
   const borderHit = { hitStrokeWidth: hitW }
   const rectHitFunc = useCallback((ctx, node) => { ctx.beginPath(); ctx.rect(0, 0, node.width(), node.height()); ctx.strokeShape(node) }, [])
   const ellipseHitFunc = useCallback((ctx, node) => { ctx.beginPath(); ctx.ellipse(0, 0, node.radiusX(), node.radiusY(), 0, 0, Math.PI * 2, false); ctx.strokeShape(node) }, [])
+  if (shape.type === 'image') return <ImageShape shape={shape} nodeRef={nodeRef} onEdit={onEdit} draggable={draggable} />
   if (shape.type === 'rectangle') return <Rect {...interaction} {...paint} x={shape.x} y={shape.y} width={shape.width} height={shape.height} cornerRadius={shape.cornerRadius ?? 4} hitFunc={rectHitFunc} {...borderHit} />
   if (shape.type === 'ellipse') return <Ellipse {...interaction} {...paint} x={shape.x + shape.width / 2} y={shape.y + shape.height / 2} radiusX={shape.width / 2} radiusY={shape.height / 2} hitFunc={ellipseHitFunc} {...borderHit} />
   if (shape.type === 'arrow') return <Arrow {...interaction} {...paint} {...pointHit} x={shape.x} y={shape.y} points={shape.points} pointerLength={10} pointerWidth={10} fill={shape.stroke} />
@@ -40,18 +52,28 @@ export default function CanvasStage({ stageRef, view, setView }) {
   const { shapes, commit } = useHistory()
   const hostRef = useRef(); const nodes = useRef({}); const refCallbacks = useRef({}); const transformer = useRef(); const editorRef = useRef()
   const dragSelection = useRef([])
+  const dragGesture = useRef(null)
   const shapesRef = useRef(shapes); shapesRef.current = shapes
   const stateRef = useRef(state); stateRef.current = state
   const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight })
   const [draft, setDraft] = useState(null); const draftRef = useRef(null)
   const [laser, setLaser] = useState(null); const laserRef = useRef(null); const [editing, setEditing] = useState(null)
   const [interaction, dispatchInteraction] = useReducer(interactionReducer, initialInteraction)
-  const start = useRef(null); const pan = useRef(null); const space = useRef(false)
+  const interactionRef = useRef(initialInteraction); interactionRef.current = interaction
+  const start = useRef(null); const pan = useRef(null); const space = useRef(false); const previousTool = useRef(null)
   const { stageProps } = useStageZoomPan(stageRef, view, setView)
 
   const updateDraft = next => { draftRef.current = next; setDraft(next) }
   const updateLaser = next => { laserRef.current = next; setLaser(next) }
-  const abort = () => { start.current=null; pan.current=null; if(draftRef.current)updateDraft(null); updateLaser(null); dispatchInteraction({type:'RESET'}) }
+  const startInteraction = mode => { interactionRef.current={mode}; dispatchInteraction({type:'START',mode}) }
+  const abort = () => {
+    const gesture=dragGesture.current
+    if(gesture) gesture.ids.forEach(id=>{const node=nodes.current[id],initial=gesture.nodePositions[id];if(node&&initial)node.position(initial)})
+    dragGesture.current=null; start.current=null; pan.current=null
+    if(draftRef.current)updateDraft(null)
+    updateLaser(null)
+    interactionRef.current=initialInteraction; dispatchInteraction({type:'RESET'})
+  }
   useEffect(() => {
     const resize = () => {
       const rect = hostRef.current?.getBoundingClientRect()
@@ -60,9 +82,10 @@ export default function CanvasStage({ stageRef, view, setView }) {
     const observer = new ResizeObserver(resize)
     if (hostRef.current) observer.observe(hostRef.current)
     resize()
-    const key=e=>{if(e.code==='Space')space.current=e.type==='keydown'}
-    const blur=()=>{space.current=false;abort()}
-    const end=()=>abort()
+    const releaseSpace = () => { space.current=false; const tool=previousTool.current; previousTool.current=null; if(tool)dispatch({type:'SET_TOOL',tool}) }
+    const key=e=>{if(e.code!=='Space'||e.target?.tagName==='INPUT'||e.target?.tagName==='TEXTAREA')return;if(e.type==='keydown'){if(e.repeat)return;space.current=true;if(stateRef.current.activeTool!=='pan'){previousTool.current=stateRef.current.activeTool;dispatch({type:'SET_TOOL',tool:'pan'})}}else releaseSpace()}
+    const blur=()=>{releaseSpace();abort()}
+    const end=()=>{if(interactionRef.current.mode!=='idle')abort()}
     addEventListener('keydown',key); addEventListener('keyup',key); addEventListener('blur',blur); addEventListener('pointerup',end); addEventListener('touchend',end)
     return()=>{observer.disconnect();removeEventListener('keydown',key);removeEventListener('keyup',key);removeEventListener('blur',blur);removeEventListener('pointerup',end);removeEventListener('touchend',end)}
   }, [])
@@ -70,7 +93,7 @@ export default function CanvasStage({ stageRef, view, setView }) {
   useEffect(() => { if (!editing) return; const frame=requestAnimationFrame(()=>editorRef.current?.focus()); return()=>cancelAnimationFrame(frame) }, [editing])
   useEffect(() => {
     try {
-      const selected=state.selectedShapeIds.map(id=>nodes.current[id]).filter(node=>node && !node.isDestroyed?.())
+      const selected=state.selectedShapeIds.map(id=>{const shape=shapesRef.current.find(item=>item.id===id);const node=nodes.current[id];return shape?.locked?null:node}).filter(node=>node && !node.isDestroyed?.())
       transformer.current?.nodes(selected)
       transformer.current?.getLayer()?.batchDraw()
     } catch {
@@ -79,54 +102,63 @@ export default function CanvasStage({ stageRef, view, setView }) {
   }, [state.selectedShapeIds, shapes])
   useEffect(() => { const liveIds=new Set(shapes.map(shape=>shape.id)); Object.keys(refCallbacks.current).forEach(id=>{if(!liveIds.has(id)){delete refCallbacks.current[id];delete nodes.current[id]}}) }, [shapes])
   useEffect(() => () => { nodes.current={}; refCallbacks.current={} }, [])
-  const toolCursor = () => state.activeTool === 'select' ? 'default' : state.activeTool === 'text' ? 'text' : 'crosshair'
-  useEffect(() => { const container=stageRef.current?.container(); if(container) container.style.cursor=toolCursor() }, [state.activeTool])
+  const toolCursor = () => interaction.mode==='panning' ? 'grabbing' : state.activeTool === 'pan' ? 'grab' : state.activeTool === 'select' ? 'default' : state.activeTool === 'text' ? 'text' : 'crosshair'
+  useEffect(() => { const container=stageRef.current?.container(); if(container) container.style.cursor=toolCursor() }, [state.activeTool, interaction.mode])
   useEffect(() => { abort() }, [state.activeTool])
-  const onStageMouseMove = event => { const container=stageRef.current?.container(); if(!container) return; const target=event.target; if(target&&target.getAttr&&target.getAttr('shapeId')){ container.style.cursor=state.activeTool==='select'?'move':toolCursor() } else if(target===stageRef.current){ container.style.cursor=toolCursor() } }
+  const onStageMouseMove = event => { const container=stageRef.current?.container(); if(!container) return; if(state.activeTool==='pan'||interactionRef.current.mode==='panning'){container.style.cursor=toolCursor();return} const target=event.target; if(target&&target.getAttr&&target.getAttr('shapeId')){ container.style.cursor=state.activeTool==='select'?'move':toolCursor() } else if(target===stageRef.current){ container.style.cursor=toolCursor() } }
 
   const point = () => { const p=stageRef.current.getPointerPosition(); return { x:(p.x-view.x)/view.scale, y:(p.y-view.y)/view.scale } }
   const targetShapeId = target => target?.getAttr('shapeId') || null
   const isTransformerTarget = target => { let node = target; while (node && node !== transformer.current) node = node.parent; return !!node }
   const finishText = () => { if(!editing) return; const text=editing.value.trim(); if(text) { if(editing.id) commit(shapesRef.current.map(s=>s.id===editing.id?{...s,text}:s)); else commit([...shapesRef.current,{id:newId(),type:'text',x:editing.x,y:editing.y,width:220,text,...stateRef.current.activeStyle}]) } setEditing(null) }
 
+  const selectShape = (id, event) => {
+    const ids=stateRef.current.selectedShapeIds
+    let nextSel=ids.includes(id)?ids:[id]
+    if(event.evt.shiftKey) nextSel=ids.includes(id)?ids.filter(value=>value!==id):[...ids,id]
+    dragSelection.current=nextSel
+    dispatch({type:'SET_SELECTION',ids:nextSel})
+    if(stateRef.current.activeTool!=='select') dispatch({type:'SET_TOOL',tool:'select'})
+  }
   const down = event => {
-    if (pan.current || start.current || draftRef.current) abort()
-    if (event.evt.button === 1 || space.current) { pan.current={x:event.evt.clientX,y:event.evt.clientY,view}; dispatchInteraction({type:'START',mode:'panning'}); return }
-    const id=targetShapeId(event.target)
-    if (state.activeTool === 'select') {
-      const ids=state.selectedShapeIds
-      if(id){
-        let nextSel=ids.includes(id)?ids:[id]
-        if(event.evt.shiftKey) nextSel=ids.includes(id)?ids.filter(value=>value!==id):[...ids,id]
-        dragSelection.current=nextSel
-        nextSel.forEach(nid=>{const n=nodes.current[nid];if(n){n.moveToTop()}})
-        dispatch({type:'SET_SELECTION',ids:nextSel})
-      } else if (event.target === event.target.getStage()) {
-        dragSelection.current=[]
-        if(!isTransformerTarget(event.target)) { abort(); dispatch({type:'SET_SELECTION',ids:[]}) }
+    try {
+      if (pan.current || start.current || draftRef.current) abort()
+      if (event.evt.button === 1 || space.current || stateRef.current.activeTool==='pan') { event.evt.preventDefault(); pan.current={x:event.evt.clientX,y:event.evt.clientY,view}; startInteraction('panning'); return }
+      const id=targetShapeId(event.target)
+      if (stateRef.current.activeTool === 'eraser') { if(id) commit(shapesRef.current.filter(shape=>shape.id!==id)); return }
+
+      // Existing objects always take precedence over creating a new shape.
+      if(id) { selectShape(id,event); return }
+
+      if (stateRef.current.activeTool === 'select') {
+        if (event.target === event.target.getStage()) {
+          dragSelection.current=[]
+          if(!isTransformerTarget(event.target)) { abort(); dispatch({type:'SET_SELECTION',ids:[]}) }
+        }
+        return
       }
-      return
-    }
-    const p=point()
-    if (state.activeTool === 'eraser') { if(id) commit(shapesRef.current.filter(shape=>shape.id!==id)); return }
-    if (state.activeTool === 'text') { setEditing({ ...p, value:'' }); return }
-    start.current=p; dispatchInteraction({type:'START',mode:'drawing'})
-    if (state.activeTool === 'laser') { updateLaser({points:[p.x,p.y]}); return }
-    const base={id:newId(),type:state.activeTool,...state.activeStyle,x:p.x,y:p.y}
-    if(['arrow','line','pen'].includes(base.type)) base.points=[0,0]
-    updateDraft(base)
+      const p=point()
+      if (stateRef.current.activeTool === 'text') { setEditing({ ...p, value:'' }); return }
+      start.current=p; startInteraction('drawing')
+      if (stateRef.current.activeTool === 'laser') { updateLaser({points:[p.x,p.y]}); return }
+      const base={id:newId(),type:stateRef.current.activeTool,...stateRef.current.activeStyle,x:p.x,y:p.y}
+      if(['arrow','line','pen'].includes(base.type)) base.points=[0,0]
+      updateDraft(base)
+    } catch { abort() }
   }
   const move = event => {
-    if(pan.current){const origin=pan.current;setView({...origin.view,x:origin.view.x+event.evt.clientX-origin.x,y:origin.view.y+event.evt.clientY-origin.y});return}
-    if(start.current&&!(event.evt.buttons&1)){abort();return}
-    if(!start.current) return
-    let p=point()
-    if(event.evt.shiftKey&&['line','arrow'].includes(state.activeTool)){const dx=p.x-start.current.x,dy=p.y-start.current.y,angle=Math.round(Math.atan2(dy,dx)/(Math.PI/4))*Math.PI/4,distance=Math.hypot(dx,dy);p={x:start.current.x+Math.cos(angle)*distance,y:start.current.y+Math.sin(angle)*distance}}
-    if(state.activeTool==='laser'){const current=laserRef.current;if(current)updateLaser({...current,points:[...current.points,p.x,p.y]});return}
-    const current=draftRef.current; if(!current) return
-    if(current.type==='pen'){const pts=current.points,lastX=pts[pts.length-2],lastY=pts[pts.length-1],nx=p.x-current.x,ny=p.y-current.y;if((nx-lastX)*(nx-lastX)+(ny-lastY)*(ny-lastY)>=1)updateDraft({...current,points:[...pts,nx,ny]})}
-    else if(['arrow','line'].includes(current.type)) updateDraft({...current,points:[0,0,p.x-current.x,p.y-current.y]})
-    else updateDraft({...current,width:p.x-current.x,height:p.y-current.y})
+    try {
+      if(pan.current){const origin=pan.current;setView({...origin.view,x:origin.view.x+event.evt.clientX-origin.x,y:origin.view.y+event.evt.clientY-origin.y});return}
+      if(start.current&&!(event.evt.buttons&1)){abort();return}
+      if(!start.current) return
+      let p=point()
+      if(event.evt.shiftKey&&['line','arrow'].includes(stateRef.current.activeTool)){const dx=p.x-start.current.x,dy=p.y-start.current.y,angle=Math.round(Math.atan2(dy,dx)/(Math.PI/4))*Math.PI/4,distance=Math.hypot(dx,dy);p={x:start.current.x+Math.cos(angle)*distance,y:start.current.y+Math.sin(angle)*distance}}
+      if(stateRef.current.activeTool==='laser'){const current=laserRef.current;if(current)updateLaser({...current,points:[...current.points,p.x,p.y]});return}
+      const current=draftRef.current; if(!current) return
+      if(current.type==='pen'){const pts=current.points,lastX=pts[pts.length-2],lastY=pts[pts.length-1],nx=p.x-current.x,ny=p.y-current.y;if((nx-lastX)*(nx-lastX)+(ny-lastY)*(ny-lastY)>=1)updateDraft({...current,points:[...pts,nx,ny]})}
+      else if(['arrow','line'].includes(current.type)) updateDraft({...current,points:[0,0,p.x-current.x,p.y-current.y]})
+      else updateDraft({...current,width:p.x-current.x,height:p.y-current.y})
+    } catch { abort() }
   }
   const up = () => {
     try {
@@ -135,50 +167,66 @@ export default function CanvasStage({ stageRef, view, setView }) {
       const current=draftRef.current
       if(current){let completed=current;if(['rectangle','ellipse'].includes(current.type)) completed={...current,x:Math.min(current.x,current.x+current.width),y:Math.min(current.y,current.y+current.height),width:Math.abs(current.width),height:Math.abs(current.height)};const valid=isPointShape(completed.type)?completed.points.length>3:completed.width>MIN_SIZE&&completed.height>MIN_SIZE;if(valid)commit([...shapesRef.current,completed]);updateDraft(null)}
       start.current=null
-    } catch { abort() } finally { dispatchInteraction({type:'END'}) }
+    } catch { abort() } finally { interactionRef.current=initialInteraction; dispatchInteraction({type:'END'}) }
   }
 
   const commitTransform = useCallback((shape, node) => {
-    const scaleX=Math.abs(node.scaleX()),scaleY=Math.abs(node.scaleY()),rotation=node.rotation()
-    node.scaleX(1); node.scaleY(1)
+    const rawScaleX=node.scaleX(),rawScaleY=node.scaleY(),scaleX=Math.abs(rawScaleX),scaleY=Math.abs(rawScaleY),rotation=node.rotation()
     const s=shapesRef.current
+    if(shape.type==='image'){const width=Math.max(20,shape.width*scaleX),height=Math.max(20,shape.height*scaleY),flipX=rawScaleX<0,flipY=rawScaleY<0;node.scaleX(flipX?-1:1);node.scaleY(flipY?-1:1);commit(s.map(sh=>sh.id===shape.id?{...sh,x:node.x()-(flipX?width:0),y:node.y()-(flipY?height:0),width,height,rotation,flipX,flipY}:sh));return}
+    node.scaleX(1); node.scaleY(1)
     if(shape.type==='ellipse'){const width=Math.max(MIN_SIZE,shape.width*scaleX),height=Math.max(MIN_SIZE,shape.height*scaleY);commit(s.map(sh=>sh.id===shape.id?{...sh,x:node.x()-width/2,y:node.y()-height/2,width,height,rotation}:sh));return}
     if(shape.type==='rectangle'||shape.type==='text'){const width=Math.max(MIN_SIZE,shape.width*scaleX);const height=shape.type==='rectangle'?Math.max(MIN_SIZE,shape.height*scaleY):shape.height;const extra=shape.type==='text'?{fontSize:Math.max(8,Math.round((shape.fontSize||20)*scaleY))}:{};commit(s.map(sh=>sh.id===shape.id?{...sh,x:node.x(),y:node.y(),width,height,rotation,...extra}:sh));return}
     if(isPointShape(shape.type)){const points=shape.points.map((value,index)=>value*(index%2?scaleY:scaleX));commit(s.map(sh=>sh.id===shape.id?{...sh,x:node.x(),y:node.y(),points,rotation}:sh))}
   }, [commit])
 
   const handleDragEnd = useCallback((shape) => {
-    const s = shapesRef.current
-    const ids = [...new Set([shape.id, ...dragSelection.current])]
-    let next = s
-    ids.forEach(id => {
-      const node = nodes.current[id]
-      const other = s.find(sh => sh.id === id)
-      if (!node || !other) return
-      const o = other.type === 'ellipse' ? { x: other.width / 2, y: other.height / 2 } : { x: 0, y: 0 }
-      const pos = snapToGrid(node.x() - o.x, node.y() - o.y)
-      const w = node.width() * Math.abs(node.scaleX())
-      const h = node.height() * Math.abs(node.scaleY())
-      next = next.map(sh => sh.id === id ? { ...sh, x: pos.x, y: pos.y, width: w, height: h } : sh)
-    })
-    commit(next)
+    const gesture=dragGesture.current
+    if(!gesture || gesture.primaryId!==shape.id) return
+    const node=nodes.current[shape.id]
+    if(!node) return
+    const offset=shape.type==='ellipse'?{x:shape.width/2,y:shape.height/2}:{x:0,y:0}
+    const snapped=snapToGrid(node.x()-offset.x,node.y()-offset.y)
+    const delta={x:snapped.x-gesture.positions[shape.id].x,y:snapped.y-gesture.positions[shape.id].y}
+    const selected=new Set(gesture.ids)
+    commit(shapesRef.current.map(item=>selected.has(item.id)?{...item,x:gesture.positions[item.id].x+delta.x,y:gesture.positions[item.id].y+delta.y}:item))
   }, [commit])
 
   const handleEdit = useCallback((shape) => { if(shape.type==='text') setEditing({id:shape.id,x:shape.x,y:shape.y,value:shape.text}) }, [])
-  const handleStageDragStart = event => { if(targetShapeId(event.target)) dispatchInteraction({type:'START',mode:'dragging'}) }
+  const handleStageDragStart = event => {
+    const primaryId=targetShapeId(event.target)
+    if(!primaryId) return
+    const ids=[...new Set(dragSelection.current.includes(primaryId)?dragSelection.current:[primaryId])]
+    const positions={}; const nodePositions={}
+    shapesRef.current.forEach(shape=>{if(ids.includes(shape.id)) positions[shape.id]={x:shape.x,y:shape.y}})
+    ids.forEach(id=>{const node=nodes.current[id];if(node)nodePositions[id]={x:node.x(),y:node.y()}})
+    dragGesture.current={primaryId,ids:ids.filter(id=>positions[id]&&nodePositions[id]),positions,nodePositions}
+    startInteraction('dragging')
+  }
+  const handleStageDragMove = event => {
+    const gesture=dragGesture.current
+    if(!gesture || targetShapeId(event.target)!==gesture.primaryId) return
+    const primaryStart=gesture.nodePositions[gesture.primaryId]
+    if(!primaryStart) return
+    const dx=event.target.x()-primaryStart.x,dy=event.target.y()-primaryStart.y
+    gesture.ids.forEach(id=>{if(id!==gesture.primaryId){const node=nodes.current[id],initial=gesture.nodePositions[id];if(node&&initial)node.position({x:initial.x+dx,y:initial.y+dy})}})
+    event.target.getLayer()?.batchDraw()
+  }
   const handleStageDragEnd = event => {
     try {
       const shape=shapesRef.current.find(item=>item.id===targetShapeId(event.target))
       if(shape) handleDragEnd(shape)
-    } catch { abort() } finally { dispatchInteraction({type:'END'}) }
+    } catch { abort() } finally { dragGesture.current=null; interactionRef.current=initialInteraction; dispatchInteraction({type:'END'}) }
   }
-  const handleStageTransformStart = () => dispatchInteraction({type:'START',mode:'resizing'})
+  const handleStageTransformStart = () => startInteraction('resizing')
   const handleStageTransformEnd = event => {
     try {
       const shape=shapesRef.current.find(item=>item.id===targetShapeId(event.target))
       if(shape) commitTransform(shape,event.target)
-    } catch { abort() } finally { dispatchInteraction({type:'END'}) }
+    } catch { abort() } finally { interactionRef.current=initialInteraction; dispatchInteraction({type:'END'}) }
   }
   const refFor = id => refCallbacks.current[id] || (refCallbacks.current[id] = node => { if(node) nodes.current[id]=node; else delete nodes.current[id] })
-  return <div ref={hostRef} className="canvas-host" data-interaction-mode={interaction.mode}><Stage ref={stageRef} width={size.width} height={size.height} {...stageProps} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} onDragStart={handleStageDragStart} onDragEnd={handleStageDragEnd} onTransformStart={handleStageTransformStart} onTransformEnd={handleStageTransformEnd} onMouseMove={onStageMouseMove} onContextMenu={event=>event.evt.preventDefault()}><Layer>{shapes.map(shape=><Shape key={shape.id} shape={shape} nodeRef={refFor(shape.id)} draggable={state.activeTool==='select'} hitScale={view.scale} onEdit={handleEdit}/>)}{draft&&<Shape shape={draft} draggable={false} hitScale={view.scale} nodeRef={()=>{}} onEdit={()=>{}}/>}</Layer><Layer name="overlay">{laser&&<Line listening={false} points={laser.points} stroke="#ef4444" strokeWidth={4} lineCap="round" lineJoin="round" opacity={laser.opacity ?? .8}/>}<Transformer ref={transformer} rotateEnabled flipEnabled={false} boundBoxFunc={(oldBox,newBox)=>((newBox.width<8||newBox.height<8)&&transformer.current?.getActiveAnchor()!=='rotater'?oldBox:newBox)} enabledAnchors={['top-left','top-center','top-right','middle-left','middle-right','bottom-left','bottom-center','bottom-right']} /></Layer></Stage>{editing&&<textarea ref={editorRef} className="text-editor" style={{left:editing.x*view.scale+view.x,top:editing.y*view.scale+view.x}} value={editing.value} onChange={event=>setEditing({...editing,value:event.target.value})} onBlur={finishText} onKeyDown={event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();finishText()}if(event.key==='Escape')setEditing(null)}}/>}</div>
+  const selectedImages=state.selectedShapeIds.filter(id=>shapesRef.current.find(shape=>shape.id===id)?.type==='image')
+  const minTransformSize=selectedImages.length?20:8
+  return <div ref={hostRef} className="canvas-host" data-interaction-mode={interaction.mode}><Stage ref={stageRef} width={size.width} height={size.height} {...stageProps} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} onDragStart={handleStageDragStart} onDragMove={handleStageDragMove} onDragEnd={handleStageDragEnd} onTransformStart={handleStageTransformStart} onTransformEnd={handleStageTransformEnd} onMouseMove={onStageMouseMove} onContextMenu={event=>event.evt.preventDefault()}><Layer>{shapes.map(shape=><Shape key={shape.id} shape={shape} nodeRef={refFor(shape.id)} draggable={state.activeTool==='select'} hitScale={view.scale} onEdit={handleEdit}/>)}{draft&&<Shape shape={draft} draggable={false} hitScale={view.scale} nodeRef={()=>{}} onEdit={()=>{}}/>}</Layer><Layer name="overlay">{laser&&<Line listening={false} points={laser.points} stroke="#ef4444" strokeWidth={4} lineCap="round" lineJoin="round" opacity={laser.opacity ?? .8}/>}<Transformer ref={transformer} rotateEnabled flipEnabled shiftBehavior="inverted" boundBoxFunc={(oldBox,newBox)=>((newBox.width<minTransformSize||newBox.height<minTransformSize)&&transformer.current?.getActiveAnchor()!=='rotater'?oldBox:newBox)} enabledAnchors={['top-left','top-center','top-right','middle-left','middle-right','bottom-left','bottom-center','bottom-right']} /></Layer></Stage>{editing&&<textarea ref={editorRef} className="text-editor" style={{left:editing.x*view.scale+view.x,top:editing.y*view.scale+view.y}} value={editing.value} onChange={event=>setEditing({...editing,value:event.target.value})} onBlur={finishText} onKeyDown={event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();finishText()}if(event.key==='Escape')setEditing(null)}}/>}</div>
 }
