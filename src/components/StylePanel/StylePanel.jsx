@@ -12,7 +12,8 @@ export default function StylePanel() {
   const { shapes, commit } = useHistory()
   const selected = useMemo(() => shapes.filter(shape => state.selectedShapeIds.includes(shape.id)), [shapes, state.selectedShapeIds])
   const selectedShape = selected[0]
-  const visible = (state.activeTool !== 'select' && state.activeTool !== 'pan') || selected.length
+  const noStyleTools = ['select', 'pan', 'eraser', 'laser']
+  const visible = (!noStyleTools.includes(state.activeTool)) || selected.length
   useEffect(() => { if (!selectedShape) return; if(selectedShape.type==='image'){dispatch({type:'SET_STYLE',style:{opacity:selectedShape.opacity ?? 1}});return} const { stroke, strokeWidth, dash, fill, opacity, cornerRadius, fontSize } = selectedShape; dispatch({ type: 'SET_STYLE', style: { stroke, strokeWidth, dash, fill, opacity, cornerRadius: cornerRadius ?? 4, fontSize: fontSize ?? 20 } }) }, [selectedShape?.id])
   if (!visible) return null
   const update = style => {
