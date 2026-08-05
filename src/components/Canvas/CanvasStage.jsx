@@ -11,7 +11,7 @@ import { useImageAsset } from '../../hooks/useImageAsset'
 
 const NO_POINTER = typeof window !== 'undefined' && typeof window.PointerEvent !== 'function'
 
-const MIN_SIZE = 5
+const MIN_SIZE = 8
 const dashValue = dash => dash === 'dashed' ? [10, 6] : dash === 'dotted' ? [2, 6] : []
 const isPointShape = type => ['arrow', 'line', 'pen'].includes(type)
 const initialInteraction = { mode: 'idle' }
