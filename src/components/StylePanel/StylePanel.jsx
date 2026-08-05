@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useAppState } from '../../context/AppStateContext'
 import { useHistory } from '../../context/HistoryContext'
 
@@ -16,9 +16,26 @@ export default function StylePanel() {
   const visible = (!noStyleTools.includes(state.activeTool)) || selected.length
   useEffect(() => { if (!selectedShape) return; if(selectedShape.type==='image'){dispatch({type:'SET_STYLE',style:{opacity:selectedShape.opacity ?? 1}});return} const { stroke, strokeWidth, dash, fill, opacity, cornerRadius, fontSize } = selectedShape; dispatch({ type: 'SET_STYLE', style: { stroke, strokeWidth, dash, fill, opacity, cornerRadius: cornerRadius ?? 4, fontSize: fontSize ?? 20 } }) }, [selectedShape?.id])
   if (!visible) return null
+  const pendingStyle = useRef(null)
+  const timerRef = useRef(null)
+  const shapesRef = useRef(shapes); shapesRef.current = shapes
+  const selectedRef = useRef(state.selectedShapeIds); selectedRef.current = state.selectedShapeIds
+  const commitRef = useRef(null)
+  if (!commitRef.current) {
+    commitRef.current = () => {
+      const style = pendingStyle.current
+      pendingStyle.current = null
+      if (!style) return
+      const selected = new Set(selectedRef.current)
+      commit(shapesRef.current.map(shape => selected.has(shape.id) && !shape.locked ? { ...shape, ...style } : shape))
+    }
+  }
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); commitRef.current() }, [])
   const update = style => {
     dispatch({ type: 'SET_STYLE', style })
-    if (selected.length) commit(shapes.map(shape => state.selectedShapeIds.includes(shape.id) && !shape.locked ? { ...shape, ...style } : shape))
+    pendingStyle.current = { ...(pendingStyle.current || {}), ...style }
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(commitRef.current, 250)
   }
   const updateImages = (updateShape, includeLocked=false) => commit(shapes.map(shape => state.selectedShapeIds.includes(shape.id) && shape.type==='image' && (includeLocked||!shape.locked) ? updateShape(shape) : shape))
   const toggleImage = property => updateImages(shape => ({ ...shape, [property]: !shape[property] }))

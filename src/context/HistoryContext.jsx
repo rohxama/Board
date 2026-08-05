@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useReducer } from 'react'
 const HistoryContext = createContext(null)
 const initial = { shapes: [], undoStack: [], redoStack: [] }
 function reducer(state, action) {
-  if (action.type === 'COMMIT') return { shapes: action.shapes, undoStack: [...state.undoStack, state.shapes].slice(-200), redoStack: [] }
+  if (action.type === 'COMMIT') { const next = typeof action.shapes === 'function' ? action.shapes(state.shapes) : action.shapes; return { shapes: next, undoStack: [...state.undoStack, state.shapes].slice(-200), redoStack: [] } }
   if (action.type === 'UNDO' && state.undoStack.length) { const previous = state.undoStack.at(-1); return { shapes: previous, undoStack: state.undoStack.slice(0, -1), redoStack: [state.shapes, ...state.redoStack].slice(0, 200) } }
   if (action.type === 'REDO' && state.redoStack.length) { const next = state.redoStack[0]; return { shapes: next, undoStack: [...state.undoStack, state.shapes].slice(-200), redoStack: state.redoStack.slice(1) } }
   return state
