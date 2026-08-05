@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 
+const LOAD_TIMEOUT_MS = 12000
 const cache = new Map()
 
 function recordFor(src) {
@@ -24,15 +25,21 @@ function recordFor(src) {
 }
 
 export function useImageAsset(src) {
-  const [asset, setAsset] = useState(null)
+  const [state, setState] = useState({ image: null, failed: false })
   useEffect(() => {
-    if (!src) { setAsset(null); return undefined }
+    if (!src) { setState(prev => (prev.image === null && prev.failed ? prev : { image: null, failed: true })); return undefined }
     const record = recordFor(src)
-    if (record.loaded) { setAsset(record.image); return undefined }
-    if (record.failed) { setAsset(null); return undefined }
-    const listener = image => setAsset(image)
+    const commit = (image, failed) => setState(prev => (prev.image === image && prev.failed === failed ? prev : { image, failed }))
+    if (record.loaded) { commit(record.image, false); return undefined }
+    if (record.failed) { commit(null, true); return undefined }
+    const listener = image => commit(image, !image)
     record.listeners.add(listener)
-    return () => record.listeners.delete(listener)
+    const timeout = setTimeout(() => {
+      commit(null, true)
+      record.failed = true
+      record.listeners.delete(listener)
+    }, LOAD_TIMEOUT_MS)
+    return () => { record.listeners.delete(listener); clearTimeout(timeout) }
   }, [src])
-  return asset
+  return state
 }
