@@ -50,7 +50,7 @@ textarea {
   place-items: center;
   background: #fff;
   opacity: 1;
-  animation: splash-enter 0.32s ease-out both;
+  animation: splash-enter 0.32s ease-out backwards;
   transition:
     opacity 0.42s ease,
     visibility 0.42s ease;
