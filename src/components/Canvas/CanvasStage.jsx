@@ -134,6 +134,7 @@ export default function CanvasStage({ stageRef, view, setView }) {
       abort()
     }
   }, [state.selectedShapeIds, shapes])
+  useEffect(() => { const live=new Set(shapes.map(shape=>shape.id)); const pruned=state.selectedShapeIds.filter(id=>live.has(id)); if(pruned.length!==state.selectedShapeIds.length) dispatch({type:'SET_SELECTION',ids:pruned}) }, [shapes])
   useEffect(() => { const liveIds=new Set(shapes.map(shape=>shape.id)); Object.keys(refCallbacks.current).forEach(id=>{if(!liveIds.has(id)){delete refCallbacks.current[id];delete nodes.current[id]}}) }, [shapes])
   useEffect(() => () => { nodes.current={}; refCallbacks.current={} }, [])
   const toolCursor = () => interaction.mode==='panning' ? 'grabbing' : state.activeTool === 'pan' ? 'grab' : state.activeTool === 'select' ? 'default' : state.activeTool === 'text' ? 'text' : 'crosshair'

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 
 const LOAD_TIMEOUT_MS = 12000
+const MAX_CACHE_ENTRIES = 64
 const cache = new Map()
 
 function recordFor(src) {
   let record = cache.get(src)
-  if (record) return record
+  if (record) { cache.delete(src); cache.set(src, record); return record }
   const image = new Image()
   record = { image, loaded: false, failed: false, listeners: new Set() }
   image.decoding = 'async'
@@ -21,6 +22,7 @@ function recordFor(src) {
   }
   image.src = src
   cache.set(src, record)
+  if (cache.size > MAX_CACHE_ENTRIES) { const oldest = cache.keys().next().value; cache.delete(oldest) }
   return record
 }
 
