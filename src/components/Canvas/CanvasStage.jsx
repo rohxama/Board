@@ -209,7 +209,7 @@ export default function CanvasStage({ stageRef, view, setView }) {
       if(pan.current){pan.current=null;start.current=null;return}
       if(laserRef.current){let opacity=1;const fade=()=>{opacity-=.06;if(opacity>0){const current=laserRef.current;if(current)updateLaser({...current,opacity});requestAnimationFrame(fade)}else updateLaser(null)};requestAnimationFrame(fade);start.current=null;return}
       const current=draftRef.current
-      if(current){const completed=isPointShape(current.type)?{...current,points:current.points.slice()}:normalizeBox(current);const valid=isPointShape(completed.type)?completed.points.length>3:completed.width>MIN_SIZE&&completed.height>MIN_SIZE;if(valid)commit([...shapesRef.current,completed]);updateDraft(null)}
+      if(current){const completed=isPointShape(current.type)?{...current,points:current.points.slice()}:{...current,...normalizeBox(current)};const valid=isPointShape(completed.type)?completed.points.length>3:completed.width>MIN_SIZE&&completed.height>MIN_SIZE;if(valid)commit([...shapesRef.current,completed]);updateDraft(null)}
       penPointsRef.current=null; penNodeRef.current=null
       start.current=null
     } catch { abort() } finally { interactionRef.current=initialInteraction; dispatchInteraction({type:'END'}) }
