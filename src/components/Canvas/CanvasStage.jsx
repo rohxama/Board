@@ -4,6 +4,7 @@ import { useAppState } from '../../context/AppStateContext'
 import { useHistory } from '../../context/HistoryContext'
 import { newId } from '../../lib/idGenerator'
 import { snapToGrid } from '../../lib/snapping'
+import { normalizeBox } from '../../lib/geometry'
 import { useStageZoomPan } from '../../hooks/useStageZoomPan'
 import { useImageAsset } from '../../hooks/useImageAsset'
 
@@ -27,7 +28,7 @@ const ImageShape = memo(function ImageShape({ shape, nodeRef, onEdit, draggable 
   return <KonvaImage id={shape.id} shapeId={shape.id} ref={nodeRef} draggable={draggable && !shape.locked} onDblClick={onEditShape} onDblTap={onEditShape} image={image} x={shape.x + (flipX ? shape.width : 0)} y={shape.y + (flipY ? shape.height : 0)} width={shape.width} height={shape.height} scaleX={flipX ? -1 : 1} scaleY={flipY ? -1 : 1} rotation={shape.rotation || 0} opacity={shape.opacity ?? 1} imageSmoothingEnabled perfectDrawEnabled />
 })
 
-const Shape = memo(function Shape({ shape, nodeRef, onEdit, draggable = true, hitScale = 1 }) {
+const Shape = memo(function Shape({ shape, nodeRef, onEdit, draggable = true, hitScale = 1, penNodeRef }) {
   const shapeRef = useRef(shape)
   shapeRef.current = shape
   const onEditShape = useCallback(() => onEdit(shapeRef.current), [onEdit])
@@ -36,14 +37,15 @@ const Shape = memo(function Shape({ shape, nodeRef, onEdit, draggable = true, hi
   const hitW = Math.max(shape.strokeWidth || 2, 16 / hitScale)
   const pointHit = { hitStrokeWidth: hitW }
   const borderHit = { hitStrokeWidth: hitW }
-  const rectHitFunc = useCallback((ctx, node) => { ctx.beginPath(); ctx.rect(0, 0, node.width(), node.height()); ctx.strokeShape(node) }, [])
-  const ellipseHitFunc = useCallback((ctx, node) => { ctx.beginPath(); ctx.ellipse(0, 0, node.radiusX(), node.radiusY(), 0, 0, Math.PI * 2, false); ctx.strokeShape(node) }, [])
+  const safeHit = fn => (ctx, node) => { try { fn(ctx, node) } catch {} }
+  const rectHitFunc = useCallback(safeHit((ctx, node) => { ctx.beginPath(); ctx.rect(0, 0, node.width(), node.height()); ctx.strokeShape(node) }), [])
+  const ellipseHitFunc = useCallback(safeHit((ctx, node) => { ctx.beginPath(); ctx.ellipse(0, 0, node.radiusX(), node.radiusY(), 0, 0, Math.PI * 2, false); ctx.strokeShape(node) }), [])
   if (shape.type === 'image') return <ImageShape shape={shape} nodeRef={nodeRef} onEdit={onEdit} draggable={draggable} />
   if (shape.type === 'rectangle') return <Rect {...interaction} {...paint} x={shape.x} y={shape.y} width={shape.width} height={shape.height} cornerRadius={shape.cornerRadius ?? 4} hitFunc={rectHitFunc} {...borderHit} />
   if (shape.type === 'ellipse') return <Ellipse {...interaction} {...paint} x={shape.x + shape.width / 2} y={shape.y + shape.height / 2} radiusX={shape.width / 2} radiusY={shape.height / 2} hitFunc={ellipseHitFunc} {...borderHit} />
   if (shape.type === 'arrow') return <Arrow {...interaction} {...paint} {...pointHit} x={shape.x} y={shape.y} points={shape.points} pointerLength={10} pointerWidth={10} fill={shape.stroke} />
   if (shape.type === 'line') return <Line {...interaction} {...paint} {...pointHit} x={shape.x} y={shape.y} points={shape.points} lineCap="round" lineJoin="round" />
-  if (shape.type === 'pen') return <Line {...interaction} {...paint} {...pointHit} x={shape.x} y={shape.y} points={shape.points} lineCap="round" lineJoin="round" tension={.35} />
+  if (shape.type === 'pen') return <Line {...interaction} {...paint} {...pointHit} x={shape.x} y={shape.y} points={shape.points} lineCap="round" lineJoin="round" tension={.35} ref={penNodeRef || nodeRef} />
   return <Text {...interaction} x={shape.x} y={shape.y} text={shape.text} fontSize={shape.fontSize || 20} fill={shape.stroke} opacity={shape.opacity} width={shape.width} rotation={shape.rotation || 0} draggable={draggable} />
 })
 
@@ -56,11 +58,12 @@ export default function CanvasStage({ stageRef, view, setView }) {
   const shapesRef = useRef(shapes); shapesRef.current = shapes
   const stateRef = useRef(state); stateRef.current = state
   const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight })
-  const [draft, setDraft] = useState(null); const draftRef = useRef(null)
+  const [draft, setDraft] = useState(null); const draftRef = useRef(null); const penPointsRef = useRef(null); const penNodeRef = useRef(null)
   const [laser, setLaser] = useState(null); const laserRef = useRef(null); const [editing, setEditing] = useState(null)
   const [interaction, dispatchInteraction] = useReducer(interactionReducer, initialInteraction)
   const interactionRef = useRef(initialInteraction); interactionRef.current = interaction
   const start = useRef(null); const pan = useRef(null); const space = useRef(false); const previousTool = useRef(null)
+  const [stageEpoch, setStageEpoch] = useState(0); const lastCanvasRecovery = useRef(0)
   const { stageProps } = useStageZoomPan(stageRef, view, setView)
 
   const updateDraft = next => { draftRef.current = next; setDraft(next) }
@@ -69,7 +72,7 @@ export default function CanvasStage({ stageRef, view, setView }) {
   const abort = () => {
     const gesture=dragGesture.current
     if(gesture) gesture.ids.forEach(id=>{const node=nodes.current[id],initial=gesture.nodePositions[id];if(node&&initial)node.position(initial)})
-    dragGesture.current=null; start.current=null; pan.current=null
+    dragGesture.current=null; start.current=null; pan.current=null; penPointsRef.current=null; penNodeRef.current=null
     if(draftRef.current)updateDraft(null)
     updateLaser(null)
     interactionRef.current=initialInteraction; dispatchInteraction({type:'RESET'})
@@ -88,6 +91,19 @@ export default function CanvasStage({ stageRef, view, setView }) {
     const end=()=>{if(interactionRef.current.mode!=='idle')abort()}
     addEventListener('keydown',key); addEventListener('keyup',key); addEventListener('blur',blur); addEventListener('pointerup',end); addEventListener('touchend',end)
     return()=>{observer.disconnect();removeEventListener('keydown',key);removeEventListener('keyup',key);removeEventListener('blur',blur);removeEventListener('pointerup',end);removeEventListener('touchend',end)}
+  }, [])
+  useEffect(() => {
+    const onError = event => {
+      const message = event?.message || ''
+      if (!/indexsize|maximum call stack|notenougharguments|context.*(save|restore)|konva.*context|canvas.*(transform|clip|restore)/i.test(message)) return
+      const now = Date.now()
+      if (now - lastCanvasRecovery.current < 500) return
+      lastCanvasRecovery.current = now
+      abort()
+      setStageEpoch(epoch => epoch + 1)
+    }
+    addEventListener('error', onError)
+    return () => removeEventListener('error', onError)
   }, [])
   useEffect(() => { const container=stageRef.current?.container(); if(!container) return; const leave=e=>{if(e.buttons===0&&(pan.current||start.current||draftRef.current))abort()}; container.addEventListener('pointerleave',leave); return()=>container.removeEventListener('pointerleave',leave) }, [])
   useEffect(() => { if (!editing) return; const frame=requestAnimationFrame(()=>editorRef.current?.focus()); return()=>cancelAnimationFrame(frame) }, [editing])
@@ -143,6 +159,7 @@ export default function CanvasStage({ stageRef, view, setView }) {
       if (stateRef.current.activeTool === 'laser') { updateLaser({points:[p.x,p.y]}); return }
       const base={id:newId(),type:stateRef.current.activeTool,...stateRef.current.activeStyle,x:p.x,y:p.y}
       if(['arrow','line','pen'].includes(base.type)) base.points=[0,0]
+      if(base.type==='pen') penPointsRef.current=base.points
       updateDraft(base)
     } catch { abort() }
   }
@@ -155,9 +172,9 @@ export default function CanvasStage({ stageRef, view, setView }) {
       if(event.evt.shiftKey&&['line','arrow'].includes(stateRef.current.activeTool)){const dx=p.x-start.current.x,dy=p.y-start.current.y,angle=Math.round(Math.atan2(dy,dx)/(Math.PI/4))*Math.PI/4,distance=Math.hypot(dx,dy);p={x:start.current.x+Math.cos(angle)*distance,y:start.current.y+Math.sin(angle)*distance}}
       if(stateRef.current.activeTool==='laser'){const current=laserRef.current;if(current)updateLaser({...current,points:[...current.points,p.x,p.y]});return}
       const current=draftRef.current; if(!current) return
-      if(current.type==='pen'){const pts=current.points,lastX=pts[pts.length-2],lastY=pts[pts.length-1],nx=p.x-current.x,ny=p.y-current.y;if((nx-lastX)*(nx-lastX)+(ny-lastY)*(ny-lastY)>=1)updateDraft({...current,points:[...pts,nx,ny]})}
+      if(current.type==='pen'){const pts=penPointsRef.current||current.points,lastX=pts[pts.length-2],lastY=pts[pts.length-1],nx=p.x-current.x,ny=p.y-current.y;if((nx-lastX)*(nx-lastX)+(ny-lastY)*(ny-lastY)>=1){pts.push(nx,ny);const node=penNodeRef.current;if(node){node.points(pts);node.getLayer()?.batchDraw()}}}
       else if(['arrow','line'].includes(current.type)) updateDraft({...current,points:[0,0,p.x-current.x,p.y-current.y]})
-      else updateDraft({...current,width:p.x-current.x,height:p.y-current.y})
+      else updateDraft({...current,...normalizeBox({x:current.x,y:current.y,width:p.x-current.x,height:p.y-current.y})})
     } catch { abort() }
   }
   const up = () => {
@@ -165,7 +182,8 @@ export default function CanvasStage({ stageRef, view, setView }) {
       if(pan.current){pan.current=null;start.current=null;return}
       if(laserRef.current){let opacity=1;const fade=()=>{opacity-=.06;if(opacity>0){const current=laserRef.current;if(current)updateLaser({...current,opacity});requestAnimationFrame(fade)}else updateLaser(null)};requestAnimationFrame(fade);start.current=null;return}
       const current=draftRef.current
-      if(current){let completed=current;if(['rectangle','ellipse'].includes(current.type)) completed={...current,x:Math.min(current.x,current.x+current.width),y:Math.min(current.y,current.y+current.height),width:Math.abs(current.width),height:Math.abs(current.height)};const valid=isPointShape(completed.type)?completed.points.length>3:completed.width>MIN_SIZE&&completed.height>MIN_SIZE;if(valid)commit([...shapesRef.current,completed]);updateDraft(null)}
+      if(current){const completed=isPointShape(current.type)?{...current,points:current.points.slice()}:normalizeBox(current);const valid=isPointShape(completed.type)?completed.points.length>3:completed.width>MIN_SIZE&&completed.height>MIN_SIZE;if(valid)commit([...shapesRef.current,completed]);updateDraft(null)}
+      penPointsRef.current=null; penNodeRef.current=null
       start.current=null
     } catch { abort() } finally { interactionRef.current=initialInteraction; dispatchInteraction({type:'END'}) }
   }
@@ -228,5 +246,5 @@ export default function CanvasStage({ stageRef, view, setView }) {
   const refFor = id => refCallbacks.current[id] || (refCallbacks.current[id] = node => { if(node) nodes.current[id]=node; else delete nodes.current[id] })
   const selectedImages=state.selectedShapeIds.filter(id=>shapesRef.current.find(shape=>shape.id===id)?.type==='image')
   const minTransformSize=selectedImages.length?20:8
-  return <div ref={hostRef} className="canvas-host" data-interaction-mode={interaction.mode}><Stage ref={stageRef} width={size.width} height={size.height} {...stageProps} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} onDragStart={handleStageDragStart} onDragMove={handleStageDragMove} onDragEnd={handleStageDragEnd} onTransformStart={handleStageTransformStart} onTransformEnd={handleStageTransformEnd} onMouseMove={onStageMouseMove} onContextMenu={event=>event.evt.preventDefault()}><Layer>{shapes.map(shape=><Shape key={shape.id} shape={shape} nodeRef={refFor(shape.id)} draggable={state.activeTool==='select'} hitScale={view.scale} onEdit={handleEdit}/>)}{draft&&<Shape shape={draft} draggable={false} hitScale={view.scale} nodeRef={()=>{}} onEdit={()=>{}}/>}</Layer><Layer name="overlay">{laser&&<Line listening={false} points={laser.points} stroke="#ef4444" strokeWidth={4} lineCap="round" lineJoin="round" opacity={laser.opacity ?? .8}/>}<Transformer ref={transformer} rotateEnabled flipEnabled shiftBehavior="inverted" boundBoxFunc={(oldBox,newBox)=>((newBox.width<minTransformSize||newBox.height<minTransformSize)&&transformer.current?.getActiveAnchor()!=='rotater'?oldBox:newBox)} enabledAnchors={['top-left','top-center','top-right','middle-left','middle-right','bottom-left','bottom-center','bottom-right']} /></Layer></Stage>{editing&&<textarea ref={editorRef} className="text-editor" style={{left:editing.x*view.scale+view.x,top:editing.y*view.scale+view.y}} value={editing.value} onChange={event=>setEditing({...editing,value:event.target.value})} onBlur={finishText} onKeyDown={event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();finishText()}if(event.key==='Escape')setEditing(null)}}/>}</div>
+  return <div ref={hostRef} className="canvas-host" data-interaction-mode={interaction.mode}><Stage key={stageEpoch} ref={stageRef} width={size.width} height={size.height} {...stageProps} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} onDragStart={handleStageDragStart} onDragMove={handleStageDragMove} onDragEnd={handleStageDragEnd} onTransformStart={handleStageTransformStart} onTransformEnd={handleStageTransformEnd} onMouseMove={onStageMouseMove} onContextMenu={event=>event.evt.preventDefault()}><Layer>{shapes.map(shape=><Shape key={shape.id} shape={shape} nodeRef={refFor(shape.id)} draggable={state.activeTool==='select'} hitScale={view.scale} onEdit={handleEdit}/>)}{draft&&<Shape shape={draft} draggable={false} hitScale={view.scale} nodeRef={()=>{}} penNodeRef={penNodeRef} onEdit={()=>{}}/>}</Layer><Layer name="overlay">{laser&&<Line listening={false} points={laser.points} stroke="#ef4444" strokeWidth={4} lineCap="round" lineJoin="round" opacity={laser.opacity ?? .8}/>}<Transformer ref={transformer} rotateEnabled flipEnabled shiftBehavior="inverted" boundBoxFunc={(oldBox,newBox)=>((newBox.width<minTransformSize||newBox.height<minTransformSize)&&transformer.current?.getActiveAnchor()!=='rotater'?oldBox:newBox)} enabledAnchors={['top-left','top-center','top-right','middle-left','middle-right','bottom-left','bottom-center','bottom-right']} /></Layer></Stage>{editing&&<textarea ref={editorRef} className="text-editor" style={{left:editing.x*view.scale+view.x,top:editing.y*view.scale+view.y}} value={editing.value} onChange={event=>setEditing({...editing,value:event.target.value})} onBlur={finishText} onKeyDown={event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();finishText()}if(event.key==='Escape')setEditing(null)}}/>}</div>
 }
