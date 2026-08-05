@@ -19,27 +19,30 @@ export default function StylePanel() {
   const timerRef = useRef(null)
   const shapesRef = useRef(shapes); shapesRef.current = shapes
   const selectedRef = useRef(state.selectedShapeIds); selectedRef.current = state.selectedShapeIds
-  const commitRef = useRef(null)
-  if (!commitRef.current) {
-    commitRef.current = () => {
-      const style = pendingStyle.current
-      pendingStyle.current = null
-      if (!style) return
-      const selected = new Set(selectedRef.current)
-      commit(shapesRef.current.map(shape => selected.has(shape.id) && !shape.locked ? { ...shape, ...style } : shape))
-    }
+  const commitRef = useRef(commit)
+  commitRef.current = commit
+  const flushRef = useRef(null)
+  flushRef.current = () => {
+    const pending = pendingStyle.current
+    pendingStyle.current = null
+    if (!pending) return
+    const selected = new Set(pending.ids)
+    commitRef.current(prev => prev.map(shape => selected.has(shape.id) && !shape.locked ? { ...shape, ...pending.style } : shape))
   }
-  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); commitRef.current() }, [])
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); flushRef.current() }, [])
   const update = style => {
     dispatch({ type: 'SET_STYLE', style })
-    pendingStyle.current = { ...(pendingStyle.current || {}), ...style }
+    if (!selectedRef.current.length) return
+    pendingStyle.current = pendingStyle.current
+      ? { ...pendingStyle.current, style: { ...pendingStyle.current.style, ...style } }
+      : { ids: [...selectedRef.current], style: { ...style } }
     if (timerRef.current) clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(commitRef.current, 250)
+    timerRef.current = setTimeout(() => flushRef.current(), 250)
   }
-  const updateImages = (updateShape, includeLocked=false) => commit(shapes.map(shape => state.selectedShapeIds.includes(shape.id) && shape.type==='image' && (includeLocked||!shape.locked) ? updateShape(shape) : shape))
+  const updateImages = (updateShape, includeLocked=false) => commit(prev => prev.map(shape => state.selectedShapeIds.includes(shape.id) && shape.type==='image' && (includeLocked||!shape.locked) ? updateShape(shape) : shape))
   const toggleImage = property => updateImages(shape => ({ ...shape, [property]: !shape[property] }))
   const toggleLock = () => { const lock=selected.some(shape=>shape.type==='image'&&!shape.locked); updateImages(shape=>({...shape,locked:lock}),true) }
-  const reorder = direction => { const ids=new Set(state.selectedShapeIds); const selectedShapes=shapes.filter(shape=>ids.has(shape.id)); const otherShapes=shapes.filter(shape=>!ids.has(shape.id)); commit(direction==='front'?[...otherShapes,...selectedShapes]:[...selectedShapes,...otherShapes]) }
+  const reorder = direction => { const ids=new Set(state.selectedShapeIds); commit(prev => { const selectedShapes=prev.filter(shape=>ids.has(shape.id)&&!shape.locked); if(!selectedShapes.length)return prev; const movable=new Set(selectedShapes.map(shape=>shape.id)); const otherShapes=prev.filter(shape=>!movable.has(shape.id)); return direction==='front'?[...otherShapes,...selectedShapes]:[...selectedShapes,...otherShapes] }) }
   const isText = selectedShape?.type === 'text' || state.activeTool === 'text'
   const isRectangle = selectedShape?.type === 'rectangle' || state.activeTool === 'rectangle'
   const hasImage = selected.some(shape=>shape.type==='image')

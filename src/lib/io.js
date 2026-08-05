@@ -1,4 +1,4 @@
-const download = (blob, filename) => { const url = URL.createObjectURL(blob); const link = Object.assign(document.createElement('a'), { href: url, download: filename }); link.click(); URL.revokeObjectURL(url) }
+const download = (blob, filename) => { const url = URL.createObjectURL(blob); const link = Object.assign(document.createElement('a'), { href: url, download: filename }); link.style.display = 'none'; document.body.appendChild(link); link.click(); link.remove(); window.setTimeout(() => URL.revokeObjectURL(url), 1000) }
 const sanitize = name => name.replace(/[/\\?%*:|"<>]/g, '_')
 import { sanitizeShape } from './geometry'
 const MAX_IMPORT_BYTES = 25 * 1024 * 1024

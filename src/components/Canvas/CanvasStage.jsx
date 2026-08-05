@@ -39,7 +39,7 @@ const Shape = memo(function Shape({ shape, nodeRef, onEdit, draggable = true, hi
   const shapeRef = useRef(shape)
   shapeRef.current = shape
   const onEditShape = useCallback(() => onEdit(shapeRef.current), [onEdit])
-  const interaction = { id: shape.id, shapeId: shape.id, ref: nodeRef, draggable, onDblClick: onEditShape, onDblTap: onEditShape }
+  const interaction = { id: shape.id, shapeId: shape.id, ref: nodeRef, draggable: draggable && !shape.locked, onDblClick: onEditShape, onDblTap: onEditShape }
   const paint = { stroke: shape.stroke, strokeWidth: shape.strokeWidth, fill: shape.fill === 'transparent' ? undefined : shape.fill, opacity: shape.opacity, dash: dashValue(shape.dash), rotation: shape.rotation || 0 }
   const hitW = Math.max(shape.strokeWidth || 2, 16 / hitScale)
   const pointHit = { hitStrokeWidth: hitW }
@@ -53,7 +53,7 @@ const Shape = memo(function Shape({ shape, nodeRef, onEdit, draggable = true, hi
   if (shape.type === 'arrow') return <Arrow {...interaction} {...paint} {...pointHit} x={shape.x} y={shape.y} points={shape.points} pointerLength={10} pointerWidth={10} fill={shape.stroke} />
   if (shape.type === 'line') return <Line {...interaction} {...paint} {...pointHit} x={shape.x} y={shape.y} points={shape.points} lineCap="round" lineJoin="round" />
   if (shape.type === 'pen') return <Line {...interaction} {...paint} {...pointHit} x={shape.x} y={shape.y} points={shape.points} lineCap="round" lineJoin="round" tension={.35} ref={penNodeRef || nodeRef} />
-  return <Text {...interaction} x={shape.x} y={shape.y} text={shape.text} fontSize={shape.fontSize || 20} fill={shape.stroke} opacity={shape.opacity} width={shape.width} rotation={shape.rotation || 0} draggable={draggable} />
+  return <Text {...interaction} x={shape.x} y={shape.y} text={shape.text} fontSize={shape.fontSize || 20} fill={shape.stroke} opacity={shape.opacity} width={shape.width} rotation={shape.rotation || 0} draggable={draggable && !shape.locked} />
 })
 
 export default function CanvasStage({ stageRef, view, setView }) {
@@ -66,7 +66,7 @@ export default function CanvasStage({ stageRef, view, setView }) {
   const stateRef = useRef(state); stateRef.current = state
   const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight })
   const [draft, setDraft] = useState(null); const draftRef = useRef(null); const penPointsRef = useRef(null); const penNodeRef = useRef(null)
-  const [laser, setLaser] = useState(null); const laserRef = useRef(null); const [editing, setEditing] = useState(null)
+  const [laser, setLaser] = useState(null); const laserRef = useRef(null); const laserAnimationRef = useRef(0); const [editing, setEditing] = useState(null)
   const [interaction, dispatchInteraction] = useReducer(interactionReducer, initialInteraction)
   const interactionRef = useRef(initialInteraction); interactionRef.current = interaction
   const start = useRef(null); const pan = useRef(null); const space = useRef(false); const previousTool = useRef(null); const activePointer = useRef(null)
@@ -79,7 +79,7 @@ export default function CanvasStage({ stageRef, view, setView }) {
   const abort = () => {
     const gesture=dragGesture.current
     if(gesture) gesture.ids.forEach(id=>{const node=nodes.current[id],initial=gesture.nodePositions[id];if(node&&initial)node.position(initial)})
-    dragGesture.current=null; start.current=null; pan.current=null; penPointsRef.current=null; penNodeRef.current=null; activePointer.current=null
+    dragGesture.current=null; start.current=null; pan.current=null; penPointsRef.current=null; penNodeRef.current=null; activePointer.current=null; laserAnimationRef.current++
     if(draftRef.current)updateDraft(null)
     updateLaser(null)
     interactionRef.current=initialInteraction; dispatchInteraction({type:'RESET'})
@@ -142,10 +142,10 @@ export default function CanvasStage({ stageRef, view, setView }) {
   useEffect(() => { abort() }, [state.activeTool])
   const onStageMouseMove = event => { const container=stageRef.current?.container(); if(!container) return; if(state.activeTool==='pan'||interactionRef.current.mode==='panning'){container.style.cursor=toolCursor();return} const target=event.target; if(target&&target.getAttr&&target.getAttr('shapeId')){ container.style.cursor=state.activeTool==='select'?'move':toolCursor() } else if(target===stageRef.current){ container.style.cursor=toolCursor() } }
 
-  const point = () => { const p=stageRef.current.getPointerPosition(); return { x:(p.x-view.x)/view.scale, y:(p.y-view.y)/view.scale } }
+  const point = () => { const p=stageRef.current.getPointerPosition(); if(!p) return null; return { x:(p.x-view.x)/view.scale, y:(p.y-view.y)/view.scale } }
   const targetShapeId = target => target?.getAttr('shapeId') || null
   const isTransformerTarget = target => { let node = target; while (node && node !== transformer.current) node = node.parent; return !!node }
-  const finishText = () => { if(!editing) return; const text=editing.value.trim(); if(text) { if(editing.id) commit(shapesRef.current.map(s=>s.id===editing.id?{...s,text}:s)); else commit([...shapesRef.current,{id:newId(),type:'text',x:editing.x,y:editing.y,width:220,text,...stateRef.current.activeStyle}]) } setEditing(null) }
+  const finishText = () => { if(!editing) return; const text=editing.value.trim(); if(text) { if(editing.id) commit(prev=>prev.map(s=>s.id===editing.id?{...s,text}:s)); else commit(prev=>[...prev,{id:newId(),type:'text',x:editing.x,y:editing.y,width:220,text,...stateRef.current.activeStyle}]) } setEditing(null) }
 
   const selectShape = (id, event) => {
     const ids=stateRef.current.selectedShapeIds
@@ -164,7 +164,7 @@ export default function CanvasStage({ stageRef, view, setView }) {
       }
       if (event.evt.button === 1 || space.current || stateRef.current.activeTool==='pan') { event.evt.preventDefault(); pan.current={x:event.evt.clientX,y:event.evt.clientY,view}; if(pid!==null)activePointer.current=pid; startInteraction('panning'); return }
       const id=targetShapeId(event.target)
-      if (stateRef.current.activeTool === 'eraser') { if(id) { const target=shapesRef.current.find(shape=>shape.id===id); if(target&&!target.locked) commit(shapesRef.current.filter(shape=>shape.id!==id)) } return }
+      if (stateRef.current.activeTool === 'eraser') { if(id) { const target=shapesRef.current.find(shape=>shape.id===id); if(target&&!target.locked) commit(prev=>prev.filter(shape=>shape.id!==id)) } return }
 
       // Existing objects always take precedence over creating a new shape.
       if(id) { selectShape(id,event); return }
@@ -177,9 +177,10 @@ export default function CanvasStage({ stageRef, view, setView }) {
         return
       }
       const p=point()
+      if(!p) return
       if (stateRef.current.activeTool === 'text') { setEditing({ ...p, value:'' }); return }
       start.current=p; if(pid!==null)activePointer.current=pid; startInteraction('drawing')
-      if (stateRef.current.activeTool === 'laser') { updateLaser({points:[p.x,p.y]}); return }
+      if (stateRef.current.activeTool === 'laser') { laserAnimationRef.current++; updateLaser({points:[p.x,p.y]}); return }
       const base={id:newId(),type:stateRef.current.activeTool,...stateRef.current.activeStyle,x:p.x,y:p.y}
       if(['arrow','line','pen'].includes(base.type)) base.points=[0,0]
       if(base.type==='pen') penPointsRef.current=base.points
@@ -193,10 +194,11 @@ export default function CanvasStage({ stageRef, view, setView }) {
       if(pan.current){const origin=pan.current;setView({...origin.view,x:origin.view.x+event.evt.clientX-origin.x,y:origin.view.y+event.evt.clientY-origin.y});return}
       if(!start.current) return
       let p=point()
+      if(!p) return
       if(event.evt.shiftKey&&['line','arrow'].includes(stateRef.current.activeTool)){const dx=p.x-start.current.x,dy=p.y-start.current.y,angle=Math.round(Math.atan2(dy,dx)/(Math.PI/4))*Math.PI/4,distance=Math.hypot(dx,dy);p={x:start.current.x+Math.cos(angle)*distance,y:start.current.y+Math.sin(angle)*distance}}
       if(stateRef.current.activeTool==='laser'){const current=laserRef.current;if(current)updateLaser({...current,points:[...current.points,p.x,p.y]});return}
       const current=draftRef.current; if(!current) return
-      if(current.type==='pen'){const pts=penPointsRef.current||current.points,lastX=pts[pts.length-2],lastY=pts[pts.length-1],nx=p.x-current.x,ny=p.y-current.y;if((nx-lastX)*(nx-lastX)+(ny-lastY)*(ny-lastY)>=1){pts.push(nx,ny);const node=penNodeRef.current;if(node){node.points(pts);node.getLayer()?.batchDraw()}}}
+      if(current.type==='pen'){const pts=penPointsRef.current||current.points,lastX=pts[pts.length-2],lastY=pts[pts.length-1],nx=p.x-current.x,ny=p.y-current.y;if(pts.length<100000&&(nx-lastX)*(nx-lastX)+(ny-lastY)*(ny-lastY)>=1){pts.push(nx,ny);const node=penNodeRef.current;if(node){node.points(pts);node.getLayer()?.batchDraw()}}}
       else if(['arrow','line'].includes(current.type)) updateDraft({...current,points:[0,0,p.x-current.x,p.y-current.y]})
       else updateDraft({...current,...normalizeBox({x:current.x,y:current.y,width:p.x-current.x,height:p.y-current.y})})
     } catch { abort() }
@@ -207,9 +209,9 @@ export default function CanvasStage({ stageRef, view, setView }) {
       if(activePointer.current!==null&&pid!==null&&activePointer.current!==pid) return
       activePointer.current=null
       if(pan.current){pan.current=null;start.current=null;return}
-      if(laserRef.current){let opacity=1;const fade=()=>{opacity-=.06;if(opacity>0){const current=laserRef.current;if(current)updateLaser({...current,opacity});requestAnimationFrame(fade)}else updateLaser(null)};requestAnimationFrame(fade);start.current=null;return}
+      if(laserRef.current){let opacity=1;const token=++laserAnimationRef.current;const fade=()=>{if(token!==laserAnimationRef.current)return;opacity-=.06;if(opacity>0){const current=laserRef.current;if(current)updateLaser({...current,opacity});requestAnimationFrame(fade)}else updateLaser(null)};requestAnimationFrame(fade);start.current=null;return}
       const current=draftRef.current
-      if(current){const completed=isPointShape(current.type)?{...current,points:current.points.slice()}:{...current,...normalizeBox(current)};const valid=isPointShape(completed.type)?completed.points.length>3:completed.width>MIN_SIZE&&completed.height>MIN_SIZE;if(valid)commit([...shapesRef.current,completed]);updateDraft(null)}
+      if(current){const completed=isPointShape(current.type)?{...current,points:current.points.slice()}:{...current,...normalizeBox(current)};const valid=isPointShape(completed.type)?completed.points.length>3:completed.width>MIN_SIZE&&completed.height>MIN_SIZE;if(valid)commit(prev=>[...prev,completed]);updateDraft(null)}
       penPointsRef.current=null; penNodeRef.current=null
       start.current=null
     } catch { abort() } finally { interactionRef.current=initialInteraction; dispatchInteraction({type:'END'}) }
@@ -225,7 +227,7 @@ export default function CanvasStage({ stageRef, view, setView }) {
     return shape
   }
   const commitTransform = useCallback((shape, node) => {
-    commit(shapesRef.current.map(sh=>sh.id===shape.id&&!sh.locked?transformedShape(sh,node):sh))
+    commit(prev=>prev.map(sh=>sh.id===shape.id&&!sh.locked?transformedShape(sh,node):sh))
   }, [commit])
 
   const handleDragEnd = useCallback((shape) => {
@@ -237,7 +239,7 @@ export default function CanvasStage({ stageRef, view, setView }) {
     const snapped=snapToGrid(node.x()-offset.x,node.y()-offset.y)
     const delta={x:snapped.x-gesture.positions[shape.id].x,y:snapped.y-gesture.positions[shape.id].y}
     const selected=new Set(gesture.ids)
-    commit(shapesRef.current.map(item=>selected.has(item.id)&&!item.locked?{...item,x:gesture.positions[item.id].x+delta.x,y:gesture.positions[item.id].y+delta.y}:item))
+    commit(prev=>prev.map(item=>selected.has(item.id)&&!item.locked?{...item,x:gesture.positions[item.id].x+delta.x,y:gesture.positions[item.id].y+delta.y}:item))
   }, [commit])
 
   const handleEdit = useCallback((shape) => { if(shape.type==='text') setEditing({id:shape.id,x:shape.x,y:shape.y,value:shape.text}) }, [])
@@ -270,7 +272,13 @@ export default function CanvasStage({ stageRef, view, setView }) {
   const handleStageTransformEnd = event => {
     try {
       const shape=shapesRef.current.find(item=>item.id===targetShapeId(event.target))
-      if(shape) commitTransform(shape,event.target)
+      if(shape&&!shape.locked) {
+        const ids=stateRef.current.selectedShapeIds
+        if(ids.length>1) {
+          const selected=new Set(ids)
+          commit(prev=>prev.map(item=>{const node=nodes.current[item.id];return selected.has(item.id)&&node&&!item.locked?transformedShape(item,node):item}))
+        } else commitTransform(shape,event.target)
+      }
     } catch { abort() } finally { interactionRef.current=initialInteraction; dispatchInteraction({type:'END'}) }
   }
   const refFor = id => refCallbacks.current[id] || (refCallbacks.current[id] = node => { if(node) nodes.current[id]=node; else delete nodes.current[id] })

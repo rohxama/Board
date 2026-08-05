@@ -14,12 +14,13 @@ export const normalizeBox = box => {
 export const sanitizeShape = shape => {
   if (!shape || typeof shape !== 'object' || Array.isArray(shape)) throw new Error('Invalid shape')
   const finite = (value, fallback = 0) => Number.isFinite(value) ? value : fallback
+  const color = value => value === 'transparent' || (typeof value === 'string' && /^#[0-9a-f]{3,8}$/i.test(value)) ? value : null
   const base = {
     id: String(shape.id || ''), type: shape.type, x: finite(shape.x), y: finite(shape.y),
-    rotation: finite(shape.rotation), stroke: typeof shape.stroke === 'string' ? shape.stroke : '#1e293b',
+    rotation: finite(shape.rotation), stroke: color(shape.stroke) || '#1e293b',
     strokeWidth: Math.min(16, Math.max(1, finite(shape.strokeWidth, 2))),
     dash: ['solid', 'dashed', 'dotted'].includes(shape.dash) ? shape.dash : 'solid',
-    fill: shape.fill === 'transparent' || typeof shape.fill === 'string' ? (shape.fill || 'transparent') : 'transparent',
+    fill: color(shape.fill) || 'transparent',
     opacity: Math.min(1, Math.max(0, finite(shape.opacity, 1))), locked: Boolean(shape.locked),
   }
   if (isPointShape(shape.type)) {
