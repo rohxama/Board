@@ -15,7 +15,6 @@ export default function StylePanel() {
   const noStyleTools = ['select', 'pan', 'eraser', 'laser']
   const visible = (!noStyleTools.includes(state.activeTool)) || selected.length
   useEffect(() => { if (!selectedShape) return; if(selectedShape.type==='image'){dispatch({type:'SET_STYLE',style:{opacity:selectedShape.opacity ?? 1}});return} const { stroke, strokeWidth, dash, fill, opacity, cornerRadius, fontSize } = selectedShape; dispatch({ type: 'SET_STYLE', style: { stroke, strokeWidth, dash, fill, opacity, cornerRadius: cornerRadius ?? 4, fontSize: fontSize ?? 20 } }) }, [selectedShape?.id])
-  if (!visible) return null
   const pendingStyle = useRef(null)
   const timerRef = useRef(null)
   const shapesRef = useRef(shapes); shapesRef.current = shapes
@@ -45,6 +44,7 @@ export default function StylePanel() {
   const isRectangle = selectedShape?.type === 'rectangle' || state.activeTool === 'rectangle'
   const hasImage = selected.some(shape=>shape.type==='image')
   const imagesOnly = selected.length>0 && selected.every(shape=>shape.type==='image')
+  if (!visible) return null
   return <aside className="style-panel" aria-label="Properties inspector">
     <header className="inspector-header"><div><span className="eyebrow">Properties</span><h2>{selected.length > 1 ? `${selected.length} objects` : selectedShape ? selectedShape.type : 'Default style'}</h2></div><span className="selection-dot"/></header>
     <Section title="Appearance">
