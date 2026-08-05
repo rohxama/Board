@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useReducer, useRef, useState } from 'react'
+import Konva from 'konva'
 import { Arrow, Ellipse, Image as KonvaImage, Layer, Line, Rect, Stage, Text, Transformer } from 'react-konva'
 import { useAppState } from '../../context/AppStateContext'
 import { useHistory } from '../../context/HistoryContext'
@@ -7,6 +8,8 @@ import { snapToGrid } from '../../lib/snapping'
 import { normalizeBox } from '../../lib/geometry'
 import { useStageZoomPan } from '../../hooks/useStageZoomPan'
 import { useImageAsset } from '../../hooks/useImageAsset'
+
+const NO_POINTER = typeof window !== 'undefined' && typeof window.PointerEvent !== 'function'
 
 const MIN_SIZE = 5
 const dashValue = dash => dash === 'dashed' ? [10, 6] : dash === 'dotted' ? [2, 6] : []
@@ -19,12 +22,16 @@ function interactionReducer(state, action) {
 }
 
 const ImageShape = memo(function ImageShape({ shape, nodeRef, onEdit, draggable = true }) {
-  const image = useImageAsset(shape.src)
+  const { image, failed } = useImageAsset(shape.src)
   const shapeRef = useRef(shape)
   shapeRef.current = shape
   const onEditShape = useCallback(() => onEdit(shapeRef.current), [onEdit])
   const flipX = Boolean(shape.flipX)
   const flipY = Boolean(shape.flipY)
+  useEffect(() => { if (image) nodeRef.current?.getLayer()?.batchDraw() }, [image])
+  if (failed) {
+    return <Rect id={shape.id} shapeId={shape.id} ref={nodeRef} draggable={draggable && !shape.locked} onDblClick={onEditShape} onDblTap={onEditShape} x={shape.x} y={shape.y} width={shape.width} height={shape.height} rotation={shape.rotation || 0} opacity={shape.opacity ?? 1} stroke="#dc2626" strokeWidth={1.5} dash={[5, 4]} fill="#fecaca" />
+  }
   return <KonvaImage id={shape.id} shapeId={shape.id} ref={nodeRef} draggable={draggable && !shape.locked} onDblClick={onEditShape} onDblTap={onEditShape} image={image} x={shape.x + (flipX ? shape.width : 0)} y={shape.y + (flipY ? shape.height : 0)} width={shape.width} height={shape.height} scaleX={flipX ? -1 : 1} scaleY={flipY ? -1 : 1} rotation={shape.rotation || 0} opacity={shape.opacity ?? 1} imageSmoothingEnabled perfectDrawEnabled />
 })
 
@@ -62,7 +69,7 @@ export default function CanvasStage({ stageRef, view, setView }) {
   const [laser, setLaser] = useState(null); const laserRef = useRef(null); const [editing, setEditing] = useState(null)
   const [interaction, dispatchInteraction] = useReducer(interactionReducer, initialInteraction)
   const interactionRef = useRef(initialInteraction); interactionRef.current = interaction
-  const start = useRef(null); const pan = useRef(null); const space = useRef(false); const previousTool = useRef(null)
+  const start = useRef(null); const pan = useRef(null); const space = useRef(false); const previousTool = useRef(null); const activePointer = useRef(null)
   const [stageEpoch, setStageEpoch] = useState(0); const lastCanvasRecovery = useRef(0)
   const { stageProps } = useStageZoomPan(stageRef, view, setView)
 
@@ -72,7 +79,7 @@ export default function CanvasStage({ stageRef, view, setView }) {
   const abort = () => {
     const gesture=dragGesture.current
     if(gesture) gesture.ids.forEach(id=>{const node=nodes.current[id],initial=gesture.nodePositions[id];if(node&&initial)node.position(initial)})
-    dragGesture.current=null; start.current=null; pan.current=null; penPointsRef.current=null; penNodeRef.current=null
+    dragGesture.current=null; start.current=null; pan.current=null; penPointsRef.current=null; penNodeRef.current=null; activePointer.current=null
     if(draftRef.current)updateDraft(null)
     updateLaser(null)
     interactionRef.current=initialInteraction; dispatchInteraction({type:'RESET'})
@@ -88,9 +95,9 @@ export default function CanvasStage({ stageRef, view, setView }) {
     const releaseSpace = () => { space.current=false; const tool=previousTool.current; previousTool.current=null; if(tool)dispatch({type:'SET_TOOL',tool}) }
     const key=e=>{if(e.code!=='Space'||e.target?.tagName==='INPUT'||e.target?.tagName==='TEXTAREA')return;if(e.type==='keydown'){if(e.repeat)return;space.current=true;if(stateRef.current.activeTool!=='pan'){previousTool.current=stateRef.current.activeTool;dispatch({type:'SET_TOOL',tool:'pan'})}}else releaseSpace()}
     const blur=()=>{releaseSpace();abort()}
-    const end=()=>{if(interactionRef.current.mode!=='idle')abort()}
-    addEventListener('keydown',key); addEventListener('keyup',key); addEventListener('blur',blur); addEventListener('pointerup',end); addEventListener('touchend',end)
-    return()=>{observer.disconnect();removeEventListener('keydown',key);removeEventListener('keyup',key);removeEventListener('blur',blur);removeEventListener('pointerup',end);removeEventListener('touchend',end)}
+    const end=e=>{if(interactionRef.current.mode==='idle')return;const pid=Number.isFinite(e?.pointerId)?e.pointerId:null;if(pid!==null&&activePointer.current!==null&&activePointer.current!==pid)return;abort()}
+    addEventListener('keydown',key); addEventListener('keyup',key); addEventListener('blur',blur); addEventListener('pointerup',end); addEventListener('touchend',end); if(NO_POINTER)addEventListener('mouseup',end)
+    return()=>{observer.disconnect();removeEventListener('keydown',key);removeEventListener('keyup',key);removeEventListener('blur',blur);removeEventListener('pointerup',end);removeEventListener('touchend',end); if(NO_POINTER)removeEventListener('mouseup',end)}
   }, [])
   useEffect(() => {
     const onError = event => {
@@ -104,6 +111,17 @@ export default function CanvasStage({ stageRef, view, setView }) {
     }
     addEventListener('error', onError)
     return () => removeEventListener('error', onError)
+  }, [])
+  useEffect(() => {
+    // When the display's device pixel ratio changes (window moved between monitors),
+    // Konva canvases keep their old backing scale and go blurry. Recreate the stage
+    // with the new ratio so Chrome/Edge/Firefox/Safari stay crisp.
+    if (typeof window.matchMedia !== 'function' || typeof window.devicePixelRatio !== 'number') return
+    const mql=window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`)
+    const onChange=()=>{Konva.pixelRatio=window.devicePixelRatio||1;setStageEpoch(epoch=>epoch+1)}
+    if(mql.addEventListener)mql.addEventListener('change',onChange)
+    else if(mql.addListener)mql.addListener(onChange)
+    return()=>{if(mql.removeEventListener)mql.removeEventListener('change',onChange);else if(mql.removeListener)mql.removeListener(onChange)}
   }, [])
   useEffect(() => { const container=stageRef.current?.container(); if(!container) return; const leave=e=>{if(e.buttons===0&&(pan.current||start.current||draftRef.current))abort()}; container.addEventListener('pointerleave',leave); return()=>container.removeEventListener('pointerleave',leave) }, [])
   useEffect(() => { if (!editing) return; const frame=requestAnimationFrame(()=>editorRef.current?.focus()); return()=>cancelAnimationFrame(frame) }, [editing])
@@ -138,8 +156,12 @@ export default function CanvasStage({ stageRef, view, setView }) {
   }
   const down = event => {
     try {
-      if (pan.current || start.current || draftRef.current) abort()
-      if (event.evt.button === 1 || space.current || stateRef.current.activeTool==='pan') { event.evt.preventDefault(); pan.current={x:event.evt.clientX,y:event.evt.clientY,view}; startInteraction('panning'); return }
+      const pid=Number.isFinite(event.evt?.pointerId)?event.evt.pointerId:null
+      if (pan.current || start.current || draftRef.current) {
+        if (pid===null || activePointer.current===pid) abort()
+        else return
+      }
+      if (event.evt.button === 1 || space.current || stateRef.current.activeTool==='pan') { event.evt.preventDefault(); pan.current={x:event.evt.clientX,y:event.evt.clientY,view}; if(pid!==null)activePointer.current=pid; startInteraction('panning'); return }
       const id=targetShapeId(event.target)
       if (stateRef.current.activeTool === 'eraser') { if(id) commit(shapesRef.current.filter(shape=>shape.id!==id)); return }
 
@@ -155,7 +177,7 @@ export default function CanvasStage({ stageRef, view, setView }) {
       }
       const p=point()
       if (stateRef.current.activeTool === 'text') { setEditing({ ...p, value:'' }); return }
-      start.current=p; startInteraction('drawing')
+      start.current=p; if(pid!==null)activePointer.current=pid; startInteraction('drawing')
       if (stateRef.current.activeTool === 'laser') { updateLaser({points:[p.x,p.y]}); return }
       const base={id:newId(),type:stateRef.current.activeTool,...stateRef.current.activeStyle,x:p.x,y:p.y}
       if(['arrow','line','pen'].includes(base.type)) base.points=[0,0]
@@ -165,8 +187,9 @@ export default function CanvasStage({ stageRef, view, setView }) {
   }
   const move = event => {
     try {
+      const pid=Number.isFinite(event.evt?.pointerId)?event.evt.pointerId:null
+      if(activePointer.current!==null&&activePointer.current!==pid) return
       if(pan.current){const origin=pan.current;setView({...origin.view,x:origin.view.x+event.evt.clientX-origin.x,y:origin.view.y+event.evt.clientY-origin.y});return}
-      if(start.current&&!(event.evt.buttons&1)){abort();return}
       if(!start.current) return
       let p=point()
       if(event.evt.shiftKey&&['line','arrow'].includes(stateRef.current.activeTool)){const dx=p.x-start.current.x,dy=p.y-start.current.y,angle=Math.round(Math.atan2(dy,dx)/(Math.PI/4))*Math.PI/4,distance=Math.hypot(dx,dy);p={x:start.current.x+Math.cos(angle)*distance,y:start.current.y+Math.sin(angle)*distance}}
@@ -177,8 +200,11 @@ export default function CanvasStage({ stageRef, view, setView }) {
       else updateDraft({...current,...normalizeBox({x:current.x,y:current.y,width:p.x-current.x,height:p.y-current.y})})
     } catch { abort() }
   }
-  const up = () => {
+  const up = event => {
     try {
+      const pid=Number.isFinite(event?.evt?.pointerId)?event.evt.pointerId:null
+      if(activePointer.current!==null&&pid!==null&&activePointer.current!==pid) return
+      activePointer.current=null
       if(pan.current){pan.current=null;start.current=null;return}
       if(laserRef.current){let opacity=1;const fade=()=>{opacity-=.06;if(opacity>0){const current=laserRef.current;if(current)updateLaser({...current,opacity});requestAnimationFrame(fade)}else updateLaser(null)};requestAnimationFrame(fade);start.current=null;return}
       const current=draftRef.current
@@ -246,5 +272,19 @@ export default function CanvasStage({ stageRef, view, setView }) {
   const refFor = id => refCallbacks.current[id] || (refCallbacks.current[id] = node => { if(node) nodes.current[id]=node; else delete nodes.current[id] })
   const selectedImages=state.selectedShapeIds.filter(id=>shapesRef.current.find(shape=>shape.id===id)?.type==='image')
   const minTransformSize=selectedImages.length?20:8
-  return <div ref={hostRef} className="canvas-host" data-interaction-mode={interaction.mode}><Stage key={stageEpoch} ref={stageRef} width={size.width} height={size.height} {...stageProps} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} onDragStart={handleStageDragStart} onDragMove={handleStageDragMove} onDragEnd={handleStageDragEnd} onTransformStart={handleStageTransformStart} onTransformEnd={handleStageTransformEnd} onMouseMove={onStageMouseMove} onContextMenu={event=>event.evt.preventDefault()}><Layer>{shapes.map(shape=><Shape key={shape.id} shape={shape} nodeRef={refFor(shape.id)} draggable={state.activeTool==='select'} hitScale={view.scale} onEdit={handleEdit}/>)}{draft&&<Shape shape={draft} draggable={false} hitScale={view.scale} nodeRef={()=>{}} penNodeRef={penNodeRef} onEdit={()=>{}}/>}</Layer><Layer name="overlay">{laser&&<Line listening={false} points={laser.points} stroke="#ef4444" strokeWidth={4} lineCap="round" lineJoin="round" opacity={laser.opacity ?? .8}/>}<Transformer ref={transformer} rotateEnabled flipEnabled shiftBehavior="inverted" boundBoxFunc={(oldBox,newBox)=>((newBox.width<minTransformSize||newBox.height<minTransformSize)&&transformer.current?.getActiveAnchor()!=='rotater'?oldBox:newBox)} enabledAnchors={['top-left','top-center','top-right','middle-left','middle-right','bottom-left','bottom-center','bottom-right']} /></Layer></Stage>{editing&&<textarea ref={editorRef} className="text-editor" style={{left:editing.x*view.scale+view.x,top:editing.y*view.scale+view.y}} value={editing.value} onChange={event=>setEditing({...editing,value:event.target.value})} onBlur={finishText} onKeyDown={event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();finishText()}if(event.key==='Escape')setEditing(null)}}/>}</div>
+  // On browsers without Pointer Events (Safari <13.1 / iOS <13) Konva fires mouse/touch
+  // events instead of pointer events; the handlers accept those too (pointerId stays null).
+  const inputProps = NO_POINTER
+    ? {
+        onMouseDown: down,
+        onMouseMove: event => { move(event); onStageMouseMove(event) },
+        onMouseUp: up,
+        onMouseLeave: event => { if(event.evt.buttons===0) abort() },
+        onTouchStart: down,
+        onTouchMove: move,
+        onTouchEnd: up,
+        onTouchCancel: up
+      }
+    : { onPointerDown: down, onPointerMove: move, onPointerUp: up, onPointerCancel: up, onMouseMove: onStageMouseMove }
+  return <div ref={hostRef} className="canvas-host" data-interaction-mode={interaction.mode}><Stage key={stageEpoch} ref={stageRef} width={size.width} height={size.height} {...stageProps} {...inputProps} onDragStart={handleStageDragStart} onDragMove={handleStageDragMove} onDragEnd={handleStageDragEnd} onTransformStart={handleStageTransformStart} onTransformEnd={handleStageTransformEnd} onContextMenu={event=>event.evt.preventDefault()}><Layer>{shapes.map(shape=><Shape key={shape.id} shape={shape} nodeRef={refFor(shape.id)} draggable={state.activeTool==='select'} hitScale={view.scale} onEdit={handleEdit}/>)}{draft&&<Shape shape={draft} draggable={false} hitScale={view.scale} nodeRef={()=>{}} penNodeRef={penNodeRef} onEdit={()=>{}}/>}</Layer><Layer name="overlay">{laser&&<Line listening={false} points={laser.points} stroke="#ef4444" strokeWidth={4} lineCap="round" lineJoin="round" opacity={laser.opacity ?? .8}/>}<Transformer ref={transformer} rotateEnabled flipEnabled shiftBehavior="inverted" boundBoxFunc={(oldBox,newBox)=>((newBox.width<minTransformSize||newBox.height<minTransformSize)&&transformer.current?.getActiveAnchor()!=='rotater'?oldBox:newBox)} enabledAnchors={['top-left','top-center','top-right','middle-left','middle-right','bottom-left','bottom-center','bottom-right']} /></Layer></Stage>{editing&&<textarea ref={editorRef} className="text-editor" style={{left:editing.x*view.scale+view.x,top:editing.y*view.scale+view.y}} value={editing.value} onChange={event=>setEditing({...editing,value:event.target.value})} onBlur={finishText} onKeyDown={event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();finishText()}if(event.key==='Escape')setEditing(null)}}/>}</div>
 }
