@@ -1,8 +1,23 @@
 const download = (blob, filename) => { const url = URL.createObjectURL(blob); const link = Object.assign(document.createElement('a'), { href: url, download: filename }); link.click(); URL.revokeObjectURL(url) }
 const sanitize = name => name.replace(/[/\\?%*:|"<>]/g, '_')
 import { sanitizeShape } from './geometry'
+const MAX_IMPORT_BYTES = 25 * 1024 * 1024
+const MAX_IMPORT_SHAPES = 10000
 export const exportJSON = (shapes, fileName = 'diagram') => download(new Blob([JSON.stringify({ version: 1, shapes }, null, 2)], { type: 'application/json' }), sanitize(fileName) + '.json')
-export async function importJSON(file) { const value = JSON.parse(await file.text()); if (value.version !== 1 || !Array.isArray(value.shapes)) throw new Error('Unsupported diagram file'); return value.shapes.map(sanitizeShape) }
+export async function importJSON(file) {
+  if (!file || typeof file.text !== 'function') throw new Error('Choose a diagram file first.')
+  if (Number.isFinite(file.size) && file.size > MAX_IMPORT_BYTES) throw new Error('Diagram files must be 25 MB or smaller.')
+  let value
+  try { value = JSON.parse(await file.text()) } catch { throw new Error('The diagram file is not valid JSON.') }
+  if (!value || value.version !== 1 || !Array.isArray(value.shapes) || value.shapes.length > MAX_IMPORT_SHAPES) throw new Error('Unsupported or oversized diagram file')
+  const ids = new Set()
+  return value.shapes.map(shape => {
+    const clean = sanitizeShape(shape)
+    if (!/^shape-[a-z0-9-]{1,96}$/i.test(clean.id) || ids.has(clean.id)) throw new Error('Diagram contains invalid or duplicate shape IDs')
+    ids.add(clean.id)
+    return clean
+  })
+}
 export function exportPNG(stage, fileName = 'diagram') {
   if (!stage) return
   const overlay = stage.findOne('.overlay')

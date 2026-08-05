@@ -164,7 +164,7 @@ export default function CanvasStage({ stageRef, view, setView }) {
       }
       if (event.evt.button === 1 || space.current || stateRef.current.activeTool==='pan') { event.evt.preventDefault(); pan.current={x:event.evt.clientX,y:event.evt.clientY,view}; if(pid!==null)activePointer.current=pid; startInteraction('panning'); return }
       const id=targetShapeId(event.target)
-      if (stateRef.current.activeTool === 'eraser') { if(id) commit(shapesRef.current.filter(shape=>shape.id!==id)); return }
+      if (stateRef.current.activeTool === 'eraser') { if(id) { const target=shapesRef.current.find(shape=>shape.id===id); if(target&&!target.locked) commit(shapesRef.current.filter(shape=>shape.id!==id)) } return }
 
       // Existing objects always take precedence over creating a new shape.
       if(id) { selectShape(id,event); return }
@@ -215,14 +215,17 @@ export default function CanvasStage({ stageRef, view, setView }) {
     } catch { abort() } finally { interactionRef.current=initialInteraction; dispatchInteraction({type:'END'}) }
   }
 
-  const commitTransform = useCallback((shape, node) => {
+  const transformedShape = (shape, node) => {
     const rawScaleX=node.scaleX(),rawScaleY=node.scaleY(),scaleX=Math.abs(rawScaleX),scaleY=Math.abs(rawScaleY),rotation=node.rotation()
-    const s=shapesRef.current
-    if(shape.type==='image'){const width=Math.max(20,shape.width*scaleX),height=Math.max(20,shape.height*scaleY),flipX=rawScaleX<0,flipY=rawScaleY<0;node.scaleX(flipX?-1:1);node.scaleY(flipY?-1:1);commit(s.map(sh=>sh.id===shape.id?{...sh,x:node.x()-(flipX?width:0),y:node.y()-(flipY?height:0),width,height,rotation,flipX,flipY}:sh));return}
+    if(shape.type==='image'){const width=Math.max(20,shape.width*scaleX),height=Math.max(20,shape.height*scaleY),flipX=rawScaleX<0,flipY=rawScaleY<0;node.scaleX(flipX?-1:1);node.scaleY(flipY?-1:1);return {...shape,x:node.x()-(flipX?width:0),y:node.y()-(flipY?height:0),width,height,rotation,flipX,flipY}}
     node.scaleX(1); node.scaleY(1)
-    if(shape.type==='ellipse'){const width=Math.max(MIN_SIZE,shape.width*scaleX),height=Math.max(MIN_SIZE,shape.height*scaleY);commit(s.map(sh=>sh.id===shape.id?{...sh,x:node.x()-width/2,y:node.y()-height/2,width,height,rotation}:sh));return}
-    if(shape.type==='rectangle'||shape.type==='text'){const width=Math.max(MIN_SIZE,shape.width*scaleX);const height=shape.type==='rectangle'?Math.max(MIN_SIZE,shape.height*scaleY):shape.height;const extra=shape.type==='text'?{fontSize:Math.max(8,Math.round((shape.fontSize||20)*scaleY))}:{};commit(s.map(sh=>sh.id===shape.id?{...sh,x:node.x(),y:node.y(),width,height,rotation,...extra}:sh));return}
-    if(isPointShape(shape.type)){const points=shape.points.map((value,index)=>value*(index%2?scaleY:scaleX));commit(s.map(sh=>sh.id===shape.id?{...sh,x:node.x(),y:node.y(),points,rotation}:sh))}
+    if(shape.type==='ellipse'){const width=Math.max(MIN_SIZE,shape.width*scaleX),height=Math.max(MIN_SIZE,shape.height*scaleY);return {...shape,x:node.x()-width/2,y:node.y()-height/2,width,height,rotation}}
+    if(shape.type==='rectangle'||shape.type==='text'){const width=Math.max(MIN_SIZE,shape.width*scaleX);const height=shape.type==='rectangle'?Math.max(MIN_SIZE,shape.height*scaleY):shape.height;const extra=shape.type==='text'?{fontSize:Math.max(8,Math.round((shape.fontSize||20)*scaleY))}:{};return {...shape,x:node.x(),y:node.y(),width,height,rotation,...extra}}
+    if(isPointShape(shape.type)){const points=shape.points.map((value,index)=>value*(index%2?scaleY:scaleX));return {...shape,x:node.x(),y:node.y(),points,rotation}}
+    return shape
+  }
+  const commitTransform = useCallback((shape, node) => {
+    commit(shapesRef.current.map(sh=>sh.id===shape.id&&!sh.locked?transformedShape(sh,node):sh))
   }, [commit])
 
   const handleDragEnd = useCallback((shape) => {
@@ -230,11 +233,11 @@ export default function CanvasStage({ stageRef, view, setView }) {
     if(!gesture || gesture.primaryId!==shape.id) return
     const node=nodes.current[shape.id]
     if(!node) return
-    const offset=shape.type==='ellipse'?{x:shape.width/2,y:shape.height/2}:{x:0,y:0}
+    const offset=shape.type==='ellipse'?{x:shape.width/2,y:shape.height/2}:{x:shape.type==='image'&&shape.flipX?shape.width:0,y:shape.type==='image'&&shape.flipY?shape.height:0}
     const snapped=snapToGrid(node.x()-offset.x,node.y()-offset.y)
     const delta={x:snapped.x-gesture.positions[shape.id].x,y:snapped.y-gesture.positions[shape.id].y}
     const selected=new Set(gesture.ids)
-    commit(shapesRef.current.map(item=>selected.has(item.id)?{...item,x:gesture.positions[item.id].x+delta.x,y:gesture.positions[item.id].y+delta.y}:item))
+    commit(shapesRef.current.map(item=>selected.has(item.id)&&!item.locked?{...item,x:gesture.positions[item.id].x+delta.x,y:gesture.positions[item.id].y+delta.y}:item))
   }, [commit])
 
   const handleEdit = useCallback((shape) => { if(shape.type==='text') setEditing({id:shape.id,x:shape.x,y:shape.y,value:shape.text}) }, [])
@@ -243,7 +246,7 @@ export default function CanvasStage({ stageRef, view, setView }) {
     if(!primaryId) return
     const ids=[...new Set(dragSelection.current.includes(primaryId)?dragSelection.current:[primaryId])]
     const positions={}; const nodePositions={}
-    shapesRef.current.forEach(shape=>{if(ids.includes(shape.id)) positions[shape.id]={x:shape.x,y:shape.y}})
+    shapesRef.current.forEach(shape=>{if(ids.includes(shape.id)&&!shape.locked) positions[shape.id]={x:shape.x,y:shape.y}})
     ids.forEach(id=>{const node=nodes.current[id];if(node)nodePositions[id]={x:node.x(),y:node.y()}})
     dragGesture.current={primaryId,ids:ids.filter(id=>positions[id]&&nodePositions[id]),positions,nodePositions}
     startInteraction('dragging')
@@ -260,7 +263,7 @@ export default function CanvasStage({ stageRef, view, setView }) {
   const handleStageDragEnd = event => {
     try {
       const shape=shapesRef.current.find(item=>item.id===targetShapeId(event.target))
-      if(shape) handleDragEnd(shape)
+      if(shape&&!shape.locked) handleDragEnd(shape)
     } catch { abort() } finally { dragGesture.current=null; interactionRef.current=initialInteraction; dispatchInteraction({type:'END'}) }
   }
   const handleStageTransformStart = () => startInteraction('resizing')

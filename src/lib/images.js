@@ -2,6 +2,10 @@ export const IMAGE_ACCEPT = 'image/png,image/jpeg,image/svg+xml,image/webp,.png,
 export const MAX_IMAGE_SIZE = 20 * 1024 * 1024
 export const INITIAL_IMAGE_WIDTH = 300
 export const MAX_IMAGE_DIMENSION = 2048
+// Keep decoded and intermediate canvas memory bounded. A 16 MP RGBA bitmap is
+// already ~64 MB before browser/Konva overhead, so reject larger sources before
+// allocating the resized canvas.
+export const MAX_IMAGE_PIXELS = 16 * 1024 * 1024
 export const IMAGE_QUALITY = 0.92
 
 const supportedExtensions = /\.(png|jpe?g|svg|webp)$/i
@@ -31,6 +35,9 @@ export async function readImageFile(file) {
     const image = await loadElement(objectUrl)
     const naturalWidth = image.naturalWidth || 1
     const naturalHeight = image.naturalHeight || 1
+    if (naturalWidth > 8192 || naturalHeight > 8192 || naturalWidth * naturalHeight > MAX_IMAGE_PIXELS) {
+      throw new Error('Images must be 8192px per side and 16 megapixels or smaller.')
+    }
     // Downscale very large images so decoding, history size and Konva drawing stay
     // within memory limits on all devices (the "image never appears" failure mode).
     const scale = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(naturalWidth, naturalHeight))
