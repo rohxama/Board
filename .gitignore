@@ -1,1 +1,5 @@
 .vercel
+node_modules/.vite/
+dev.log
+dev.err
+
