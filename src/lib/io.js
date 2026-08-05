@@ -1,6 +1,7 @@
 const download = (blob, filename) => { const url = URL.createObjectURL(blob); const link = Object.assign(document.createElement('a'), { href: url, download: filename }); link.style.display = 'none'; document.body.appendChild(link); link.click(); link.remove(); window.setTimeout(() => URL.revokeObjectURL(url), 1000) }
 const sanitize = name => name.replace(/[/\\?%*:|"<>]/g, '_')
 import { sanitizeShape } from './geometry'
+import { newId } from './idGenerator'
 const MAX_IMPORT_BYTES = 25 * 1024 * 1024
 const MAX_IMPORT_SHAPES = 10000
 export const exportJSON = (shapes, fileName = 'diagram') => download(new Blob([JSON.stringify({ version: 1, shapes }, null, 2)], { type: 'application/json' }), sanitize(fileName) + '.json')
@@ -13,9 +14,11 @@ export async function importJSON(file) {
   const ids = new Set()
   return value.shapes.map(shape => {
     const clean = sanitizeShape(shape)
-    if (!/^shape-[a-z0-9-]{1,96}$/i.test(clean.id) || ids.has(clean.id)) throw new Error('Diagram contains invalid or duplicate shape IDs')
+    if (!/^[a-z0-9_][a-z0-9_\-]{0,127}$/i.test(clean.id) || ids.has(clean.id)) throw new Error('Diagram contains invalid or duplicate shape IDs')
     ids.add(clean.id)
-    return clean
+    // Remap to a fresh unique id so a crafted file cannot collide with
+    // ids this board will generate in the future.
+    return { ...clean, id: newId() }
   })
 }
 export function exportPNG(stage, fileName = 'diagram') {

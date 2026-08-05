@@ -29,8 +29,9 @@ export const sanitizeShape = shape => {
     return { ...base, points }
   }
   if (!['rectangle', 'ellipse', 'text', 'image'].includes(shape.type)) throw new Error('Unsupported shape type')
-  if (!Number.isFinite(shape.width) || !Number.isFinite(shape.height) || shape.width <= 0 || shape.height <= 0 || shape.width > 1e6 || shape.height > 1e6) throw new Error('Invalid shape dimensions')
-  const result = { ...base, ...normalizeBox({ x: base.x, y: base.y, width: shape.width, height: shape.height }) }
+  if (!Number.isFinite(shape.width) || shape.width <= 0 || shape.width > 1e6) throw new Error('Invalid shape dimensions')
+  if (shape.type !== 'text' && (!Number.isFinite(shape.height) || shape.height <= 0 || shape.height > 1e6)) throw new Error('Invalid shape dimensions')
+  const result = { ...base, ...normalizeBox({ x: base.x, y: base.y, width: shape.width, height: shape.type === 'text' && !Number.isFinite(shape.height) ? 0 : shape.height }) }
   if (shape.type === 'rectangle') result.cornerRadius = Math.min(1e6, Math.max(0, finite(shape.cornerRadius, 4)))
   if (shape.type === 'text') {
     if (typeof shape.text !== 'string' || shape.text.length > 100000) throw new Error('Invalid text shape')
