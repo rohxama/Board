@@ -12,6 +12,9 @@ import { useImageAsset } from '../../hooks/useImageAsset'
 const NO_POINTER = typeof window !== 'undefined' && typeof window.PointerEvent !== 'function'
 
 const MIN_SIZE = 8
+const MIN_TEXT_WIDTH = 20
+const TEXT_LINE_HEIGHT = 1.25
+const TEXT_FONT_FAMILY = 'Arial, sans-serif'
 const dashValue = dash => dash === 'dashed' ? [10, 6] : dash === 'dotted' ? [2, 6] : []
 const isPointShape = type => ['arrow', 'line', 'pen'].includes(type)
 const initialInteraction = { mode: 'idle' }
@@ -19,6 +22,22 @@ function interactionReducer(state, action) {
   if (action.type === 'RESET' || action.type === 'END') return initialInteraction
   if (action.type === 'START') return { mode: action.mode }
   return state
+}
+
+// Shared offscreen canvas for measuring text — mirrors how Konva/the browser
+// will actually lay the string out, so the live textarea box and the final
+// committed shape's width/height always agree.
+let measureCtx
+function measureTextBox(text, fontSize) {
+  if (!measureCtx) measureCtx = document.createElement('canvas').getContext('2d')
+  measureCtx.font = `${fontSize}px ${TEXT_FONT_FAMILY}`
+  const lines = (text || '').split('\n')
+  const widest = Math.max(...lines.map(line => measureCtx.measureText(line || ' ').width))
+  const lineHeight = fontSize * TEXT_LINE_HEIGHT
+  return {
+    width: Math.max(Math.ceil(widest) + 4, MIN_TEXT_WIDTH),
+    height: Math.max(Math.ceil(lines.length * lineHeight) + 4, Math.ceil(lineHeight)),
+  }
 }
 
 const ImageShape = memo(function ImageShape({ shape, nodeRef, onEdit, draggable = true }) {
@@ -53,7 +72,7 @@ const Shape = memo(function Shape({ shape, nodeRef, onEdit, draggable = true, hi
   if (shape.type === 'arrow') return <Arrow {...interaction} {...paint} {...pointHit} x={shape.x} y={shape.y} points={shape.points} pointerLength={10} pointerWidth={10} fill={shape.stroke} />
   if (shape.type === 'line') return <Line {...interaction} {...paint} {...pointHit} x={shape.x} y={shape.y} points={shape.points} lineCap="round" lineJoin="round" />
   if (shape.type === 'pen') return <Line {...interaction} {...paint} {...pointHit} x={shape.x} y={shape.y} points={shape.points} lineCap="round" lineJoin="round" tension={.35} ref={penNodeRef || nodeRef} />
-  return <Text {...interaction} x={shape.x} y={shape.y} text={shape.text} fontSize={shape.fontSize || 20} fill={shape.stroke} opacity={shape.opacity} width={shape.width} rotation={shape.rotation || 0} draggable={draggable && !shape.locked} />
+  return <Text {...interaction} x={shape.x} y={shape.y} text={shape.text} fontSize={shape.fontSize || 20} fontFamily={TEXT_FONT_FAMILY} lineHeight={TEXT_LINE_HEIGHT} fill={shape.stroke} opacity={shape.opacity} width={shape.width} rotation={shape.rotation || 0} draggable={draggable && !shape.locked} />
 })
 
 export default function CanvasStage({ stageRef, view, setView }) {
@@ -66,7 +85,7 @@ export default function CanvasStage({ stageRef, view, setView }) {
   const stateRef = useRef(state); stateRef.current = state
   const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight })
   const [draft, setDraft] = useState(null); const draftRef = useRef(null); const penPointsRef = useRef(null); const penNodeRef = useRef(null)
-  const [laser, setLaser] = useState(null); const laserRef = useRef(null); const laserAnimationRef = useRef(0); const [editing, setEditing] = useState(null)
+  const [laser, setLaser] = useState(null); const laserRef = useRef(null); const laserAnimationRef = useRef(0); const [editing, setEditing] = useState(null); const editingRef = useRef(null); editingRef.current = editing; const lastTextCommitRef = useRef(0); const selectionRef = useRef([])
   const [interaction, dispatchInteraction] = useReducer(interactionReducer, initialInteraction)
   const interactionRef = useRef(initialInteraction); interactionRef.current = interaction
   const start = useRef(null); const pan = useRef(null); const space = useRef(false); const previousTool = useRef(null); const activePointer = useRef(null)
@@ -145,13 +164,40 @@ export default function CanvasStage({ stageRef, view, setView }) {
   const point = () => { const p=stageRef.current.getPointerPosition(); if(!p) return null; return { x:(p.x-view.x)/view.scale, y:(p.y-view.y)/view.scale } }
   const targetShapeId = target => target?.getAttr('shapeId') || null
   const isTransformerTarget = target => { let node = target; while (node && node !== transformer.current) node = node.parent; return !!node }
-  const finishText = () => { if(!editing) return; const text=editing.value.trim(); if(text) { if(editing.id) commit(prev=>prev.map(s=>s.id===editing.id?{...s,text}:s)); else commit(prev=>[...prev,{id:newId(),type:'text',x:editing.x,y:editing.y,width:220,text,...stateRef.current.activeStyle}]) } setEditing(null) }
+
+  // finishText: commits the current edit. Editing an existing shape down to
+  // an empty string deletes it (matches Excalidraw) rather than silently
+  // keeping the old text. A brand-new, never-typed-into text is discarded.
+  // The freshly committed/edited text is selected so its handles appear
+  // immediately, with no extra click needed.
+  const finishText = () => {
+    const current = editingRef.current
+    if (!current) return
+    editingRef.current = null
+    const text = current.value.trim()
+    if (current.id) {
+      if (text) {
+        commit(prev => prev.map(s => s.id === current.id ? { ...s, text, width: current.width, height: current.height, fontSize: current.fontSize } : s))
+        dispatch({ type: 'SET_SELECTION', ids: [current.id] })
+      } else {
+        commit(prev => prev.filter(s => s.id !== current.id))
+        dispatch({ type: 'SET_SELECTION', ids: [] })
+      }
+    } else if (text) {
+      const id = newId()
+      commit(prev => [...prev, { id, type: 'text', x: current.x, y: current.y, width: current.width, height: current.height, text, ...stateRef.current.activeStyle, fontSize: current.fontSize, stroke: current.stroke }])
+      dispatch({ type: 'SET_SELECTION', ids: [id] })
+    }
+    setEditing(null)
+    lastTextCommitRef.current = Date.now()
+  }
 
   const selectShape = (id, event) => {
     const ids=stateRef.current.selectedShapeIds
     let nextSel=ids.includes(id)?ids:[id]
     if(event.evt.shiftKey) nextSel=ids.includes(id)?ids.filter(value=>value!==id):[...ids,id]
     dragSelection.current=nextSel
+    selectionRef.current=nextSel
     dispatch({type:'SET_SELECTION',ids:nextSel})
     if(stateRef.current.activeTool!=='select') dispatch({type:'SET_TOOL',tool:'select'})
   }
@@ -163,6 +209,11 @@ export default function CanvasStage({ stageRef, view, setView }) {
         else return
       }
       if (event.evt.button === 1 || space.current || stateRef.current.activeTool==='pan') { event.evt.preventDefault(); pan.current={x:event.evt.clientX,y:event.evt.clientY,view}; if(pid!==null)activePointer.current=pid; startInteraction('panning'); return }
+      // Any stage click while a text editor is open finishes it and keeps the
+      // committed text. The dismiss click itself won't spawn a second empty
+      // box, so you need one extra click (like Excalidraw) to add another box.
+      const wasEditing = !!editingRef.current
+      if (editingRef.current) finishText()
       const id=targetShapeId(event.target)
       if (stateRef.current.activeTool === 'eraser') { if(id) { const target=shapesRef.current.find(shape=>shape.id===id); if(target&&!target.locked) commit(prev=>prev.filter(shape=>shape.id!==id)) } return }
 
@@ -178,7 +229,17 @@ export default function CanvasStage({ stageRef, view, setView }) {
       }
       const p=point()
       if(!p) return
-      if (stateRef.current.activeTool === 'text') { setEditing({ ...p, value:'' }); return }
+      if (stateRef.current.activeTool === 'text') {
+        // A prior text edit was open and just got committed (either above via
+        // finishText(), or by the textarea's onBlur which fires before this
+        // pointerdown). Don't immediately open a fresh empty box at the
+        // dismissing click — the user needs a fresh click to add another box.
+        if (wasEditing || Date.now() - lastTextCommitRef.current < 400) return
+        const fontSize = stateRef.current.activeStyle.fontSize || 20
+        const box = measureTextBox('', fontSize)
+        setEditing({ ...p, value: '', fontSize, stroke: stateRef.current.activeStyle.stroke, width: box.width, height: box.height })
+        return
+      }
       start.current=p; if(pid!==null)activePointer.current=pid; startInteraction('drawing')
       if (stateRef.current.activeTool === 'laser') { laserAnimationRef.current++; updateLaser({points:[p.x,p.y]}); return }
       const base={id:newId(),type:stateRef.current.activeTool,...stateRef.current.activeStyle,x:p.x,y:p.y}
@@ -222,7 +283,15 @@ export default function CanvasStage({ stageRef, view, setView }) {
     if(shape.type==='image'){const width=Math.max(20,shape.width*scaleX),height=Math.max(20,shape.height*scaleY),flipX=rawScaleX<0,flipY=rawScaleY<0;node.scaleX(flipX?-1:1);node.scaleY(flipY?-1:1);return {...shape,x:node.x()-(flipX?width:0),y:node.y()-(flipY?height:0),width,height,rotation,flipX,flipY}}
     node.scaleX(1); node.scaleY(1)
     if(shape.type==='ellipse'){const width=Math.max(MIN_SIZE,shape.width*scaleX),height=Math.max(MIN_SIZE,shape.height*scaleY);return {...shape,x:node.x()-width/2,y:node.y()-height/2,width,height,rotation}}
-    if(shape.type==='rectangle'||shape.type==='text'){const width=Math.max(MIN_SIZE,shape.width*scaleX);const height=shape.type==='rectangle'?Math.max(MIN_SIZE,shape.height*scaleY):shape.height;const extra=shape.type==='text'?{fontSize:Math.max(8,Math.round((shape.fontSize||20)*scaleY))}:{};return {...shape,x:node.x(),y:node.y(),width,height,rotation,...extra}}
+    if(shape.type==='rectangle'){const width=Math.max(MIN_SIZE,shape.width*scaleX);const height=Math.max(MIN_SIZE,shape.height*scaleY);return {...shape,x:node.x(),y:node.y(),width,height,rotation}}
+    if(shape.type==='text'){
+      // Text resizes uniformly (font size), not independently in width/height —
+      // matches Excalidraw's corner-only text resize behavior.
+      const uniformScale=Math.max(scaleX,scaleY)
+      const fontSize=Math.max(8,Math.round((shape.fontSize||20)*uniformScale))
+      const box=measureTextBox(shape.text,fontSize)
+      return {...shape,x:node.x(),y:node.y(),width:box.width,height:box.height,rotation,fontSize}
+    }
     if(isPointShape(shape.type)){const points=shape.points.map((value,index)=>value*(index%2?scaleY:scaleX));return {...shape,x:node.x(),y:node.y(),points,rotation}}
     return shape
   }
@@ -242,7 +311,38 @@ export default function CanvasStage({ stageRef, view, setView }) {
     commit(prev=>prev.map(item=>selected.has(item.id)&&!item.locked?{...item,x:gesture.positions[item.id].x+delta.x,y:gesture.positions[item.id].y+delta.y}:item))
   }, [commit])
 
-  const handleEdit = useCallback((shape) => { if(shape.type==='text') setEditing({id:shape.id,x:shape.x,y:shape.y,value:shape.text}) }, [])
+  // handleEdit: double-click entry point into text editing (kept distinct
+  // from single-click selection, which already runs generically through
+  // selectShape() in down()). Clears selection while editing so the
+  // Transformer never fights with an active text cursor; locked text can't
+  // be edited, matching how locked shapes already can't be dragged/resized.
+  const handleEdit = useCallback((shape) => {
+    if (shape.type !== 'text' || shape.locked) return
+    dispatch({ type: 'SET_SELECTION', ids: [] })
+    const fontSize = shape.fontSize || 20
+    const box = measureTextBox(shape.text, fontSize)
+    setEditing({ id: shape.id, x: shape.x, y: shape.y, value: shape.text, fontSize, stroke: shape.stroke, width: Math.max(box.width, shape.width || 0), height: Math.max(box.height, shape.height || 0) })
+  }, [dispatch])
+  // When a text shape is selected the Transformer sits on top of it, so Konva's
+  // synthetic dblclick never reaches the Text node (and the second click's hit
+  // target changed from the Text to the Transformer, which Konva treats as two
+  // distinct clicks). The browser's own native dblclick on the container is
+  // reliable regardless of the Transformer, so catch that instead and replay
+  // edit for the single selected text.
+  useEffect(() => {
+    const container = stageRef.current?.container()
+    if (!container) return
+    const onContainerDblClick = () => {
+      if (editingRef.current) return
+      const refSel = selectionRef.current
+      const ids = refSel && refSel.length ? refSel : stateRef.current.selectedShapeIds
+      if (stateRef.current.activeTool !== 'select' || ids.length !== 1) return
+      const selection = shapesRef.current.filter(item => item.id === ids[0])
+      if (selection.length === 1 && selection[0].type === 'text') handleEdit(selection[0])
+    }
+    container.addEventListener('dblclick', onContainerDblClick)
+    return () => container.removeEventListener('dblclick', onContainerDblClick)
+  }, [handleEdit])
   const handleStageDragStart = event => {
     const primaryId=targetShapeId(event.target)
     if(!primaryId) return
@@ -284,6 +384,13 @@ export default function CanvasStage({ stageRef, view, setView }) {
   const refFor = id => refCallbacks.current[id] || (refCallbacks.current[id] = node => { if(node) nodes.current[id]=node; else delete nodes.current[id] })
   const selectedImages=state.selectedShapeIds.filter(id=>shapesRef.current.find(shape=>shape.id===id)?.type==='image')
   const minTransformSize=selectedImages.length?20:8
+  // Text gets corner-only resize handles (uniform font scaling); every other
+  // shape keeps the full 8-handle set.
+  const selectedForAnchors=state.selectedShapeIds.map(id=>shapesRef.current.find(shape=>shape.id===id)).filter(Boolean)
+  const soleTextSelected=selectedForAnchors.length===1&&selectedForAnchors[0].type==='text'
+  const transformerAnchors=soleTextSelected
+    ? ['top-left','top-right','bottom-left','bottom-right']
+    : ['top-left','top-center','top-right','middle-left','middle-right','bottom-left','bottom-center','bottom-right']
   // On browsers without Pointer Events (Safari <13.1 / iOS <13) Konva fires mouse/touch
   // events instead of pointer events; the handlers accept those too (pointerId stays null).
   const inputProps = NO_POINTER
@@ -298,5 +405,5 @@ export default function CanvasStage({ stageRef, view, setView }) {
         onTouchCancel: up
       }
     : { onPointerDown: down, onPointerMove: move, onPointerUp: up, onPointerCancel: up, onMouseMove: onStageMouseMove }
-  return <div ref={hostRef} className="canvas-host" data-interaction-mode={interaction.mode}><Stage key={stageEpoch} ref={stageRef} width={size.width} height={size.height} {...stageProps} {...inputProps} onDragStart={handleStageDragStart} onDragMove={handleStageDragMove} onDragEnd={handleStageDragEnd} onTransformStart={handleStageTransformStart} onTransformEnd={handleStageTransformEnd} onContextMenu={event=>event.evt.preventDefault()}><Layer>{shapes.map(shape=><Shape key={shape.id} shape={shape} nodeRef={refFor(shape.id)} draggable={state.activeTool==='select'} hitScale={view.scale} onEdit={handleEdit}/>)}{draft&&<Shape shape={draft} draggable={false} hitScale={view.scale} nodeRef={()=>{}} penNodeRef={penNodeRef} onEdit={()=>{}}/>}</Layer><Layer name="overlay">{laser&&<Line listening={false} points={laser.points} stroke="#ef4444" strokeWidth={4} lineCap="round" lineJoin="round" opacity={laser.opacity ?? .8}/>}<Transformer ref={transformer} rotateEnabled flipEnabled shiftBehavior="inverted" boundBoxFunc={(oldBox,newBox)=>((newBox.width<minTransformSize||newBox.height<minTransformSize)&&transformer.current?.getActiveAnchor()!=='rotater'?oldBox:newBox)} enabledAnchors={['top-left','top-center','top-right','middle-left','middle-right','bottom-left','bottom-center','bottom-right']} /></Layer></Stage>{editing&&<textarea ref={editorRef} className="text-editor" style={{left:editing.x*view.scale+view.x,top:editing.y*view.scale+view.y}} value={editing.value} onChange={event=>setEditing({...editing,value:event.target.value})} onBlur={finishText} onKeyDown={event=>{if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();finishText()}if(event.key==='Escape')setEditing(null)}}/>}</div>
+  return <div ref={hostRef} className="canvas-host" data-interaction-mode={interaction.mode}><Stage key={stageEpoch} ref={stageRef} width={size.width} height={size.height} {...stageProps} {...inputProps} onDragStart={handleStageDragStart} onDragMove={handleStageDragMove} onDragEnd={handleStageDragEnd} onTransformStart={handleStageTransformStart} onTransformEnd={handleStageTransformEnd} onContextMenu={event=>event.evt.preventDefault()}><Layer>{shapes.filter(shape=>shape.id!==editing?.id).map(shape=><Shape key={shape.id} shape={shape} nodeRef={refFor(shape.id)} draggable={state.activeTool==='select'} hitScale={view.scale} onEdit={handleEdit}/>)}{draft&&<Shape shape={draft} draggable={false} hitScale={view.scale} nodeRef={()=>{}} penNodeRef={penNodeRef} onEdit={()=>{}}/>}</Layer><Layer name="overlay">{laser&&<Line listening={false} points={laser.points} stroke="#ef4444" strokeWidth={4} lineCap="round" lineJoin="round" opacity={laser.opacity ?? .8}/>}<Transformer ref={transformer} rotateEnabled flipEnabled shiftBehavior="inverted" boundBoxFunc={(oldBox,newBox)=>((newBox.width<minTransformSize||newBox.height<minTransformSize)&&transformer.current?.getActiveAnchor()!=='rotater'?oldBox:newBox)} enabledAnchors={transformerAnchors} /></Layer></Stage>{editing&&<textarea ref={editorRef} className="text-editor" style={{position:'fixed',left:editing.x*view.scale+view.x,top:editing.y*view.scale+view.y,width:editing.width*view.scale,height:editing.height*view.scale,minWidth:0,minHeight:0,maxWidth:'none',maxHeight:'none',fontSize:editing.fontSize*view.scale,lineHeight:TEXT_LINE_HEIGHT,fontFamily:TEXT_FONT_FAMILY,color:editing.stroke||'#1e293b',resize:'none',boxSizing:'border-box',overflow:'hidden',padding:0,border:'none',outline:'2px solid #6366f1',outlineOffset:'1px',background:'transparent',zIndex:4}} value={editing.value} onChange={event=>{const value=event.target.value;const box=measureTextBox(value,editing.fontSize);setEditing({...editing,value,width:box.width,height:box.height})}} onBlur={finishText} onKeyDown={event=>{if(event.key==='Escape'){event.preventDefault();finishText()}if(event.key==='Enter'&&(event.metaKey||event.ctrlKey)){event.preventDefault();finishText()}}}/>}</div>
 }
