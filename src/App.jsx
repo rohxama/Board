@@ -13,6 +13,8 @@ import { loadDiagram, saveDiagram } from './lib/storage'
 import { sanitizeShape } from './lib/geometry'
 
 function Workspace({ onReady }) {
+  const [cursorPos, setCursorPos] = useState(null)
+  const cursorThrottleRef = useRef(0)
   const stageRef = useRef()
   const clipboard = useRef([])
   const [view, setView] = useState({ x: 0, y: 0, scale: 1 })
@@ -55,9 +57,11 @@ function Workspace({ onReady }) {
     dispatch({ type: 'SET_TOOL', tool: 'select' })
   }, [commit, dispatch])
 
+  const viewRef = useRef(view); viewRef.current = view
   const addImage = useCallback(async file => {
     const { src, width: naturalWidth, height: naturalHeight } = await readImageFile(file)
     const stage = stageRef.current
+    const currentView = viewRef.current
     const viewport = { width: stage?.width() || window.innerWidth, height: stage?.height() || window.innerHeight }
     const width = INITIAL_IMAGE_WIDTH
     const height = Math.max(20, width * naturalHeight / naturalWidth)
@@ -65,14 +69,14 @@ function Workspace({ onReady }) {
       id: newId(),
       type: 'image',
       src,
-      x: (viewport.width / 2 - view.x) / view.scale - width / 2,
-      y: (viewport.height / 2 - view.y) / view.scale - height / 2,
+      x: (viewport.width / 2 - currentView.x) / currentView.scale - width / 2,
+      y: (viewport.height / 2 - currentView.y) / currentView.scale - height / 2,
       width, height, rotation: 0, opacity: 1, flipX: false, flipY: false, locked: false,
     }
     commit(prev => [...prev, image])
     dispatch({ type: 'SET_SELECTION', ids: [image.id] })
     dispatch({ type: 'SET_TOOL', tool: 'select' })
-  }, [view, commit, dispatch])
+  }, [commit, dispatch])
 
   const selectAll = useCallback(() => dispatch({ type: 'SET_SELECTION', ids: shapes.map(s => s.id) }), [shapes, dispatch])
   const deselect = useCallback(() => dispatch({ type: 'SET_SELECTION', ids: [] }), [dispatch])
@@ -114,10 +118,10 @@ function Workspace({ onReady }) {
 
   return (
     <main>
-      <CanvasStage stageRef={stageRef} view={view} setView={setView} />
+      <CanvasStage stageRef={stageRef} view={view} setView={setView} onCursorMove={pos => { const now = performance.now(); if (now - cursorThrottleRef.current > 50) { cursorThrottleRef.current = now; setCursorPos(pos) } }} />
       <Toolbar stageRef={stageRef} onImageUpload={addImage} />
       <StylePanel />
-      <ZoomControls view={view} setView={setView} />
+      <ZoomControls view={view} setView={setView} cursorPos={cursorPos} shapeCount={shapes.length} />
     </main>
   )
 }

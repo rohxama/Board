@@ -8,7 +8,7 @@ export function loadDiagram() {
     const value = JSON.parse(raw)
     if (!value || typeof value !== 'object' || !Array.isArray(value.shapes)) return null
     return { shapes: value.shapes, fileName: typeof value.fileName === 'string' ? value.fileName : undefined }
-  } catch {
+  } catch (_e) {
     return null
   }
 }
@@ -42,7 +42,7 @@ export function saveDiagram(shapes, fileName) {
         window.localStorage.setItem(STORAGE_KEY, payload)
         console.warn('Board was too large for full save; some embedded images were omitted. Vector shapes were preserved.')
         return true
-      } catch { /* keep dropping */ }
+      } catch (_e) { /* keep dropping */ }
     }
     return false
   }
@@ -52,7 +52,7 @@ export function clearDiagram() {
   try {
     window.localStorage.removeItem(STORAGE_KEY)
     return true
-  } catch {
+  } catch (_e) {
     return false
   }
 }

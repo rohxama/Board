@@ -4,7 +4,7 @@ const initial = { shapes: [], undoStack: [], redoStack: [], revision: 0 }
 const MAX_SHAPES = 10000
 function reducer(state, action) {
   if (action.type === 'COMMIT') { const next = typeof action.shapes === 'function' ? action.shapes(state.shapes) : action.shapes; if (!Array.isArray(next) || next.length > MAX_SHAPES) return state; return { shapes: next, undoStack: [...state.undoStack, state.shapes].slice(-200), redoStack: [], revision: state.revision + 1 } }
-  if (action.type === 'UNDO' && state.undoStack.length) { const previous = state.undoStack.at(-1); return { shapes: previous, undoStack: state.undoStack.slice(0, -1), redoStack: [state.shapes, ...state.redoStack].slice(0, 200), revision: state.revision + 1 } }
+  if (action.type === 'UNDO' && state.undoStack.length) { const previous = state.undoStack[state.undoStack.length - 1]; return { shapes: previous, undoStack: state.undoStack.slice(0, -1), redoStack: [state.shapes, ...state.redoStack].slice(0, 200), revision: state.revision + 1 } }
   if (action.type === 'REDO' && state.redoStack.length) { const next = state.redoStack[0]; return { shapes: next, undoStack: [...state.undoStack, state.shapes].slice(-200), redoStack: state.redoStack.slice(1), revision: state.revision + 1 } }
   if (action.type === 'REPLACE') return { shapes: Array.isArray(action.shapes) ? action.shapes : [], undoStack: [], redoStack: [] }
   return state

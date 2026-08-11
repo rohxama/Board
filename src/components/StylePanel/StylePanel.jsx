@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useRef, memo } from 'react'
 import { useAppState } from '../../context/AppStateContext'
 import { useHistory } from '../../context/HistoryContext'
 
@@ -7,10 +7,10 @@ const colors=['#1e293b','#2563eb','#7c3aed','#db2777','#dc2626','#ea580c','#16a3
 function Section({ title, children }) { return <section className="inspector-section"><h3>{title}</h3>{children}</section> }
 function Field({ label, children }) { return <label className="inspector-field"><span>{label}</span>{children}</label> }
 
-export default function StylePanel() {
+export default memo(function StylePanel() {
   const { state, dispatch } = useAppState()
   const { shapes, commit } = useHistory()
-  const selected = useMemo(() => shapes.filter(shape => state.selectedShapeIds.includes(shape.id)), [shapes, state.selectedShapeIds])
+  const selected = state.selectedShapeIds.length ? shapes.filter(shape => state.selectedShapeIds.includes(shape.id)) : []
   const selectedShape = selected[0]
   const noStyleTools = ['select', 'pan', 'eraser', 'laser']
   const visible = (!noStyleTools.includes(state.activeTool)) || selected.length
@@ -63,4 +63,4 @@ export default function StylePanel() {
     {isText && <Section title="Typography"><Field label="Size"><div className="range-control"><input type="range" min="12" max="64" value={state.activeStyle.fontSize ?? 20} onChange={e=>update({fontSize:+e.target.value})}/><output>{state.activeStyle.fontSize ?? 20}px</output></div></Field></Section>}
     {hasImage && <Section title="Image"><div className="image-actions"><button onClick={()=>toggleImage('flipX')}>Flip horizontal</button><button onClick={()=>toggleImage('flipY')}>Flip vertical</button><button onClick={toggleLock}>{selected.every(shape=>shape.type!=='image'||shape.locked)?'Unlock':'Lock'}</button></div><div className="image-actions"><button onClick={()=>reorder('front')}>Bring to front</button><button onClick={()=>reorder('back')}>Send to back</button></div></Section>}
   </aside>
-}
+})

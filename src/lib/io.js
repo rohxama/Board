@@ -9,7 +9,7 @@ export async function importJSON(file) {
   if (!file || typeof file.text !== 'function') throw new Error('Choose a diagram file first.')
   if (Number.isFinite(file.size) && file.size > MAX_IMPORT_BYTES) throw new Error('Diagram files must be 25 MB or smaller.')
   let value
-  try { value = JSON.parse(await file.text()) } catch { throw new Error('The diagram file is not valid JSON.') }
+  try { value = JSON.parse(await file.text()) } catch (_e) { throw new Error('The diagram file is not valid JSON.') }
   if (!value || value.version !== 1 || !Array.isArray(value.shapes) || value.shapes.length > MAX_IMPORT_SHAPES) throw new Error('Unsupported or oversized diagram file')
   const ids = new Set()
   return value.shapes.map(shape => {
