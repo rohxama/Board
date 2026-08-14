@@ -169,10 +169,13 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove }) {
     const pid = Number.isFinite(e.pointerId) ? e.pointerId : null
     if (activePointer.current !== null && activePointer.current !== pid) return
     const origin = pan.current
-    const next = { ...origin.view, x: origin.view.x + e.clientX - origin.x, y: origin.view.y + e.clientY - origin.y }
+    const x = origin.view.x + e.clientX - origin.x
+    const y = origin.view.y + e.clientY - origin.y
     const stage = stageRef.current
-    if (stage) stage.position({ x: next.x, y: next.y })
-    viewPendingRef.current = next
+    if (stage) stage.position({ x, y })
+    let pending = viewPendingRef.current
+    if (pending) { pending.x = x; pending.y = y }
+    else { viewPendingRef.current = { ...origin.view, x, y } }
     requestCull()
   }, [])
   // Viewport culling: shapes outside the visible world rect are flipped to
@@ -344,7 +347,7 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove }) {
   useEffect(() => { const container=stageRef.current?.container(); if(container) container.style.cursor=toolCursor() }, [state.activeTool, interaction.mode])
   useEffect(() => { abort() }, [state.activeTool])
   const cursorRafRef = useRef(0)
-  const onStageMouseMove = event => { if(cursorRafRef.current) return; cursorRafRef.current = requestAnimationFrame(() => { cursorRafRef.current = 0; if(onCursorMove){const p=stageRef.current?.getPointerPosition();if(p){const v=viewRef2.current;onCursorMove({x:(p.x-v.x)/v.scale,y:(p.y-v.y)/v.scale})}} const container=stageRef.current?.container(); if(!container) return; if(state.activeTool==='pan'||interactionRef.current.mode==='panning'){container.style.cursor=toolCursor();return} const target=event.target; if(target&&target.getAttr&&target.getAttr('shapeId')){ container.style.cursor=state.activeTool==='select'?'move':toolCursor() } else if(target===stageRef.current){ container.style.cursor=toolCursor() } }) }
+  const onStageMouseMove = event => { if(cursorRafRef.current) return; cursorRafRef.current = requestAnimationFrame(() => { cursorRafRef.current = 0; const container=stageRef.current?.container(); if(state.activeTool==='pan'||interactionRef.current.mode==='panning'){if(container)container.style.cursor=toolCursor();return} if(onCursorMove){const p=stageRef.current?.getPointerPosition();if(p){const v=viewRef2.current;onCursorMove({x:(p.x-v.x)/v.scale,y:(p.y-v.y)/v.scale})}} if(!container) return; const target=event.target; if(target&&target.getAttr&&target.getAttr('shapeId')){ container.style.cursor=state.activeTool==='select'?'move':toolCursor() } else if(target===stageRef.current){ container.style.cursor=toolCursor() } }) }
 
   const point = () => { const p=stageRef.current.getPointerPosition(); if(!p) return null; return { x:(p.x-view.x)/view.scale, y:(p.y-view.y)/view.scale } }
   const targetShapeId = target => target?.getAttr('shapeId') || null
@@ -439,7 +442,7 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove }) {
     try {
       const pid=Number.isFinite(event.evt?.pointerId)?event.evt.pointerId:null
       if(activePointer.current!==null&&activePointer.current!==pid) return
-      if(pan.current){const origin=pan.current;const next={...origin.view,x:origin.view.x+event.evt.clientX-origin.x,y:origin.view.y+event.evt.clientY-origin.y};const stage=stageRef.current;if(stage)stage.position({x:next.x,y:next.y});viewPendingRef.current=next;requestCull();return}
+      if(pan.current) return
       if(!start.current) return
       let p=point()
       if(!p) return
