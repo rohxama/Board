@@ -6,10 +6,11 @@ import Toolbar from './components/Toolbar/Toolbar'
 import StylePanel from './components/StylePanel/StylePanel'
 import ZoomControls from './components/ZoomControls/ZoomControls'
 import SplashScreen from './components/SplashScreen/SplashScreen'
+import PreviousBoardModal from './components/PreviousBoardModal/PreviousBoardModal'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { newId } from './lib/idGenerator'
 import { INITIAL_IMAGE_WIDTH, readImageFile } from './lib/images'
-import { loadDiagram, saveDiagram } from './lib/storage'
+import { clearDiagram, loadDiagram, saveDiagram } from './lib/storage'
 import { sanitizeShape } from './lib/geometry'
 
 function Workspace({ onReady }) {
@@ -81,17 +82,34 @@ function Workspace({ onReady }) {
   const selectAll = useCallback(() => dispatch({ type: 'SET_SELECTION', ids: shapes.map(s => s.id) }), [shapes, dispatch])
   const deselect = useCallback(() => dispatch({ type: 'SET_SELECTION', ids: [] }), [dispatch])
 
-  // Hydrate from local storage on mount (before any autosave can overwrite it).
+  // Startup: never restore the saved board automatically. If one exists, hold
+  // hydration (so autosave cannot touch it yet) and let the user choose; if
+  // there is nothing saved, open the blank canvas immediately.
   const hydrated = useRef(false)
+  const [pendingBoard, setPendingBoard] = useState(null)
   useEffect(() => {
     const saved = loadDiagram()
-    if (saved) {
-      const clean = saved.shapes.map(sanitizeShape).filter(Boolean)
-      replace(clean)
-      if (saved.fileName) dispatch({ type: 'SET_FILENAME', fileName: saved.fileName })
+    if (saved && saved.shapes.length) {
+      setPendingBoard(saved)
+      return
     }
     hydrated.current = true
-  }, [replace, dispatch])
+  }, [])
+
+  const restorePrevious = useCallback(() => {
+    if (!pendingBoard) return
+    const clean = pendingBoard.shapes.map(sanitizeShape).filter(Boolean)
+    replace(clean)
+    if (pendingBoard.fileName) dispatch({ type: 'SET_FILENAME', fileName: pendingBoard.fileName })
+    hydrated.current = true
+    setPendingBoard(null)
+  }, [pendingBoard, replace, dispatch])
+
+  const startFresh = useCallback(() => {
+    clearDiagram()
+    hydrated.current = true
+    setPendingBoard(null)
+  }, [])
 
   // Debounced autosave: persist every change ~500ms after the last edit.
   const latestRef = useRef({ shapes, fileName: state.fileName })
@@ -102,14 +120,15 @@ function Workspace({ onReady }) {
     return () => window.clearTimeout(id)
   }, [shapes, state.fileName])
 
-  // Flush a final synchronous save on unload.
+  // Flush a final synchronous save on unload. Skipped until the user has made
+  // a startup choice, so closing early can never overwrite the saved board.
   useEffect(() => {
-    const onUnload = () => saveDiagram(latestRef.current.shapes, latestRef.current.fileName)
+    const onUnload = () => { if (hydrated.current) saveDiagram(latestRef.current.shapes, latestRef.current.fileName) }
     window.addEventListener('beforeunload', onUnload)
     return () => window.removeEventListener('beforeunload', onUnload)
   }, [])
 
-  useKeyboardShortcuts({ dispatch, undo, redo, remove, nudge, duplicate, copy, paste, selectAll, deselect })
+  useKeyboardShortcuts({ enabled: !pendingBoard, dispatch, undo, redo, remove, nudge, duplicate, copy, paste, selectAll, deselect })
 
   useEffect(() => {
     const frame = requestAnimationFrame(onReady)
@@ -121,7 +140,8 @@ function Workspace({ onReady }) {
       <CanvasStage stageRef={stageRef} view={view} setView={setView} onCursorMove={pos => { const now = performance.now(); if (now - cursorThrottleRef.current > 50) { cursorThrottleRef.current = now; setCursorPos(pos) } }} />
       <Toolbar stageRef={stageRef} onImageUpload={addImage} />
       <StylePanel />
-      <ZoomControls view={view} setView={setView} cursorPos={cursorPos} shapeCount={shapes.length} />
+      <ZoomControls view={view} setView={setView} cursorPos={cursorPos} shapes={shapes} />
+      {pendingBoard && <PreviousBoardModal onRestore={restorePrevious} onFresh={startFresh} />}
     </main>
   )
 }
