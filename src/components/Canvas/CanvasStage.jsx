@@ -6,7 +6,7 @@ import { useHistory } from '../../context/HistoryContext'
 import { newId } from '../../lib/idGenerator'
 import { snapToGrid, getSnapGuides } from '../../lib/snapping'
 import { normalizeBox } from '../../lib/geometry'
-import { useStageZoomPan } from '../../hooks/useStageZoomPan'
+import { clampScale, zoomAtPoint } from '../../lib/viewport'
 import { useImageAsset } from '../../hooks/useImageAsset'
 
 const NO_POINTER = typeof window !== 'undefined' && typeof window.PointerEvent !== 'function'
@@ -38,21 +38,6 @@ function getLineBBox(shape) {
   return box
 }
 
-// Override Stage._clearSelfAndDescendantCache to skip the O(N) recursive
-// invalidation of ABSOLUTE_TRANSFORM during panning.  Children's caches stay
-// dirty and recompute lazily via getAbsoluteTransform() → parent's (correctly
-// updated) cache.  This eliminates the dominant per-frame cost at 1 000+ shapes.
-;(function patchStagePrototype() {
-  const StageProto = Konva.Stage.prototype
-  const origClear = StageProto._clearSelfAndDescendantCache
-  StageProto._clearSelfAndDescendantCache = function (attr) {
-    if (attr === 'absoluteTransform' && !this.isCached()) {
-      this._clearCache(attr)
-      return
-    }
-    origClear.call(this, attr)
-  }
-})()
 function interactionReducer(state, action) {
   if (action.type === 'RESET' || action.type === 'END') return initialInteraction
   if (action.type === 'START') return { mode: action.mode }
@@ -119,7 +104,7 @@ const ShapesLayer = memo(function ShapesLayer({ shapes, editingId, draggable, vi
 export default function CanvasStage({ stageRef, view, setView, onCursorMove }) {
   const { state, dispatch } = useAppState()
   const { shapes, commit } = useHistory()
-  const hostRef = useRef(); const nodes = useRef({}); const refCallbacks = useRef({}); const transformer = useRef(); const editorRef = useRef()
+  const hostRef = useRef(); const nodes = useRef({}); const refCallbacks = useRef({}); const transformer = useRef(); const editorRef = useRef(); const dbgRef = useRef()
   const dragSelection = useRef([])
   const dragGesture = useRef(null)
   const shapesRef = useRef(shapes); shapesRef.current = shapes
@@ -127,15 +112,14 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove }) {
   const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight })
   const [draft, setDraft] = useState(null); const draftRef = useRef(null); const penPointsRef = useRef(null); const draftNodeRef = useRef(null); const draftEndRef = useRef(null)
   const [laser, setLaser] = useState(null); const laserRef = useRef(null); const laserNodeRef = useRef(null); const laserAnimationRef = useRef(0); const [snapGuides, setSnapGuides] = useState(null); const [editing, setEditing] = useState(null); const editingRef = useRef(null); editingRef.current = editing; const lastTextCommitRef = useRef(0)
-  const viewRef2 = useRef(view); viewRef2.current = view; const viewPendingRef = useRef(null)
+  const viewRef2 = useRef(view); viewRef2.current = view
   const [interaction, dispatchInteraction] = useReducer(interactionReducer, initialInteraction)
   const interactionRef = useRef(initialInteraction); interactionRef.current = interaction
-  const start = useRef(null); const pan = useRef(null); const space = useRef(false); const previousTool = useRef(null); const activePointer = useRef(null)
+  const start = useRef(null); const panStart = useRef(null); const activePointer = useRef(null)
   const abortRef = useRef(null)
   const [stageEpoch, setStageEpoch] = useState(0); const lastCanvasRecovery = useRef(0); const epochRef = useRef(0); epochRef.current = stageEpoch
   const cullStateRef = useRef(new Map()); const cullRafRef = useRef(0); const lastCullEpochRef = useRef(-1)
-  const wheelPanRef = useRef({ dx: 0, dy: 0, xOnly: false }); const wheelFlushRef = useRef(0)
-  const viewScaleRef = useRef(view.scale); viewScaleRef.current = view.scale
+    const viewScaleRef = useRef(view.scale); viewScaleRef.current = view.scale
   const hitGraphOn = useRef(true)
   // Toggle the layer's hit canvas. While an active pointer gesture runs (pan /
   // draw / drag / resize) Konva doesn't need per-shape hit testing, so
@@ -149,33 +133,23 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove }) {
     stage.getLayers().forEach(layer => layer.listening(on))
   }, [])
   useEffect(() => { window.__benchStage = stageRef.current }, [stageEpoch])
+  // TEMP DEBUG ONLY: live overlay reading the real Konva node every frame.
+  useEffect(() => { let raf = 0; const loop = () => { const el = dbgRef.current; if (el) { const s = stageRef.current; const p = s ? s.position() : { x: 0, y: 0 }; const v = viewRef2.current; el.textContent = `[BUILD-20260814-B] Tool: ${stateRef.current.activeTool}  X: ${Math.round(p.x)}  Y: ${Math.round(p.y)}  Zoom: ${Math.round(v.scale * 100)}%` } raf = requestAnimationFrame(loop) }; raf = requestAnimationFrame(loop); return () => cancelAnimationFrame(raf) }, [])
 
   const updateDraft = next => { draftRef.current = next; setDraft(next) }
   const updateLaser = next => { laserRef.current = next; setLaser(next) }
   const startInteraction = mode => { interactionRef.current={mode}; dispatchInteraction({type:'START',mode}) }
-  const flushView = () => {
-    const v = viewPendingRef.current
-    viewPendingRef.current = null
-    if (!v) return
-    if (v.x === viewRef2.current.x && v.y === viewRef2.current.y && v.scale === viewRef2.current.scale) return
-    viewRef2.current = v
-    setView(v)
-  }
-
-  // Global pointermove handler for pan: tracks the pointer even when it leaves
-  // the canvas, so pan position updates reliably until pointerup fires.
-  const panMoveHandler = useCallback(e => {
-    if (!pan.current) return
+    // PAN: while the pointer moves, the viewport is recomputed from the gesture
+  // origin and written straight into React state. The Stage renders x/y/scale
+  // from that state — one source of truth, no imperative stage movement.
+  const handlePanMove = useCallback(e => {
+    const origin = panStart.current
+    if (!origin) return
     const pid = Number.isFinite(e.pointerId) ? e.pointerId : null
     if (activePointer.current !== null && activePointer.current !== pid) return
-    const origin = pan.current
-    const x = origin.view.x + e.clientX - origin.x
-    const y = origin.view.y + e.clientY - origin.y
-    const stage = stageRef.current
-    if (stage) stage.position({ x, y })
-    let pending = viewPendingRef.current
-    if (pending) { pending.x = x; pending.y = y }
-    else { viewPendingRef.current = { ...origin.view, x, y } }
+    const x = origin.view.x + e.clientX - origin.px
+    const y = origin.view.y + e.clientY - origin.py
+    setView({ x, y, scale: origin.view.scale })
     requestCull()
   }, [])
   // Viewport culling: shapes outside the visible world rect are flipped to
@@ -243,41 +217,34 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove }) {
     })
   }, [cullShapes])
 
-  // Wheel (non-ctrl) panning mutates the stage node immediately and only syncs
-  // the React `view` state on a low-frequency heartbeat, so continuous scroll
-  // doesn't re-render the tree ~60x/s on slow hardware. The stage is positioned
-  // incrementally from the last committed view minus the accumulated delta, and
-  // culling/drawing is coalesced per animation frame.
-  const handleWheelPan = (dx, dy, xOnly) => {
-    const a = wheelPanRef.current
-    a.dx += dx; a.dy += dy; a.xOnly = xOnly
-    const cur = viewRef2.current
-    const next = xOnly ? { ...cur, x: cur.x - (a.dx || a.dy), y: cur.y } : { ...cur, x: cur.x - a.dx, y: cur.y - a.dy }
+  // WHEEL ZOOM: Ctrl/Cmd + wheel zooms around the pointer, clamped to the
+  // viewport scale range. Plain wheel scroll intentionally does nothing — pan
+  // is exclusively the Pan tool's job in this viewport system.
+  const handleWheel = useCallback(event => {
+    const native = event.evt
+    native.preventDefault()
+    if (!native.ctrlKey && !native.metaKey) return
     const stage = stageRef.current
-    if (stage) stage.position({ x: next.x, y: next.y })
-    viewPendingRef.current = next
+    if (!stage) return
+    const point = stage.getPointerPosition()
+    if (!point) return
+    const unit = native.deltaMode === 1 ? 16 : native.deltaMode === 2 ? 100 : 1
+    const dy = (native.deltaY || 0) * unit
+    const delta = Math.max(-4, Math.min(4, -dy / 60))
+    if (delta === 0) return
+    const current = viewRef2.current
+    const nextScale = clampScale(current.scale * (1 + delta * 0.1))
+    if (nextScale === current.scale) return
+    setView(zoomAtPoint(point, current, nextScale))
     requestCull()
-    if (wheelFlushRef.current) return
-    wheelFlushRef.current = window.setTimeout(() => {
-      wheelFlushRef.current = 0
-      const pending = viewPendingRef.current
-      viewPendingRef.current = null
-      if (!pending) return
-      a.dx = 0; a.dy = 0
-      if (pending.x === viewRef2.current.x && pending.y === viewRef2.current.y) return
-      viewRef2.current = pending
-      setView(pending)
-    }, 100)
-  }
-  const { stageProps } = useStageZoomPan(stageRef, view, setView, handleWheelPan)
+  }, [])
   const abort = () => {
-    window.removeEventListener('pointermove', panMoveHandler)
+    window.removeEventListener('pointermove', handlePanMove)
     const gesture=dragGesture.current
     if(gesture) gesture.ids.forEach(id=>{const node=nodes.current[id],initial=gesture.nodePositions[id];if(node&&initial)node.position(initial)})
-    dragGesture.current=null; start.current=null; pan.current=null; penPointsRef.current=null; draftNodeRef.current=null; activePointer.current=null; laserAnimationRef.current++
+    dragGesture.current=null; start.current=null; panStart.current=null; penPointsRef.current=null; draftNodeRef.current=null; activePointer.current=null; laserAnimationRef.current++
     if(draftRef.current)updateDraft(null)
     updateLaser(null)
-    flushView()
     setHitGraph(true)
     interactionRef.current=initialInteraction; dispatchInteraction({type:'RESET'})
   }
@@ -291,12 +258,10 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove }) {
     if (observer && hostRef.current) observer.observe(hostRef.current)
     if (!observer) window.addEventListener('resize', resize)
     resize()
-    const releaseSpace = () => { space.current=false; const tool=previousTool.current; previousTool.current=null; if(tool)dispatch({type:'SET_TOOL',tool}) }
-    const key=e=>{if(e.code!=='Space'||e.target?.tagName==='INPUT'||e.target?.tagName==='TEXTAREA')return;if(e.type==='keydown'){if(e.repeat)return;space.current=true;if(stateRef.current.activeTool!=='pan'){previousTool.current=stateRef.current.activeTool;dispatch({type:'SET_TOOL',tool:'pan'})}}else releaseSpace()}
-    const blur=()=>{releaseSpace();abort()}
+    const blur=()=>{abort()}
     const end=e=>{if(interactionRef.current.mode==='idle')return;const pid=Number.isFinite(e?.pointerId)?e.pointerId:null;if(pid!==null&&activePointer.current!==null&&activePointer.current!==pid)return;abort()}
-    addEventListener('keydown',key); addEventListener('keyup',key); addEventListener('blur',blur); addEventListener('pointerup',end); addEventListener('pointercancel',end); addEventListener('touchend',end); if(NO_POINTER)addEventListener('mouseup',end)
-    return()=>{if(observer)observer.disconnect();else window.removeEventListener('resize',resize);removeEventListener('keydown',key);removeEventListener('keyup',key);removeEventListener('blur',blur);removeEventListener('pointerup',end);removeEventListener('pointercancel',end);removeEventListener('touchend',end); if(NO_POINTER)removeEventListener('mouseup',end)}
+    addEventListener('blur',blur); addEventListener('pointerup',end); addEventListener('pointercancel',end); addEventListener('touchend',end); if(NO_POINTER)addEventListener('mouseup',end)
+    return()=>{if(observer)observer.disconnect();else window.removeEventListener('resize',resize);removeEventListener('blur',blur);removeEventListener('pointerup',end);removeEventListener('pointercancel',end);removeEventListener('touchend',end); if(NO_POINTER)removeEventListener('mouseup',end)}
   }, [])
   useEffect(() => {
     const onError = event => {
@@ -312,7 +277,7 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove }) {
     return () => removeEventListener('error', onError)
   }, [])
   useEffect(() => {
-    if (state.activeTool !== 'pan' && pan.current) abortRef.current()
+    if (state.activeTool !== 'pan' && panStart.current) abortRef.current()
   }, [state.activeTool])
   useEffect(() => {
     // When the display's device pixel ratio changes (window moved between monitors),
@@ -325,7 +290,7 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove }) {
     else if(mql.addListener)mql.addListener(onChange)
     return()=>{if(mql.removeEventListener)mql.removeEventListener('change',onChange);else if(mql.removeListener)mql.removeListener(onChange)}
   }, [])
-  useEffect(() => { const container=stageRef.current?.container(); if(!container) return; const leave=e=>{if(e.buttons===0&&(pan.current||start.current||draftRef.current))abort()}; container.addEventListener('pointerleave',leave); return()=>container.removeEventListener('pointerleave',leave) }, [])
+  useEffect(() => { const container=stageRef.current?.container(); if(!container) return; const leave=e=>{if(e.buttons===0&&(panStart.current||start.current||draftRef.current))abort()}; container.addEventListener('pointerleave',leave); return()=>container.removeEventListener('pointerleave',leave) }, [])
   useEffect(() => { if (!editing) return; const frame=requestAnimationFrame(()=>editorRef.current?.focus()); return()=>cancelAnimationFrame(frame) }, [editing])
   useEffect(() => {
     try {
@@ -342,7 +307,7 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove }) {
   // frame only rasterizes the visible world. Continuous pointer pan and wheel
   // pan already request their own culls per animation frame.
   useLayoutEffect(() => { cullShapes() }, [view, shapes, stageEpoch])
-  useEffect(() => () => { laserAnimationRef.current++; nodes.current={}; refCallbacks.current={}; viewPendingRef.current=null; if(cullRafRef.current){cancelAnimationFrame(cullRafRef.current)} if(wheelFlushRef.current){clearTimeout(wheelFlushRef.current)} }, [])
+  useEffect(() => () => { laserAnimationRef.current++; nodes.current={}; refCallbacks.current={}; if(cullRafRef.current){cancelAnimationFrame(cullRafRef.current)} }, [])
   const toolCursor = () => interaction.mode==='panning' ? 'grabbing' : state.activeTool === 'pan' ? 'grab' : state.activeTool === 'select' ? 'default' : state.activeTool === 'text' ? 'text' : 'crosshair'
   useEffect(() => { const container=stageRef.current?.container(); if(container) container.style.cursor=toolCursor() }, [state.activeTool, interaction.mode])
   useEffect(() => { abort() }, [state.activeTool])
@@ -392,11 +357,11 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove }) {
   const down = event => {
     try {
       const pid=Number.isFinite(event.evt?.pointerId)?event.evt.pointerId:null
-      if (pan.current || start.current || draftRef.current) {
+      if (panStart.current || start.current || draftRef.current) {
         if (pid===null || activePointer.current===pid) abort()
         else return
       }
-      if (event.evt.button === 1 || space.current || stateRef.current.activeTool==='pan') { event.evt.preventDefault(); pan.current={x:event.evt.clientX,y:event.evt.clientY,view}; if(pid!==null)activePointer.current=pid; setHitGraph(false); startInteraction('panning'); window.addEventListener('pointermove', panMoveHandler); return }
+      if (stateRef.current.activeTool === 'pan') { event.evt.preventDefault(); panStart.current={px:event.evt.clientX,py:event.evt.clientY,view:{...viewRef2.current}}; if(pid!==null)activePointer.current=pid; setHitGraph(false); startInteraction('panning'); window.addEventListener('pointermove', handlePanMove); return }
       // Any stage click while a text editor is open finishes it and keeps the
       // committed text. The dismiss click itself won't spawn a second empty
       // box, so you need one extra click (like Excalidraw) to add another box.
@@ -442,7 +407,7 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove }) {
     try {
       const pid=Number.isFinite(event.evt?.pointerId)?event.evt.pointerId:null
       if(activePointer.current!==null&&activePointer.current!==pid) return
-      if(pan.current) return
+      if(panStart.current) return
       if(!start.current) return
       let p=point()
       if(!p) return
@@ -460,7 +425,7 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove }) {
       const pid=Number.isFinite(event?.evt?.pointerId)?event.evt.pointerId:null
       if(activePointer.current!==null&&pid!==null&&activePointer.current!==pid) return
       activePointer.current=null
-      if(pan.current){window.removeEventListener('pointermove', panMoveHandler);pan.current=null;start.current=null;flushView();return}
+      if(panStart.current){window.removeEventListener('pointermove', handlePanMove);panStart.current=null;activePointer.current=null;setHitGraph(true);interactionRef.current=initialInteraction;dispatchInteraction({type:'END'});return}
       if(laserRef.current){const token=++laserAnimationRef.current;const node=laserNodeRef.current;const fade=()=>{if(token!==laserAnimationRef.current)return;const current=laserRef.current;if(!current)return;current.opacity=Math.max(0,(current.opacity??.8)-.06);if(node&&!node.isDestroyed()){node.opacity(current.opacity);node.getLayer()?.batchDraw()}if(current.opacity>0)requestAnimationFrame(fade);else{laserRef.current=null;updateLaser(null)}};requestAnimationFrame(fade);start.current=null;return}
       const current=draftRef.current
       if(current){let completed;if(isPointShape(current.type)){completed={...current,points:current.points.slice()}}else{const end=draftEndRef.current||current;completed={...current,...normalizeBox({x:current.x,y:current.y,width:end.x-current.x,height:end.y-current.y})}}const valid=isPointShape(completed.type)?completed.points.length>3:completed.width>MIN_SIZE&&completed.height>MIN_SIZE;if(valid)commit(prev=>[...prev,completed]);updateDraft(null)}
@@ -599,10 +564,5 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove }) {
         onTouchCancel: up
       }
     : { onPointerDown: down, onPointerMove: move, onPointerUp: up, onPointerCancel: up, onMouseMove: onStageMouseMove }
-  // During panning the imperative stage.position() drives the Stage while
-  // React view state stays stale until flushView().  If we keep passing the
-  // stale x/y as props, any mid-pan re-render resets the position.  Dropping
-  // the x/y props while panning lets the imperative position stick.
-  const stagePosProps = pan.current ? {} : { x: stageProps.x, y: stageProps.y }
-  return <div ref={hostRef} className="canvas-host" data-interaction-mode={interaction.mode}><Stage key={stageEpoch} ref={stageRef} width={size.width} height={size.height} {...stagePosProps} scaleX={stageProps.scaleX} scaleY={stageProps.scaleY} onWheel={stageProps.onWheel} draggable={stageProps.draggable} {...inputProps} onDragStart={handleStageDragStart} onDragMove={handleStageDragMove} onDragEnd={handleStageDragEnd} onTransformStart={handleStageTransformStart} onTransformEnd={handleStageTransformEnd} onContextMenu={event=>event.evt.preventDefault()}><Layer><ShapesLayer shapes={shapes} editingId={editing?.id} draggable={state.activeTool==='select'} viewScaleRef={viewScaleRef} onEdit={handleEdit} refFor={refFor}/>{draft&&<Shape shape={draft} draggable={false} viewScaleRef={viewScaleRef} nodeRef={draftNodeRef} onEdit={()=>{}}/>}</Layer><Layer name="overlay">{laser&&<Line ref={laserNodeRef} listening={false} points={laser.points} stroke="#ef4444" strokeWidth={4} lineCap="round" lineJoin="round" opacity={laser.opacity ?? .8}/>}{snapGuides&&snapGuides.map((g,i)=>g.orientation==='vertical'?<Line key={i} listening={false} points={[g.value,0,g.value,size.height]} stroke="#6366f1" strokeWidth={1} dash={[4,4]} opacity={0.7}/>:<Line key={i} listening={false} points={[0,g.value,size.width,g.value]} stroke="#6366f1" strokeWidth={1} dash={[4,4]} opacity={0.7}/>)}<Transformer ref={transformer} onDblClick={handleTransformerDblClick} onDblTap={handleTransformerDblClick} rotateEnabled flipEnabled shiftBehavior="inverted" boundBoxFunc={(oldBox,newBox)=>((newBox.width<minTransformSize||newBox.height<minTransformSize)&&transformer.current?.getActiveAnchor()!=='rotater'?oldBox:newBox)} enabledAnchors={transformerAnchors} /></Layer></Stage>{shapes.length===0&&!editing&&!draft&&<div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',textAlign:'center',pointerEvents:'none',opacity:.45,fontSize:14,lineHeight:1.6,maxWidth:280}}><div style={{fontSize:18,fontWeight:600,marginBottom:4}}>Your canvas is empty</div><div>Select a tool from the left toolbar and drag on the canvas to create shapes. Use <kbd style={{background:'#e2e8f0',padding:'1px 5px',borderRadius:3,fontSize:12}}>V</kbd> for select, <kbd style={{background:'#e2e8f0',padding:'1px 5px',borderRadius:3,fontSize:12}}>R</kbd> for rectangle, <kbd style={{background:'#e2e8f0',padding:'1px 5px',borderRadius:3,fontSize:12}}>P</kbd> for pen.</div></div>}{editing&&<textarea ref={editorRef} className="text-editor" style={{position:'fixed',left:editing.x*view.scale+view.x,top:editing.y*view.scale+view.y,width:editing.width*view.scale,height:editing.height*view.scale,minWidth:0,minHeight:0,maxWidth:'none',maxHeight:'none',fontSize:editing.fontSize*view.scale,lineHeight:TEXT_LINE_HEIGHT,fontFamily:TEXT_FONT_FAMILY,color:editing.stroke||'#1e293b',resize:'none',boxSizing:'border-box',overflow:'hidden',padding:0,border:'none',outline:'2px solid #6366f1',outlineOffset:'1px',background:'transparent',zIndex:4}} defaultValue={editing.value} onChange={event=>{const value=event.target.value;const prev=editingRef.current;if(!prev)return;const box=measureTextBox(value,prev.fontSize);const el=editorRef.current;if(el){el.style.width=(box.width*view.scale)+'px';el.style.height=(box.height*view.scale)+'px'}if(box.width!==prev.width||box.height!==prev.height){const next={...prev,value,width:box.width,height:box.height};editingRef.current=next;setEditing(next)}else{editingRef.current={...prev,value}}}} onBlur={finishText} onKeyDown={event=>{if(event.key==='Escape'){event.preventDefault();finishText()}if(event.key==='Enter'&&(event.metaKey||event.ctrlKey)){event.preventDefault();finishText()}}}/>}</div>
+return <div ref={hostRef} className="canvas-host" data-interaction-mode={interaction.mode}><div ref={dbgRef} style={{ position: 'fixed', top: 8, left: 8, zIndex: 9999, background: 'rgba(0,0,0,.8)', color: '#4fdc7c', fontSize: 12, fontFamily: 'Consolas, monospace', lineHeight: 1.6, padding: '6px 10px', borderRadius: 4, pointerEvents: 'none', whiteSpace: 'pre' }}>PAN DEBUG: BUILD-20260814-B — waiting…</div><Stage key={stageEpoch} ref={stageRef} width={size.width} height={size.height} x={view.x} y={view.y} scaleX={view.scale} scaleY={view.scale} onWheel={handleWheel} draggable={false} {...inputProps} onDragStart={handleStageDragStart} onDragMove={handleStageDragMove} onDragEnd={handleStageDragEnd} onTransformStart={handleStageTransformStart} onTransformEnd={handleStageTransformEnd} onContextMenu={event=>event.evt.preventDefault()}><Layer><ShapesLayer shapes={shapes} editingId={editing?.id} draggable={state.activeTool==='select'} viewScaleRef={viewScaleRef} onEdit={handleEdit} refFor={refFor}/>{draft&&<Shape shape={draft} draggable={false} viewScaleRef={viewScaleRef} nodeRef={draftNodeRef} onEdit={()=>{}}/>}</Layer><Layer name="overlay">{laser&&<Line ref={laserNodeRef} listening={false} points={laser.points} stroke="#ef4444" strokeWidth={4} lineCap="round" lineJoin="round" opacity={laser.opacity ?? .8}/>}{snapGuides&&snapGuides.map((g,i)=>g.orientation==='vertical'?<Line key={i} listening={false} points={[g.value,0,g.value,size.height]} stroke="#6366f1" strokeWidth={1} dash={[4,4]} opacity={0.7}/>:<Line key={i} listening={false} points={[0,g.value,size.width,g.value]} stroke="#6366f1" strokeWidth={1} dash={[4,4]} opacity={0.7}/>)}<Transformer ref={transformer} onDblClick={handleTransformerDblClick} onDblTap={handleTransformerDblClick} rotateEnabled flipEnabled shiftBehavior="inverted" boundBoxFunc={(oldBox,newBox)=>((newBox.width<minTransformSize||newBox.height<minTransformSize)&&transformer.current?.getActiveAnchor()!=='rotater'?oldBox:newBox)} enabledAnchors={transformerAnchors} /></Layer></Stage>{shapes.length===0&&!editing&&!draft&&<div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',textAlign:'center',pointerEvents:'none',opacity:.45,fontSize:14,lineHeight:1.6,maxWidth:280}}><div style={{fontSize:18,fontWeight:600,marginBottom:4}}>Your canvas is empty</div><div>Select a tool from the left toolbar and drag on the canvas to create shapes. Use <kbd style={{background:'#e2e8f0',padding:'1px 5px',borderRadius:3,fontSize:12}}>V</kbd> for select, <kbd style={{background:'#e2e8f0',padding:'1px 5px',borderRadius:3,fontSize:12}}>R</kbd> for rectangle, <kbd style={{background:'#e2e8f0',padding:'1px 5px',borderRadius:3,fontSize:12}}>P</kbd> for pen.</div></div>}{editing&&<textarea ref={editorRef} className="text-editor" style={{position:'fixed',left:editing.x*view.scale+view.x,top:editing.y*view.scale+view.y,width:editing.width*view.scale,height:editing.height*view.scale,minWidth:0,minHeight:0,maxWidth:'none',maxHeight:'none',fontSize:editing.fontSize*view.scale,lineHeight:TEXT_LINE_HEIGHT,fontFamily:TEXT_FONT_FAMILY,color:editing.stroke||'#1e293b',resize:'none',boxSizing:'border-box',overflow:'hidden',padding:0,border:'none',outline:'2px solid #6366f1',outlineOffset:'1px',background:'transparent',zIndex:4}} defaultValue={editing.value} onChange={event=>{const value=event.target.value;const prev=editingRef.current;if(!prev)return;const box=measureTextBox(value,prev.fontSize);const el=editorRef.current;if(el){el.style.width=(box.width*view.scale)+'px';el.style.height=(box.height*view.scale)+'px'}if(box.width!==prev.width||box.height!==prev.height){const next={...prev,value,width:box.width,height:box.height};editingRef.current=next;setEditing(next)}else{editingRef.current={...prev,value}}}} onBlur={finishText} onKeyDown={event=>{if(event.key==='Escape'){event.preventDefault();finishText()}if(event.key==='Enter'&&(event.metaKey||event.ctrlKey)){event.preventDefault();finishText()}}}/>}</div>
 }

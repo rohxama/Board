@@ -8,6 +8,7 @@ import ZoomControls from './components/ZoomControls/ZoomControls'
 import SplashScreen from './components/SplashScreen/SplashScreen'
 import PreviousBoardModal from './components/PreviousBoardModal/PreviousBoardModal'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
+import { usePreviousBoard } from './hooks/useVisitorStatus'
 import { newId } from './lib/idGenerator'
 import { INITIAL_IMAGE_WIDTH, readImageFile } from './lib/images'
 import { clearDiagram, loadDiagram, saveDiagram } from './lib/storage'
@@ -82,19 +83,20 @@ function Workspace({ onReady }) {
   const selectAll = useCallback(() => dispatch({ type: 'SET_SELECTION', ids: shapes.map(s => s.id) }), [shapes, dispatch])
   const deselect = useCallback(() => dispatch({ type: 'SET_SELECTION', ids: [] }), [dispatch])
 
-  // Startup: never restore the saved board automatically. If one exists, hold
-  // hydration (so autosave cannot touch it yet) and let the user choose; if
-  // there is nothing saved, open the blank canvas immediately.
+  // Startup: only a returning visitor with a saved board is offered the
+  // previous board (first-time users and returning users without saved data
+  // open the blank canvas immediately). Hydration stays held until the
+  // startup choice is made so autosave cannot touch the saved board yet.
   const hydrated = useRef(false)
   const [pendingBoard, setPendingBoard] = useState(null)
+  const { previousBoardAvailable, savedBoard } = usePreviousBoard()
   useEffect(() => {
-    const saved = loadDiagram()
-    if (saved && saved.shapes.length) {
-      setPendingBoard(saved)
+    if (previousBoardAvailable && savedBoard) {
+      setPendingBoard(savedBoard)
       return
     }
     hydrated.current = true
-  }, [])
+  }, [previousBoardAvailable, savedBoard])
 
   const restorePrevious = useCallback(() => {
     if (!pendingBoard) return

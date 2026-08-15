@@ -1,0 +1,66 @@
+const puppeteer = require('puppeteer-core')
+const CHROME = 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
+const sleep = ms => new Promise(r => setTimeout(r, ms))
+
+;(async () => {
+  const browser = await puppeteer.launch({ executablePath: CHROME, headless: true, args: ['--window-size=1200,800'] })
+  const page = await browser.newPage()
+  await page.setViewport({ width: 1200, height: 800 })
+  page.on('pageerror', e => console.log('PAGE ERROR:', e.message))
+  await page.goto('http://localhost:4179/', { waitUntil: 'networkidle0' })
+  for (let i = 0; i < 200; i++) {
+    if (await page.evaluate(() => !document.querySelector('.splash-screen') && !!window.__benchStage).catch(() => false)) break
+    await sleep(100)
+  }
+  await sleep(1200)
+  await page.click('[title="Rectangle (R)"]')
+  await sleep(200)
+  await page.mouse.move(450, 300)
+  await page.mouse.down()
+  await page.mouse.move(750, 500, { steps: 12 })
+  await page.mouse.up()
+  await sleep(400)
+  await page.evaluate(() => {
+    window.__dragTrace = []
+    const st = window.__benchStage
+    st.on('dragstart', () => window.__dragTrace.push('dragstart'))
+    st.on('dragmove', () => window.__dragTrace.push('dragmove'))
+    st.on('dragend', () => window.__dragTrace.push('dragend'))
+    window.__rectNode = st.findOne('Rect')
+  })
+  await page.click('[title="Select (V)"]')
+  await sleep(200)
+  await page.mouse.click(200, 650)
+  await sleep(300)
+  const pre = await page.evaluate(() => JSON.stringify({ draggable: window.__rectNode.draggable(), listening: window.__benchStage.getLayers().map(l => l.listening()) }))
+  console.log('pre-drag state:', pre)
+  await page.mouse.move(560, 400)
+  await page.mouse.down()
+  await page.mouse.move(580, 400, { steps: 4 })
+  await sleep(200)
+  const mid1 = await page.evaluate(() => JSON.stringify({ trace: window.__dragTrace, x: window.__rectNode.x() }))
+  console.log('after +20px move:', mid1)
+  await page.mouse.move(660, 400, { steps: 10 })
+  await sleep(200)
+  const mid2 = await page.evaluate(() => JSON.stringify({ trace: window.__dragTrace, x: window.__rectNode.x() }))
+  console.log('after +100px move:', mid2)
+  await page.mouse.up()
+  await sleep(300)
+  const post = await page.evaluate(() => JSON.stringify({ trace: window.__dragTrace, x: window.__rectNode.x() }))
+  console.log('after up:', post)
+
+  // wheel zoom with Ctrl held
+  await page.keyboard.down('Control')
+  await page.mouse.move(700, 500)
+  await page.mouse.wheel({ deltaY: -120 })
+  await sleep(400)
+  const wheel1 = await page.evaluate(() => JSON.stringify({ s: window.__benchStage.scaleX(), x: window.__benchStage.x() }))
+  console.log('ctrl+wheel -120:', wheel1)
+  await page.mouse.wheel({ deltaY: -120 })
+  await sleep(400)
+  const wheel2 = await page.evaluate(() => JSON.stringify({ s: window.__benchStage.scaleX(), x: window.__benchStage.x() }))
+  console.log('ctrl+wheel -120 again:', wheel2)
+  await page.keyboard.up('Control')
+
+  await browser.close()
+})().catch(e => { console.error('FATAL', e); process.exit(2) })
