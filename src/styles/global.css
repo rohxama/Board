@@ -133,3 +133,16 @@ textarea {
     width: min(220px, calc(100vw - 56px));
   }
 }
+
+html[data-theme='dark'] body {
+  color: #e2e8f0;
+  background: #0f172a;
+}
+html[data-theme='dark'] .canvas-host {
+  background-color: #0f172a;
+  background-image: radial-gradient(circle, #334155 1px, transparent 1px);
+}
+html[data-theme='dark'] .text-editor {
+  background: #1e293b;
+  color: #e2e8f0;
+}

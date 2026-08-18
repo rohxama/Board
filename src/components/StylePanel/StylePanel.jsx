@@ -53,7 +53,7 @@ export default memo(function StylePanel() {
     <Section title="Appearance">
       {!imagesOnly && <Field label="Stroke"><div className="swatches">{colors.map(color=><button key={color} title={color} aria-label={`Stroke ${color}`} className={state.activeStyle.stroke===color?'chosen':''} style={{background:color}} onClick={()=>update({stroke:color})}/>)}</div></Field>}
       {!imagesOnly && <Field label="Fill"><div className="fill-control"><input type="color" aria-label="Fill color" value={state.activeStyle.fill==='transparent'?'#ffffff':state.activeStyle.fill} onChange={e=>update({fill:e.target.value})}/><button className="clear-fill" onClick={()=>update({fill:'transparent'})}>No fill</button></div></Field>}
-      <Field label="Opacity"><div className="range-control"><input type="range" min="10" max="100" value={Math.round((state.activeStyle.opacity ?? 1)*100)} onChange={e=>update({opacity:+e.target.value/100})}/><output>{Math.round((state.activeStyle.opacity ?? 1)*100)}%</output></div></Field>
+      <Field label="Opacity"><div className="range-control"><input type="range" min="0" max="100" value={Math.round((state.activeStyle.opacity ?? 1)*100)} onChange={e=>update({opacity:+e.target.value/100})}/><output>{Math.round((state.activeStyle.opacity ?? 1)*100)}%</output></div></Field>
     </Section>
     {!imagesOnly && <Section title="Stroke">
       <Field label="Width"><div className="range-control"><input type="range" min="1" max="16" value={state.activeStyle.strokeWidth} onChange={e=>update({strokeWidth:+e.target.value})}/><output>{state.activeStyle.strokeWidth}px</output></div></Field>
