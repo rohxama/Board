@@ -1,47 +1,110 @@
 import { useEffect, useState } from 'react'
 
 const LOAD_TIMEOUT_MS = 12000
-const MAX_CACHE_ENTRIES = 64
-const cache = new Map()
+const MAX_CACHE_ENTRIES = 32
+const MAX_CACHE_PIXELS = 32 * 1024 * 1024
+const MAX_CONCURRENT_LOADS = 3
 
-function recordFor(src) {
-  let record = cache.get(src)
-  if (record) { cache.delete(src); cache.set(src, record); return record }
-  const image = new Image()
-  record = { image, loaded: false, failed: false, listeners: new Set() }
-  image.decoding = 'async'
-  image.onload = () => {
-    record.loaded = true
-    record.listeners.forEach(listener => listener(image))
-    record.listeners.clear()
-  }
-  image.onerror = () => {
-    record.failed = true
-    record.listeners.forEach(listener => listener(null))
-    record.listeners.clear()
-  }
-  image.src = src
+const cache = new Map()
+const queue = []
+let activeLoads = 0
+let cachedPixels = 0
+
+function touch(src, record) {
+  cache.delete(src)
   cache.set(src, record)
-  if (cache.size > MAX_CACHE_ENTRIES) { const oldest = cache.keys().next().value; cache.delete(oldest) }
+}
+
+function trimCache() {
+  while ((cache.size > MAX_CACHE_ENTRIES || cachedPixels > MAX_CACHE_PIXELS) && cache.size) {
+    const oldest = cache.entries().next().value
+    if (!oldest) break
+    const [src, record] = oldest
+    if (record.refs > 0 || record.loading) {
+      touch(src, record)
+      if ([...cache.values()].every(candidate => candidate.refs > 0 || candidate.loading)) break
+      continue
+    }
+    cache.delete(src)
+    cachedPixels = Math.max(0, cachedPixels - record.pixels)
+    record.image.onload = null
+    record.image.onerror = null
+    record.image.src = ''
+  }
+}
+
+function notify(record) {
+  record.listeners.forEach(listener => listener({ image: record.loaded ? record.image : null, failed: record.failed }))
+}
+
+function runQueue() {
+  while (activeLoads < MAX_CONCURRENT_LOADS && queue.length) {
+    const record = queue.shift()
+    if (!record || !record.loading || record.started) continue
+    record.started = true
+    activeLoads += 1
+    let settled = false
+    const finish = failed => {
+      if (settled) return
+      settled = true
+      window.clearTimeout(timeout)
+      record.image.onload = null
+      record.image.onerror = null
+      record.loading = false
+      record.failed = failed
+      record.loaded = !failed
+      if (failed) record.image.removeAttribute('src')
+      if (!failed) {
+        record.pixels = Math.max(1, record.image.naturalWidth || 1) * Math.max(1, record.image.naturalHeight || 1)
+        cachedPixels += record.pixels
+      }
+      activeLoads -= 1
+      notify(record)
+      trimCache()
+      runQueue()
+    }
+    const timeout = window.setTimeout(() => finish(true), LOAD_TIMEOUT_MS)
+    record.image.onload = () => finish(false)
+    record.image.onerror = () => finish(true)
+    record.image.decoding = 'async'
+    record.image.src = record.src
+  }
+}
+
+function releaseRecord(src, record) { record.refs=Math.max(0,record.refs-1); if(record.refs===0&&record.loading&&!record.started){record.loading=false; cache.delete(src); const index=queue.indexOf(record); if(index>=0)queue.splice(index,1); record.listeners.clear(); record.image.removeAttribute('src')} trimCache(); runQueue() } function recordFor(src) {
+  let record = cache.get(src)
+  if (record) {
+    touch(src, record)
+    return record
+  }
+  const image = new Image()
+  record = { src, image, loaded: false, loading: true, started: false, failed: false, pixels: 0, refs: 0, listeners: new Set() }
+  cache.set(src, record)
+  queue.push(record)
+  trimCache()
+  runQueue()
   return record
 }
 
 export function useImageAsset(src) {
-  const [state, setState] = useState({ image: null, failed: false })
+  const [state, setState] = useState(() => ({ image: null, failed: false }))
+
   useEffect(() => {
-    if (!src) { setState(prev => (prev.image === null && prev.failed ? prev : { image: null, failed: true })); return undefined }
+    if (!src) {
+      setState(previous => previous.image || previous.failed ? { image: null, failed: false } : previous)
+      return undefined
+    }
     const record = recordFor(src)
-    const commit = (image, failed) => setState(prev => (prev.image === image && prev.failed === failed ? prev : { image, failed }))
-    if (record.loaded) { commit(record.image, false); return undefined }
-    if (record.failed) { commit(null, true); return undefined }
-    const listener = image => commit(image, !image)
+    record.refs += 1
+    const listener = next => setState(previous => previous.image === next.image && previous.failed === next.failed ? previous : next)
     record.listeners.add(listener)
-    const timeout = setTimeout(() => {
-      commit(null, true)
-      record.failed = true
+    listener({ image: record.loaded ? record.image : null, failed: record.failed })
+    return () => {
       record.listeners.delete(listener)
-    }, LOAD_TIMEOUT_MS)
-    return () => { record.listeners.delete(listener); clearTimeout(timeout) }
+      releaseRecord(src, record)
+      trimCache()
+    }
   }, [src])
+
   return state
 }
