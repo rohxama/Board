@@ -1,9 +1,12 @@
+﻿import { getStorage } from './browser'
 const STORAGE_KEY = 'diagram-board-v1'
 const MAX_STORAGE_STRIP_IMAGES = 2 * 1024 * 1024
 
 export function loadDiagram() {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
+    const storage = getStorage()
+    if (!storage) return null
+    const raw = storage.getItem(STORAGE_KEY)
     if (!raw) return null
     const value = JSON.parse(raw)
     if (!value || typeof value !== 'object' || !Array.isArray(value.shapes)) return null
@@ -39,7 +42,9 @@ export function saveDiagram(shapes, fileName) {
       try {
         const payload = build(items)
         if (payload.length > MAX_STORAGE_STRIP_IMAGES) continue
-        window.localStorage.setItem(STORAGE_KEY, payload)
+        const storage = getStorage()
+    if (!storage) return false
+    storage.setItem(STORAGE_KEY, payload)
         console.warn('Board was too large for full save; some embedded images were omitted. Vector shapes were preserved.')
         return true
       } catch (_e) { /* keep dropping */ }
@@ -50,7 +55,9 @@ export function saveDiagram(shapes, fileName) {
 
 export function clearDiagram() {
   try {
-    window.localStorage.removeItem(STORAGE_KEY)
+    const storage = getStorage()
+    if (!storage) return false
+    storage.removeItem(STORAGE_KEY)
     return true
   } catch (_e) {
     return false

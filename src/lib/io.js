@@ -1,12 +1,13 @@
-const download = (blob, filename) => { const url = URL.createObjectURL(blob); const link = Object.assign(document.createElement('a'), { href: url, download: filename }); link.style.display = 'none'; document.body.appendChild(link); link.click(); link.remove(); window.setTimeout(() => URL.revokeObjectURL(url), 1000) }
+﻿const download = (blob, filename) => { const url = URL.createObjectURL(blob); const link = Object.assign(document.createElement('a'), { href: url, download: filename }); link.style.display = 'none'; document.body.appendChild(link); link.click(); link.remove(); window.setTimeout(() => URL.revokeObjectURL(url), 1000) }
 const sanitize = name => name.replace(/[/\\?%*:|"<>]/g, '_')
 import { sanitizeShape } from './geometry'
 import { newId } from './idGenerator'
+import { getCanvas2DContext, readFileAsText } from './browser'
 const MAX_IMPORT_BYTES = 25 * 1024 * 1024
 const MAX_IMPORT_SHAPES = 10000
 export const exportJSON = (shapes, fileName = 'diagram') => download(new Blob([JSON.stringify({ version: 1, shapes }, null, 2)], { type: 'application/json' }), sanitize(fileName) + '.json')
 export async function importJSON(file) {
-  if (!file || typeof file.text !== 'function') throw new Error('Choose a diagram file first.')
+  if (!file) throw new Error('Choose a diagram file first.')
   if (Number.isFinite(file.size) && file.size > MAX_IMPORT_BYTES) throw new Error('Diagram files must be 25 MB or smaller.')
   let value
   try { value = JSON.parse(await file.text()) } catch (_e) { throw new Error('The diagram file is not valid JSON.') }
@@ -70,7 +71,8 @@ async function withPaper(dataUrl) {
   const canvas = document.createElement('canvas')
   canvas.width = src.width
   canvas.height = src.height
-  const context = canvas.getContext('2d')
+  const context = getCanvas2DContext(canvas)
+  if (!context) throw new Error('Canvas export is not supported by this browser.')
   // Paper fill.
   context.fillStyle = EXPORT_BACKGROUND
   context.fillRect(0, 0, canvas.width, canvas.height)
@@ -87,4 +89,64 @@ async function withPaper(dataUrl) {
   // Shapes over the paper.
   context.drawImage(src, 0, 0)
   return canvas.toDataURL('image/png')
+}
+
+const svgNumber = value => Number.isFinite(value) ? Number(value.toFixed(3)) : 0
+const svgEscape = value => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;')
+const svgPaint = value => value === 'transparent' || !value ? 'none' : svgEscape(value)
+const svgDash = dash => dash === 'dashed' ? '10 6' : dash === 'dotted' ? '2 6' : ''
+const svgPoints = points => { const values = Array.isArray(points) ? points : []; const result = []; for (let i = 0; i + 1 < values.length; i += 2) result.push(`${svgNumber(values[i])},${svgNumber(values[i + 1])}`); return result.join(' ') }
+
+function svgBounds(shape) {
+  if (Array.isArray(shape.points) && shape.points.length >= 2) {
+    const xs = [], ys = []
+    for (let i = 0; i + 1 < shape.points.length; i += 2) { xs.push(shape.x + shape.points[i]); ys.push(shape.y + shape.points[i + 1]) }
+    return { minX: Math.min(...xs), minY: Math.min(...ys), maxX: Math.max(...xs), maxY: Math.max(...ys) }
+  }
+  return { minX: shape.x, minY: shape.y, maxX: shape.x + (shape.width || 0), maxY: shape.y + (shape.height || 0) }
+}
+
+function svgGroupTransform(shape) {
+  const rotation = svgNumber(shape.rotation || 0)
+  if (!rotation) return ''
+  const bounds = svgBounds(shape)
+  const cx = (bounds.minX + bounds.maxX) / 2, cy = (bounds.minY + bounds.maxY) / 2
+  return ` transform="rotate(${rotation} ${svgNumber(cx)} ${svgNumber(cy)})"`
+}
+
+function svgShape(shape) {
+  const stroke = svgPaint(shape.stroke)
+  const fill = svgPaint(shape.fill)
+  const strokeWidth = svgNumber(shape.strokeWidth || 1)
+  const dash = svgDash(shape.dash)
+  const common = `stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round" opacity="${svgNumber(shape.opacity ?? 1)}"${dash ? ` stroke-dasharray="${dash}"` : ''}`
+  const x = svgNumber(shape.x), y = svgNumber(shape.y), width = svgNumber(shape.width), height = svgNumber(shape.height)
+  const group = `<g${svgGroupTransform(shape)}>`
+  if (shape.type === 'rectangle') return `${group}<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="${svgNumber(shape.cornerRadius || 0)}" fill="${fill}" ${common}/></g>`
+  if (shape.type === 'ellipse') return `${group}<ellipse cx="${svgNumber(shape.x + shape.width / 2)}" cy="${svgNumber(shape.y + shape.height / 2)}" rx="${svgNumber(shape.width / 2)}" ry="${svgNumber(shape.height / 2)}" fill="${fill}" ${common}/></g>`
+  if (shape.type === 'diamond') return `${group}<polygon points="${svgPoints([shape.width / 2, 0, shape.width, shape.height / 2, shape.width / 2, shape.height, 0, shape.height / 2].map((value, index) => value + (index % 2 ? shape.y : shape.x)))}" fill="${fill}" ${common}/></g>`
+  if (shape.type === 'line') return `${group}<line x1="${x + svgNumber(shape.points?.[0])}" y1="${y + svgNumber(shape.points?.[1])}" x2="${x + svgNumber(shape.points?.[2])}" y2="${y + svgNumber(shape.points?.[3])}" fill="none" ${common}/></g>`
+  if (shape.type === 'arrow') return `${group}<line x1="${x + svgNumber(shape.points?.[0])}" y1="${y + svgNumber(shape.points?.[1])}" x2="${x + svgNumber(shape.points?.[2])}" y2="${y + svgNumber(shape.points?.[3])}" fill="none" marker-end="url(#diagram-arrow)" ${common}/></g>`
+  if (shape.type === 'pen') return `${group}<polyline points="${svgPoints(shape.points?.map((value, index) => value + (index % 2 ? shape.y : shape.x)))}" fill="none" ${common}/></g>`
+  if (shape.type === 'text') {
+    const fontSize = svgNumber(shape.fontSize || 20), lineHeight = fontSize * 1.25
+    const lines = String(shape.text || '').split('\n')
+    const tspans = lines.map((line, index) => `<tspan x="${x}" dy="${index ? lineHeight : 0}">${svgEscape(line)}</tspan>`).join('')
+    return `${group}<text x="${x}" y="${y}" font-family="Arial, sans-serif" font-size="${fontSize}" fill="${stroke}" opacity="${svgNumber(shape.opacity ?? 1)}" dominant-baseline="hanging">${tspans}</text></g>`
+  }
+  if (shape.type === 'image' && typeof shape.src === 'string') {
+    const flipX = shape.flipX ? -1 : 1, flipY = shape.flipY ? -1 : 1
+    const transform = flipX < 0 || flipY < 0 ? ` transform="translate(${shape.flipX ? 2 * x + width : 0} ${shape.flipY ? 2 * y + height : 0}) scale(${flipX} ${flipY})"` : ''
+    return `${group}<image href="${svgEscape(shape.src)}" x="${x}" y="${y}" width="${width}" height="${height}" preserveAspectRatio="none" opacity="${svgNumber(shape.opacity ?? 1)}"${transform}/></g>`
+  }
+  return ''
+}
+
+export const exportSVG = (shapes, fileName = 'diagram') => {
+  const items = Array.isArray(shapes) ? shapes.filter(Boolean) : []
+  const bounds = items.reduce((result, shape) => { const box = svgBounds(shape); return { minX: Math.min(result.minX, box.minX), minY: Math.min(result.minY, box.minY), maxX: Math.max(result.maxX, box.maxX), maxY: Math.max(result.maxY, box.maxY) } }, { minX: 0, minY: 0, maxX: 1, maxY: 1 })
+  const padding = 40, viewX = bounds.minX - padding, viewY = bounds.minY - padding, viewWidth = Math.max(1, bounds.maxX - bounds.minX + padding * 2), viewHeight = Math.max(1, bounds.maxY - bounds.minY + padding * 2)
+  const gridId = 'diagram-grid', arrowId = 'diagram-arrow'
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="${svgNumber(viewX)} ${svgNumber(viewY)} ${svgNumber(viewWidth)} ${svgNumber(viewHeight)}" width="${svgNumber(viewWidth)}" height="${svgNumber(viewHeight)}"><defs><pattern id="${gridId}" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="${EXPORT_GRID_COLOR}"/></pattern><marker id="${arrowId}" markerWidth="10" markerHeight="10" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L10,3.5 L0,7 z" fill="context-stroke"/></marker></defs><rect x="${svgNumber(viewX)}" y="${svgNumber(viewY)}" width="${svgNumber(viewWidth)}" height="${svgNumber(viewHeight)}" fill="${EXPORT_BACKGROUND}"/><rect x="${svgNumber(viewX)}" y="${svgNumber(viewY)}" width="${svgNumber(viewWidth)}" height="${svgNumber(viewHeight)}" fill="url(#${gridId})"/>${items.map(svgShape).join('')}</svg>`
+  download(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }), sanitize(fileName) + '.svg')
 }
