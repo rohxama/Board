@@ -2,7 +2,7 @@ import { useEffect, useRef, memo } from 'react'
 import { useAppState } from '../../context/AppStateContext'
 import { useHistory } from '../../context/HistoryContext'
 
-const colors=['#1e293b','#2563eb','#7c3aed','#db2777','#dc2626','#ea580c','#16a34a','#ffffff']
+const colors=['#0d0d0d','#2563eb','#7c3cff','#db2777','#ef3b2d','#f59e0b','#22c55e','#f5f5f5']
 
 function Section({ title, children }) { return <section className="inspector-section"><h3>{title}</h3>{children}</section> }
 function Field({ label, children }) { return <label className="inspector-field"><span>{label}</span>{children}</label> }
@@ -12,8 +12,7 @@ export default memo(function StylePanel() {
   const { shapes, commit } = useHistory()
   const selected = state.selectedShapeIds.length ? shapes.filter(shape => state.selectedShapeIds.includes(shape.id)) : []
   const selectedShape = selected[0]
-  const noStyleTools = ['select', 'pan', 'eraser', 'laser']
-  const visible = (!noStyleTools.includes(state.activeTool)) || selected.length
+  const visible = true
   useEffect(() => { if (!selectedShape) return; if(selectedShape.type==='image'){dispatch({type:'SET_STYLE',style:{opacity:selectedShape.opacity ?? 1}});return} const { stroke, strokeWidth, dash, fill, opacity, cornerRadius, fontSize } = selectedShape; dispatch({ type: 'SET_STYLE', style: { stroke, strokeWidth, dash, fill, opacity, cornerRadius: cornerRadius ?? 4, fontSize: fontSize ?? 20 } }) }, [selectedShape?.id])
   const pendingStyle = useRef(null)
   const timerRef = useRef(null)
@@ -49,6 +48,7 @@ export default memo(function StylePanel() {
   const imagesOnly = selected.length>0 && selected.every(shape=>shape.type==='image')
   if (!visible) return null
   return <aside className="style-panel" aria-label="Properties inspector">
+    <div className="inspector-tabs" role="tablist" aria-label="Inspector sections"><span className="inspector-tab is-active" role="tab" aria-selected="true">Style</span><span className="inspector-tab is-disabled" role="tab" aria-selected="false" aria-disabled="true">Arrange</span></div>
     <header className="inspector-header"><div><span className="eyebrow">Properties</span><h2>{selected.length > 1 ? `${selected.length} objects` : selectedShape ? selectedShape.type : 'Default style'}</h2></div><span className="selection-dot"/></header>
     <Section title="Appearance">
       {!imagesOnly && <Field label="Stroke"><div className="swatches">{colors.map(color=><button key={color} title={color} aria-label={`Stroke ${color}`} className={state.activeStyle.stroke===color?'chosen':''} style={{background:color}} onClick={()=>update({stroke:color})}/>)}</div></Field>}
@@ -60,7 +60,7 @@ export default memo(function StylePanel() {
       <Field label="Style"><select value={state.activeStyle.dash} onChange={e=>update({dash:e.target.value})}><option value="solid">Solid</option><option value="dashed">Dashed</option><option value="dotted">Dotted</option></select></Field>
     </Section>}
     {isRectangle && <Section title="Shape"><Field label="Corner radius"><div className="range-control"><input type="range" min="0" max="32" value={state.activeStyle.cornerRadius ?? 4} onChange={e=>update({cornerRadius:+e.target.value})}/><output>{state.activeStyle.cornerRadius ?? 4}</output></div></Field></Section>}
-    {isText && <Section title="Typography"><Field label="Size"><div className="range-control"><input type="range" min="12" max="64" value={state.activeStyle.fontSize ?? 20} onChange={e=>update({fontSize:+e.target.value})}/><output>{state.activeStyle.fontSize ?? 20}px</output></div></Field></Section>}
+    {isText && <Section title="Text"><Field label="Font size"><div className="range-control"><input type="range" min="12" max="64" value={state.activeStyle.fontSize ?? 20} onChange={e=>update({fontSize:+e.target.value})}/><output>{state.activeStyle.fontSize ?? 20}px</output></div></Field></Section>}
     {hasImage && <Section title="Image"><div className="image-actions"><button onClick={()=>toggleImage('flipX')}>Flip horizontal</button><button onClick={()=>toggleImage('flipY')}>Flip vertical</button><button onClick={toggleLock}>{selected.every(shape=>shape.type!=='image'||shape.locked)?'Unlock':'Lock'}</button></div><div className="image-actions"><button onClick={()=>reorder('front')}>Bring to front</button><button onClick={()=>reorder('back')}>Send to back</button></div></Section>}
   </aside>
 })
