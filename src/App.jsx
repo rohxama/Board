@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { AppStateProvider, useAppState } from './context/AppStateContext'
 import { HistoryProvider, useHistory } from './context/HistoryContext'
 import CanvasStage from './components/Canvas/CanvasStage'
-import Toolbar from './components/Toolbar/Toolbar'
+import Toolbar from './components/Toolbar/DesignToolbar'
 import StylePanel from './components/StylePanel/StylePanel'
 import ZoomControls, { fitViewToContent } from './components/ZoomControls/ZoomControls'
 import SplashScreen from './components/SplashScreen/SplashScreen'
@@ -165,7 +165,7 @@ function Workspace({ onReady }) {
   return (
     <main>
       <CanvasStage stageRef={stageRef} view={view} setView={setView} onCursorMove={pos => { const now = performance.now(); if (now - cursorThrottleRef.current > 50) { cursorThrottleRef.current = now; setCursorPos(pos) } }} onImageDrop={addImage} />
-      <Toolbar stageRef={stageRef} onImageUpload={addImage} imageInputRef={imageInputRef} />
+      <Toolbar stageRef={stageRef} onImageUpload={addImage} imageInputRef={imageInputRef} view={view} onZoomReset={resetZoom} />
       <StylePanel />
       <ZoomControls view={view} setView={setView} cursorPos={cursorPos} shapes={shapes} />
       {pendingBoard && <PreviousBoardModal onRestore={restorePrevious} onFresh={startFresh} />}
