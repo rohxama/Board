@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import siteIcon from '../../assets/images/site_icon.png'
+import siteIcon from '../../assets/images/site-logo-removebg-preview.png'
 
 const EXIT_FALLBACK_MS = 600
 
@@ -19,7 +19,7 @@ export default function SplashScreen({ leaving, onHidden }) {
     }}
   >
     <div className="splash-content">
-      <img className="splash-icon" src={siteIcon} alt="" />
+      <img className="splash-icon" src={siteIcon} alt="Board logo" />
       <div className="splash-loader" aria-hidden="true"><span /></div>
     </div>
   </div>

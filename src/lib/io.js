@@ -46,23 +46,34 @@ function loadImage(src) {
 
 // Draw the editor's paper background (the CSS on .canvas-host that the user sees
 // behind the shapes) so an exported PNG is a faithful WYSIWYG capture.
-export async function exportPNG(stage, fileName = 'diagram') {
-  if (!stage) return
+// Returns the composed canvas so every image-based export (PNG, JPG, PDF,
+// clipboard, print) reuses the same capture path.
+async function renderBoardCanvas(stage) {
+  if (!stage) return null
   const overlay = stage.findOne('.overlay')
   if (overlay) { overlay.hide(); stage.draw() }
-  const restore = () => { if (overlay) { overlay.show(); stage.draw() } }
   try {
     const url = stage.toDataURL({ pixelRatio: 2 })
     if (!url) throw new Error('The canvas could not be exported (an image may still be loading).')
-    const paperUrl = await withPaper(url)
-    // Convert the data URL to a Blob directly. Using fetch() here would be routed
-    // through the page CSP's connect-src (which omits "data:"), silently failing.
-    download(dataUrlToBlob(paperUrl), sanitize(fileName) + '.png')
+    return await withPaper(url)
   } catch (error) {
-    console.error('PNG export failed:', error)
+    console.error('Board render failed:', error)
+    return null
   } finally {
-    restore()
+    if (overlay) { overlay.show(); stage.draw() }
   }
+}
+
+export async function exportPNG(stage, fileName = 'diagram') {
+  const canvas = await renderBoardCanvas(stage)
+  if (!canvas) return
+  download(dataUrlToBlob(canvas.toDataURL('image/png')), sanitize(fileName) + '.png')
+}
+
+export async function exportJPG(stage, fileName = 'diagram') {
+  const canvas = await renderBoardCanvas(stage)
+  if (!canvas) return
+  download(dataUrlToBlob(canvas.toDataURL('image/jpeg', 0.92)), sanitize(fileName) + '.jpg')
 }
 
 async function withPaper(dataUrl) {
@@ -88,7 +99,78 @@ async function withPaper(dataUrl) {
   }
   // Shapes over the paper.
   context.drawImage(src, 0, 0)
-  return canvas.toDataURL('image/png')
+  return canvas
+}
+
+// Minimal single-page PDF with the rendered board embedded as a JPEG image.
+// Written by hand (no dependency) so "Download as PDF" produces a real file.
+export async function exportPDF(stage, fileName = 'diagram') {
+  const canvas = await renderBoardCanvas(stage)
+  if (!canvas) return
+  const jpegBytes = new Uint8Array(await dataUrlToBlob(canvas.toDataURL('image/jpeg', 0.9)).arrayBuffer())
+  const width = Math.round(canvas.width), height = Math.round(canvas.height)
+  const content = `q ${width} 0 0 ${height} 0 0 cm /Img1 Do Q`
+  const objects = [
+    { id: 1, body: '<< /Type /Catalog /Pages 2 0 R >>' },
+    { id: 2, body: '<< /Type /Pages /Kids [3 0 R] /Count 1 >>' },
+    { id: 3, body: `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${width} ${height}] /Resources << /XObject << /Img1 4 0 R >> >> /Contents 5 0 R >>` },
+    { id: 4, image: true, body: `<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length} >>` },
+    { id: 5, body: `<< /Length ${content.length} >>` },
+  ]
+  const encoder = new TextEncoder()
+  const chunks = []
+  const offsets = new Array(objects.length + 1).fill(0)
+  let cursor = 0
+  const emit = bytes => { chunks.push(bytes); cursor += bytes.length }
+  emit(encoder.encode('%PDF-1.4\n'))
+  emit(new Uint8Array([0x25, 0xE2, 0xE3, 0xCF, 0xD3, 0x0A]))
+  for (const object of objects) {
+    offsets[object.id] = cursor
+    emit(encoder.encode(`${object.id} 0 obj\n${object.body}\n`))
+    if (object.image) {
+      emit(encoder.encode('stream\n'))
+      emit(jpegBytes)
+      emit(encoder.encode('\nendstream\n'))
+    }
+    emit(encoder.encode('endobj\n'))
+  }
+  const xrefOffset = cursor
+  let xref = 'xref\n0 6\n0000000000 65535 f \n'
+  for (let i = 1; i <= 5; i++) xref += `${String(offsets[i]).padStart(10, '0')} 00000 n \n`
+  emit(encoder.encode(`${xref}trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`))
+  download(new Blob(chunks, { type: 'application/pdf' }), sanitize(fileName) + '.pdf')
+}
+
+// Copy the rendered board to the system clipboard as a PNG image. Returns
+// false when the browser does not support image clipboard writes.
+export async function copyBoardAsImage(stage) {
+  const canvas = await renderBoardCanvas(stage)
+  if (!canvas) return false
+  const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'))
+  if (!blob) return false
+  try {
+    if (navigator.clipboard?.write && typeof ClipboardItem !== 'undefined') {
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+      return true
+    }
+  } catch (_e) { /* clipboard image path unavailable */ }
+  return false
+}
+
+// Open the browser print dialog with the board rendered full-page.
+export async function printBoard(stage, fileName = 'diagram') {
+  const canvas = await renderBoardCanvas(stage)
+  if (!canvas) return
+  const url = canvas.toDataURL('image/png')
+  const win = window.open('', '_blank')
+  if (!win) return
+  win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${svgEscape(fileName)}</title><style>@page{margin:0}html,body{margin:0;padding:0;background:#fff}img{display:block;width:100%;height:auto}</style></head><body><img alt="" src="${url}"></body></html>`)
+  win.document.close()
+  win.focus()
+  let printed = false
+  const doPrint = () => { if (!printed) { printed = true; win.print() } }
+  const poll = () => { if (win.document.images[0]?.complete && win.document.images[0].naturalWidth) doPrint(); else window.setTimeout(poll, 150) }
+  window.setTimeout(poll, 100)
 }
 
 const svgNumber = value => Number.isFinite(value) ? Number(value.toFixed(3)) : 0

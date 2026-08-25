@@ -10,7 +10,7 @@ export function loadDiagram() {
     if (!raw) return null
     const value = JSON.parse(raw)
     if (!value || typeof value !== 'object' || !Array.isArray(value.shapes)) return null
-    return { shapes: value.shapes, fileName: typeof value.fileName === 'string' ? value.fileName : undefined }
+    return { shapes: value.shapes, fileName: typeof value.fileName === 'string' ? value.fileName : undefined, savedAt: Number.isFinite(value.savedAt) ? value.savedAt : undefined }
   } catch (_e) {
     return null
   }
@@ -18,9 +18,12 @@ export function loadDiagram() {
 
 export function saveDiagram(shapes, fileName) {
   if (!Array.isArray(shapes)) return false
-  const build = items => JSON.stringify({ shapes: items, fileName, savedAt: Date.now() })
+  const savedAt = Date.now()
+  const announceSaved = () => { if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('diagram:saved', { detail: { savedAt } })) }
+  const build = items => JSON.stringify({ shapes: items, fileName, savedAt })
   try {
     window.localStorage.setItem(STORAGE_KEY, build(shapes))
+    announceSaved()
     return true
   } catch (error) {
     if (!error || (error.name !== 'QuotaExceededError' && error.code !== 22)) return false
@@ -44,7 +47,8 @@ export function saveDiagram(shapes, fileName) {
         if (payload.length > MAX_STORAGE_STRIP_IMAGES) continue
         const storage = getStorage()
     if (!storage) return false
-    storage.setItem(STORAGE_KEY, payload)
+            storage.setItem(STORAGE_KEY, payload)
+        announceSaved()
         console.warn('Board was too large for full save; some embedded images were omitted. Vector shapes were preserved.')
         return true
       } catch (_e) { /* keep dropping */ }
@@ -59,6 +63,19 @@ export function clearDiagram() {
     if (!storage) return false
     storage.removeItem(STORAGE_KEY)
     return true
+  } catch (_e) {
+    return false
+  }
+}
+
+const TRASH_KEY = 'diagram-board-trash-v1'
+
+export function moveDiagramToTrash(shapes, fileName) {
+  try {
+    const storage = getStorage()
+    if (!storage || !Array.isArray(shapes)) return false
+    storage.setItem(TRASH_KEY, JSON.stringify({ shapes, fileName, deletedAt: Date.now() }))
+    return clearDiagram()
   } catch (_e) {
     return false
   }

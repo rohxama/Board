@@ -1,4 +1,4 @@
-﻿import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react'
 import Konva from 'konva'
 import { Arrow, Ellipse, Image as KonvaImage, Layer, Line, Rect, Stage, Text, Transformer } from 'react-konva'
 import { useAppState } from '../../context/AppStateContext'
@@ -54,7 +54,7 @@ function interactionReducer(state, action) {
   return state
 }
 
-// Shared offscreen canvas for measuring text â€” mirrors how Konva/the browser
+// Shared offscreen canvas for measuring text — mirrors how Konva/the browser
 // will actually lay the string out, so the live textarea box and the final
 // committed shape's width/height always agree.
 let measureCtx
@@ -103,7 +103,7 @@ const Shape = memo(function Shape({ shape, nodeRef, onEdit, draggable = true, vi
   const diamondHitFunc = useCallback(safeHit((ctx, node) => { const points = node.points(); if (!points || points.length < 8) return; ctx.beginPath(); ctx.moveTo(points[0], points[1]); for (let i = 2; i < points.length; i += 2) ctx.lineTo(points[i], points[i + 1]); ctx.closePath(); node.fill() ? ctx.fillStrokeShape(node) : ctx.strokeShape(node) }), [])
 
   if (shape.type === 'image') return <ImageShape shape={shape} nodeRef={nodeRef} onEdit={onEdit} draggable={draggable} />
-  if (shape.type === 'rectangle') return <Rect {...interaction} {...paint} x={shape.x} y={shape.y} width={shape.width} height={shape.height} cornerRadius={shape.cornerRadius ?? 4} hitFunc={rectHitFunc} {...borderHit} />
+  if (shape.type === 'rectangle') return <Rect {...interaction} {...paint} x={shape.x} y={shape.y} width={shape.width} height={shape.height} cornerRadius={shape.cornerRadius ?? 8} hitFunc={rectHitFunc} {...borderHit} />
   if (shape.type === 'ellipse') return <Ellipse {...interaction} {...paint} x={shape.x + shape.width / 2} y={shape.y + shape.height / 2} radiusX={shape.width / 2} radiusY={shape.height / 2} hitFunc={ellipseHitFunc} {...borderHit} />
   if (shape.type === 'diamond') return <Line {...interaction} {...paint} {...borderHit} x={shape.x} y={shape.y} closed points={diamondPoints} hitFunc={diamondHitFunc} lineJoin="round" />
   if (shape.type === 'arrow') return <Arrow {...interaction} {...paint} {...pointHit} x={shape.x} y={shape.y} points={shape.points} pointerLength={10} pointerWidth={10} fill={shape.stroke} />
@@ -145,6 +145,15 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
     const viewScaleRef = useRef(view.scale); viewScaleRef.current = view.scale
     const hitGraphOn = useRef(true)
   const spacePanRef = useRef(false)
+  const emptyDismissed = useRef(false)
+  const prevToolForEmptyRef = useRef(state.activeTool)
+  useEffect(() => {
+    if (emptyDismissed.current) return
+    if (shapes.length > 0 || state.activeTool !== prevToolForEmptyRef.current) {
+      emptyDismissed.current = true
+    }
+    prevToolForEmptyRef.current = state.activeTool
+  }, [shapes.length, state.activeTool])
   useEffect(() => {
     const isEditable = target => target?.tagName === 'INPUT' || target?.tagName === 'TEXTAREA' || target?.isContentEditable
     const onKeyDown = event => {
@@ -168,7 +177,7 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
 
   // Toggle the layer's hit canvas. While an active pointer gesture runs (pan /
   // draw / drag / resize) Konva doesn't need per-shape hit testing, so
-  // listening(false) skips rasterizing the hit canvas entirely â€” a large chunk
+  // listening(false) skips rasterizing the hit canvas entirely — a large chunk
   // of the per-frame cost with many shapes. The guard keeps toggles no-ops.
   const setHitGraph = useCallback(on => {
     if (hitGraphOn.current === on) return
@@ -183,7 +192,7 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
   const startInteraction = mode => { interactionRef.current={mode}; dispatchInteraction({type:'START',mode}) }
     // PAN: while the pointer moves, the viewport is recomputed from the gesture
   // origin and written straight into React state. The Stage renders x/y/scale
-  // from that state â€” one source of truth, no imperative stage movement.
+  // from that state — one source of truth, no imperative stage movement.
   const handlePanMove = useCallback(e => {
     const origin = panStart.current
     if (!origin) return
@@ -396,6 +405,7 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
       const id = newId()
       commit(prev => [...prev, { id, type: 'text', x: current.x, y: current.y, width: current.width, height: current.height, text, ...stateRef.current.activeStyle, fontSize: current.fontSize, stroke: current.stroke }])
       dispatch({ type: 'SET_SELECTION', ids: [id] })
+      dispatch({ type: 'SET_TOOL', tool: 'select' })
     }
     setEditing(null)
     lastTextCommitRef.current = Date.now()
@@ -472,7 +482,7 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
         // A prior text edit was open and just got committed (either above via
         // finishText(), or by the textarea's onBlur which fires before this
         // pointerdown). Don't immediately open a fresh empty box at the
-        // dismissing click â€” the user needs a fresh click to add another box.
+        // dismissing click — the user needs a fresh click to add another box.
         if (window.__trace) window.__trace.push({ t:'text-branch', wasEditing, lastCommit: Date.now()-lastTextCommitRef.current, created: true })
         if (wasEditing || Date.now() - lastTextCommitRef.current < 400) return
         const fontSize = stateRef.current.activeStyle.fontSize || 20
@@ -520,7 +530,7 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
 
       if(laserRef.current){const token=++laserAnimationRef.current;const node=laserNodeRef.current;const fade=()=>{if(token!==laserAnimationRef.current)return;const current=laserRef.current;if(!current)return;current.opacity=Math.max(0,(current.opacity??.8)-.06);if(node&&!node.isDestroyed()){node.opacity(current.opacity);node.getLayer()?.batchDraw()}if(current.opacity>0)requestAnimationFrame(fade);else{laserRef.current=null;updateLaser(null)}};requestAnimationFrame(fade);start.current=null;return}
       const current=draftRef.current
-            if(current){let completed;if(isPointShape(current.type)){completed={...current,points:current.points.slice()}}else{const end=draftEndRef.current||current;completed={...current,...normalizeBox({x:current.x,y:current.y,width:end.x-current.x,height:end.y-current.y})}}const points=completed.points||[];const pointDistance=points.length>=4?Math.hypot(points[2]-points[0],points[3]-points[1]):0;const valid=current.type==='line'||current.type==='arrow'?pointDistance>MIN_SIZE:current.type==='pen'?points.length>3:completed.width>MIN_SIZE&&completed.height>MIN_SIZE;if(valid){commit(prev=>{const created=completed.type==='arrow'?bindArrowEndpoints(completed,prev):completed;return [...prev,created]});if(['rectangle','ellipse','diamond','line','arrow','pen'].includes(completed.type))dispatch({type:'SET_SELECTION',ids:[completed.id]})}updateDraft(null)}
+            if(current){let completed;if(isPointShape(current.type)){completed={...current,points:current.points.slice()}}else{const end=draftEndRef.current||current;completed={...current,...normalizeBox({x:current.x,y:current.y,width:end.x-current.x,height:end.y-current.y})}}const points=completed.points||[];const pointDistance=points.length>=4?Math.hypot(points[2]-points[0],points[3]-points[1]):0;const valid=current.type==='line'||current.type==='arrow'?pointDistance>MIN_SIZE:current.type==='pen'?points.length>3:completed.width>MIN_SIZE&&completed.height>MIN_SIZE;if(valid){commit(prev=>{const created=completed.type==='arrow'?bindArrowEndpoints(completed,prev):completed;return [...prev,created]});    if(['rectangle','ellipse','diamond','line','arrow','pen'].includes(completed.type)){dispatch({type:'SET_SELECTION',ids:[completed.id]});dispatch({type:'SET_TOOL',tool:'select'})}}updateDraft(null)}
 
       draftEndRef.current=null; penPointsRef.current=null; draftNodeRef.current=null
       start.current=null
@@ -536,7 +546,7 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
 
     if(shape.type==='rectangle'){const width=Math.max(MIN_SIZE,shape.width*scaleX);const height=Math.max(MIN_SIZE,shape.height*scaleY);return {...shape,x:node.x(),y:node.y(),width,height,rotation}}
     if(shape.type==='text'){
-      // Text resizes uniformly (font size), not independently in width/height â€”
+      // Text resizes uniformly (font size), not independently in width/height —
       // matches Excalidraw's corner-only text resize behavior.
       const uniformScale=Math.max(scaleX,scaleY)
       const fontSize=Math.max(8,Math.round((shape.fontSize||20)*uniformScale))
@@ -680,5 +690,5 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
         onTouchCancel: up
       }
     : { onPointerDown: down, onPointerMove: move, onPointerUp: up, onPointerCancel: up, onMouseMove: onStageMouseMove }
-return <div ref={hostRef} className="canvas-host" style={{ touchAction: 'none' }} data-interaction-mode={interaction.mode} onDragOver={event=>event.preventDefault()} onDrop={handleImageDrop}><Stage key={stageEpoch} ref={stageRef} width={size.width} height={size.height} x={view.x} y={view.y} scaleX={view.scale} scaleY={view.scale} onWheel={handleWheel} draggable={false} {...inputProps} onDragStart={handleStageDragStart} onDragMove={handleStageDragMove} onDragEnd={handleStageDragEnd} onContextMenu={event=>event.evt.preventDefault()}><Layer listening={state.activeTool !== 'pan'}><ShapesLayer shapes={shapes} editingId={editing?.id} draggable={state.activeTool==='select'} viewScaleRef={viewScaleRef} onEdit={handleEdit} refFor={refFor}/>{draft&&<Shape shape={draft} draggable={false} viewScaleRef={viewScaleRef} nodeRef={draftNodeRef} onEdit={()=>{}}/>}</Layer><Layer name="overlay">{laser&&<Line ref={laserNodeRef} listening={false} points={laser.points} stroke="#ef4444" strokeWidth={4} lineCap="round" lineJoin="round" opacity={laser.opacity ?? .8}/>}{snapGuides&&snapGuides.map((g,i)=>g.orientation==='vertical'?<Line key={i} listening={false} points={[g.value,0,g.value,size.height]} stroke="#6366f1" strokeWidth={1} dash={[4,4]} opacity={0.7}/>:<Line key={i} listening={false} points={[0,g.value,size.width,g.value]} stroke="#6366f1" strokeWidth={1} dash={[4,4]} opacity={0.7}/>)}{marquee&&<Rect listening={false} x={marquee.x} y={marquee.y} width={marquee.width} height={marquee.height} fill="#6366f1" opacity={0.08} stroke="#6366f1" strokeWidth={1/view.scale} dash={[4,4]} />}<Transformer ref={transformer} onTransformStart={handleStageTransformStart} onTransformEnd={handleStageTransformEnd} onDblClick={handleTransformerDblClick} onDblTap={handleTransformerDblClick} rotateEnabled flipEnabled shiftBehavior="inverted" boundBoxFunc={(oldBox,newBox)=>((newBox.width<minTransformSize||newBox.height<minTransformSize)&&transformer.current?.getActiveAnchor()!=='rotater'?oldBox:newBox)} enabledAnchors={transformerAnchors} /></Layer></Stage>{shapes.length===0&&!editing&&!draft&&<div className="canvas-empty-state"><div className="canvas-empty-mark"><span>⌁</span></div><div className="canvas-empty-title">Your canvas is empty</div><div className="canvas-empty-copy">Select a tool from the left toolbar and drag on the canvas to create shapes.<br/><span>Use <kbd>V</kbd> for select, <kbd>R</kbd> for rectangle, <kbd>P</kbd> for pencil.</span></div></div>}{editing&&<textarea ref={editorRef} className="text-editor" style={{position:'fixed',left:editing.x*view.scale+view.x,top:editing.y*view.scale+view.y,width:editing.width*view.scale,height:editing.height*view.scale,minWidth:0,minHeight:0,maxWidth:'none',maxHeight:'none',fontSize:editing.fontSize*view.scale,lineHeight:TEXT_LINE_HEIGHT,fontFamily:TEXT_FONT_FAMILY,color:editing.stroke||'#1e293b',resize:'none',boxSizing:'border-box',overflow:'hidden',padding:0,border:'none',outline:'2px solid #6366f1',outlineOffset:'1px',background:'transparent',zIndex:4}} defaultValue={editing.value} onChange={event=>{const value=event.target.value;const prev=editingRef.current;if(!prev)return;const box=measureTextBox(value,prev.fontSize);const el=editorRef.current;if(el){el.style.width=(box.width*view.scale)+'px';el.style.height=(box.height*view.scale)+'px'}if(box.width!==prev.width||box.height!==prev.height){const next={...prev,value,width:box.width,height:box.height};editingRef.current=next;setEditing(next)}else{editingRef.current={...prev,value}}}} onBlur={finishText} onKeyDown={event=>{if(event.key==='Escape'){event.preventDefault();finishText()}if(event.key==='Enter'&&(event.metaKey||event.ctrlKey)){event.preventDefault();finishText()}}}/>}</div>
+return <div ref={hostRef} className="canvas-host" style={{ touchAction: 'none' }} data-interaction-mode={interaction.mode} onDragOver={event=>event.preventDefault()} onDrop={handleImageDrop}><Stage key={stageEpoch} ref={stageRef} width={size.width} height={size.height} x={view.x} y={view.y} scaleX={view.scale} scaleY={view.scale} onWheel={handleWheel} draggable={false} {...inputProps} onDragStart={handleStageDragStart} onDragMove={handleStageDragMove} onDragEnd={handleStageDragEnd} onContextMenu={event=>event.evt.preventDefault()}><Layer listening={state.activeTool !== 'pan'}><ShapesLayer shapes={shapes} editingId={editing?.id} draggable={state.activeTool==='select'} viewScaleRef={viewScaleRef} onEdit={handleEdit} refFor={refFor}/>{draft&&<Shape shape={draft} draggable={false} viewScaleRef={viewScaleRef} nodeRef={draftNodeRef} onEdit={()=>{}}/>}</Layer><Layer name="overlay">{laser&&<Line ref={laserNodeRef} listening={false} points={laser.points} stroke="#ef4444" strokeWidth={4} lineCap="round" lineJoin="round" opacity={laser.opacity ?? .8}/>}{snapGuides&&snapGuides.map((g,i)=>g.orientation==='vertical'?<Line key={i} listening={false} points={[g.value,0,g.value,size.height]} stroke="#52bd6b" strokeWidth={1} dash={[4,4]} opacity={0.7}/>:<Line key={i} listening={false} points={[0,g.value,size.width,g.value]} stroke="#52bd6b" strokeWidth={1} dash={[4,4]} opacity={0.7}/>)}{marquee&&<Rect listening={false} x={marquee.x} y={marquee.y} width={marquee.width} height={marquee.height} fill="#52bd6b" opacity={0.08} stroke="#52bd6b" strokeWidth={1/view.scale} dash={[4,4]} />}<Transformer ref={transformer} onTransformStart={handleStageTransformStart} onTransformEnd={handleStageTransformEnd} onDblClick={handleTransformerDblClick} onDblTap={handleTransformerDblClick} rotateEnabled flipEnabled shiftBehavior="inverted" boundBoxFunc={(oldBox,newBox)=>((newBox.width<minTransformSize||newBox.height<minTransformSize)&&transformer.current?.getActiveAnchor()!=='rotater'?oldBox:newBox)} enabledAnchors={transformerAnchors} /></Layer></Stage>{shapes.length===0&&!editing&&!draft&&!emptyDismissed.current&&<div className="canvas-empty-state"><div className="canvas-empty-title">Your canvas is empty</div><div className="canvas-empty-copy">Select a tool from the left toolbar and drag on the canvas to create shapes.<br/><span>Use <kbd>V</kbd> for select, <kbd>R</kbd> for rectangle, <kbd>P</kbd> for pencil.</span></div></div>}{editing&&<textarea ref={editorRef} className="text-editor" style={{position:'fixed',left:editing.x*view.scale+view.x,top:editing.y*view.scale+view.y,width:editing.width*view.scale,height:editing.height*view.scale,minWidth:0,minHeight:0,maxWidth:'none',maxHeight:'none',fontSize:editing.fontSize*view.scale,lineHeight:TEXT_LINE_HEIGHT,fontFamily:TEXT_FONT_FAMILY,color:editing.stroke||'#1e293b',resize:'none',boxSizing:'border-box',overflow:'hidden',padding:0,border:'none',outline:'2px solid #52bd6b',outlineOffset:'1px',background:'transparent',zIndex:4}} defaultValue={editing.value} onChange={event=>{const value=event.target.value;const prev=editingRef.current;if(!prev)return;const box=measureTextBox(value,prev.fontSize);const el=editorRef.current;if(el){el.style.width=(box.width*view.scale)+'px';el.style.height=(box.height*view.scale)+'px'}if(box.width!==prev.width||box.height!==prev.height){const next={...prev,value,width:box.width,height:box.height};editingRef.current=next;setEditing(next)}else{editingRef.current={...prev,value}}}} onBlur={finishText} onKeyDown={event=>{if(event.key==='Escape'){event.preventDefault();finishText()}if(event.key==='Enter'&&(event.metaKey||event.ctrlKey)){event.preventDefault();finishText()}}}/>}</div>
 }

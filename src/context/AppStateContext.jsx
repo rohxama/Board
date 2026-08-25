@@ -1,6 +1,6 @@
 import { createContext, useContext, useReducer } from 'react'
 const AppStateContext = createContext(null)
-const initialState = { activeTool: 'select', activeStyle: { stroke: '#1e293b', strokeWidth: 2, dash: 'solid', fill: 'transparent', opacity: 1, cornerRadius: 4, fontSize: 20 }, selectedShapeIds: [], fileName: 'Untitled board' }
+const initialState = { activeTool: 'select', activeStyle: { stroke: '#1e293b', strokeWidth: 2, dash: 'solid', fill: 'transparent', opacity: 1, cornerRadius: 8, fontSize: 20 }, selectedShapeIds: [], fileName: 'Untitled board' }
 function reducer(state, action) {
   switch (action.type) {
     case 'SET_TOOL': return { ...state, activeTool: action.tool, selectedShapeIds: action.tool === 'select' || action.tool === 'pan' ? state.selectedShapeIds : [] }
