@@ -7,15 +7,20 @@ import StylePanel from './components/StylePanel/StylePanel'
 import ZoomControls, { fitViewToContent } from './components/ZoomControls/ZoomControls'
 import SplashScreen from './components/SplashScreen/SplashScreen'
 import PreviousBoardModal from './components/PreviousBoardModal/PreviousBoardModal'
+import NotFoundPage from './components/NotFoundPage/NotFoundPage'
+import ThankYouPage from './components/ThankYouPage/ThankYouPage'
+import WaitlistPage from './components/WaitlistPage/WaitlistPage'
+import CookieConsent from './components/CookieConsent/CookieConsent'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { usePreviousBoard } from './hooks/useVisitorStatus'
+import { usePageRefresh } from './hooks/usePageRefresh'
 import { newId } from './lib/idGenerator'
 import { INITIAL_IMAGE_WIDTH, readImageFile } from './lib/images'
-import { clearDiagram, loadDiagram, saveDiagram } from './lib/storage'
+import { clearDiagram, loadDiagram, saveDiagram, moveDiagramToTrash } from './lib/storage'
 import { sanitizeShape, updateBoundArrows } from './lib/geometry'
 import { clampScale, zoomAtPoint } from './lib/viewport'
 
-function Workspace({ onReady }) {
+function Workspace({ splashDone }) {
   const [cursorPos, setCursorPos] = useState(null)
   const cursorThrottleRef = useRef(0)
   const stageRef = useRef()
@@ -93,17 +98,52 @@ function Workspace({ onReady }) {
   // Startup: only a returning visitor with a saved board is offered the
   // previous board (first-time users and returning users without saved data
   // open the blank canvas immediately). Hydration stays held until the
-  // startup choice is made so autosave cannot touch the saved board yet.
+  // startup choice is made so autosave cannot touch the saved board.
   const hydrated = useRef(false)
   const [pendingBoard, setPendingBoard] = useState(null)
-  const { previousBoardAvailable, savedBoard } = usePreviousBoard()
+  const [lastSavedAt, setLastSavedAt] = useState(null)
+  const isPageRefresh = usePageRefresh()
+  // Temporary routing: '#/home' and '#/docs' each render the 404 page until the
+  // real Home / Documentation pages exist; any other hash path also falls back
+  // to the 404. No hash = the board (root route). Swap the route matches below
+  // for real page routing when those pages are built.
+  const resolveRoute = () => {
+    const hash = window.location.hash
+    if (hash === '#/docs') return 'docs'
+    if (hash === '#/thank-you') return 'thankyou'
+    if (hash === '#/waitlist') return 'waitlist'
+    if (hash.startsWith('#/')) return 'notfound'
+    return 'board'
+  }
+  const [route, setRoute] = useState(resolveRoute)
   useEffect(() => {
-    if (previousBoardAvailable && savedBoard) {
+    const onHash = () => setRoute(resolveRoute())
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
+  useEffect(() => {
+    const titles = {
+      board: null,
+      docs: '404 — Page Not Found',
+      notfound: '404 — Page Not Found',
+      thankyou: 'Thank You',
+      waitlist: 'Waitlist',
+    }
+    const title = titles[route]
+    if (title) document.title = title
+  }, [route])
+  const { previousBoardAvailable, savedBoard } = usePreviousBoard(splashDone)
+  useEffect(() => {
+    if (splashDone && isPageRefresh && previousBoardAvailable && savedBoard) {
       setPendingBoard(savedBoard)
       return
     }
-    hydrated.current = true
-  }, [previousBoardAvailable, savedBoard])
+    if (splashDone) {
+      hydrated.current = true
+    }
+  }, [splashDone, isPageRefresh, previousBoardAvailable, savedBoard])
+  useEffect(() => { if (savedBoard?.savedAt) setLastSavedAt(savedBoard.savedAt) }, [savedBoard])
+  useEffect(() => { const onSaved = event => setLastSavedAt(event.detail?.savedAt || Date.now()); window.addEventListener('diagram:saved', onSaved); return () => window.removeEventListener('diagram:saved', onSaved) }, [])
 
   const restorePrevious = useCallback(() => {
     if (!pendingBoard) return
@@ -118,15 +158,31 @@ function Workspace({ onReady }) {
     }, [])
     replace(clean)
     if (pendingBoard.fileName) dispatch({ type: 'SET_FILENAME', fileName: pendingBoard.fileName })
+    setLastSavedAt(pendingBoard.savedAt || null)
     hydrated.current = true
     setPendingBoard(null)
   }, [pendingBoard, replace, dispatch])
 
   const startFresh = useCallback(() => {
     clearDiagram()
+    setLastSavedAt(null)
     hydrated.current = true
     setPendingBoard(null)
   }, [])
+
+  const duplicateBoard = useCallback(() => {
+    const nextName = `${state.fileName || 'Untitled board'} copy`
+    dispatch({ type: 'SET_FILENAME', fileName: nextName })
+    saveDiagram(shapes, nextName)
+  }, [state.fileName, shapes, dispatch])
+
+  const deleteBoard = useCallback(() => {
+    moveDiagramToTrash(shapes, state.fileName)
+    replace([])
+    dispatch({ type: 'SET_SELECTION', ids: [] })
+    dispatch({ type: 'SET_FILENAME', fileName: 'Untitled board' })
+    setLastSavedAt(null)
+  }, [shapes, state.fileName, replace, dispatch])
 
   // Debounced autosave: persist every change ~500ms after the last edit.
   const latestRef = useRef({ shapes, fileName: state.fileName })
@@ -147,46 +203,42 @@ function Workspace({ onReady }) {
 
   useKeyboardShortcuts({ enabled: !pendingBoard, dispatch, undo, redo, remove, nudge, duplicate, copy, paste, selectAll, deselect, openImage, zoomIn, zoomOut, zoomToFit, resetZoom })
 
-  useEffect(() => {
-    let completed = false
-    const finish = () => {
-      if (completed) return
-      completed = true
-      onReady()
-    }
-    const frame = requestAnimationFrame(finish)
-    const fallbackId = window.setTimeout(finish, 600)
-    return () => {
-      cancelAnimationFrame(frame)
-      window.clearTimeout(fallbackId)
-    }
-  }, [onReady])
-
   return (
     <main>
       <CanvasStage stageRef={stageRef} view={view} setView={setView} onCursorMove={pos => { const now = performance.now(); if (now - cursorThrottleRef.current > 50) { cursorThrottleRef.current = now; setCursorPos(pos) } }} onImageDrop={addImage} />
-      <Toolbar stageRef={stageRef} onImageUpload={addImage} imageInputRef={imageInputRef} view={view} onZoomReset={resetZoom} />
+      <Toolbar stageRef={stageRef} onImageUpload={addImage} imageInputRef={imageInputRef} view={view} onZoomReset={resetZoom} lastSavedAt={lastSavedAt} onDuplicateBoard={duplicateBoard} onDeleteBoard={deleteBoard} />
       <StylePanel />
       <ZoomControls view={view} setView={setView} cursorPos={cursorPos} shapes={shapes} />
-      {pendingBoard && <PreviousBoardModal onRestore={restorePrevious} onFresh={startFresh} />}
+      {splashDone && pendingBoard && <PreviousBoardModal onRestore={restorePrevious} onFresh={startFresh} />}
+      {route === 'notfound' && <NotFoundPage />}
+      {route === 'docs' && <NotFoundPage title="404 — Page Not Found" message="The Documentation page is not available yet." buttonLabel="Back to Board" />}
+      {route === 'thankyou' && <ThankYouPage />}
+      {route === 'waitlist' && <WaitlistPage />}
     </main>
   )
 }
 
+// Splash timing: the loader bar animation (splash-fill) is the designed
+// delay — the splash stays up for its full run, then exits smoothly.
+const SPLASH_MIN_MS = 6200
+const SPLASH_EXIT_MS = 600
+
 export default function App() {
   const [splash, setSplash] = useState('visible')
-  const dismiss = useCallback(() => {
-    setSplash(current => current === 'visible' ? 'leaving' : current)
+  useEffect(() => {
+    const id = window.setTimeout(() => setSplash('leaving'), SPLASH_MIN_MS)
+    return () => window.clearTimeout(id)
   }, [])
   useEffect(() => {
     if (splash !== 'leaving') return
-    const id = window.setTimeout(() => setSplash('done'), 600)
+    const id = window.setTimeout(() => setSplash('done'), SPLASH_EXIT_MS)
     return () => window.clearTimeout(id)
   }, [splash])
   return (
     <AppStateProvider>
       <HistoryProvider>
-        <Workspace onReady={dismiss} />
+        <Workspace splashDone={splash === 'done'} />
+        <CookieConsent />
         {splash !== 'done' && <SplashScreen leaving={splash === 'leaving'} onHidden={() => setSplash('done')} />}
       </HistoryProvider>
     </AppStateProvider>
