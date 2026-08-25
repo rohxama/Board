@@ -23,10 +23,14 @@ export function useVisitorStatus() {
   return isReturning
 }
 
-// Previous-board detection: a saved board only counts for returning visitors.
-// First-time users and returning users with no saved data get no board.
-export function usePreviousBoard() {
+// Previous-board detection: only offered after a page refresh when a valid
+// saved board exists. The `ready` flag (splash completed) gates detection
+// so the popup never appears before the whiteboard is fully initialized.
+export function usePreviousBoard(ready) {
   const isReturning = useVisitorStatus()
-  const savedBoard = useMemo(() => (isReturning ? loadDiagram() : null), [isReturning])
+  const savedBoard = useMemo(() => {
+    if (!ready || !isReturning) return null
+    return loadDiagram()
+  }, [ready, isReturning])
   return { previousBoardAvailable: Boolean(savedBoard && savedBoard.shapes.length), savedBoard }
 }
