@@ -1,0 +1,10 @@
+# robots.txt — Board (collaborative whiteboard app)
+# The root page is the public entry point. Hash-based routes (private boards,
+# feedback, 404) are client-side only and not crawlable.
+
+User-agent: *
+Allow: /
+Disallow: /src/
+Disallow: /dist/
+
+Sitemap: https://board-app.vercel.app/sitemap.xml
