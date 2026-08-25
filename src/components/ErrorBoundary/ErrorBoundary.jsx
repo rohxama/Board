@@ -50,7 +50,11 @@ export default class ErrorBoundary extends Component {
               {!retryUsed && <button type="button" onClick={this.reopenBoard} style={{ background: '#2563eb', color: '#fff', border: 0, borderRadius: 8, padding: '10px 14px', fontWeight: 600 }}>Reopen board</button>}
               <button type="button" onClick={this.startFresh} style={{ background: '#e2e8f0', color: '#0f172a', border: 0, borderRadius: 8, padding: '10px 14px', fontWeight: 600 }}>Start a fresh board</button>
             </div>
-            {retryUsed && <p style={{ margin: '18px 0 0', fontSize: 14, lineHeight: 1.45, color: '#64748b' }}>The reopen attempt did not succeed, so another automatic retry will not run. Starting a fresh board clears this deviceâ€™s saved board.</p>}
+            {retryUsed && <p style={{ margin: '18px 0 0', fontSize: 14, lineHeight: 1.45, color: '#64748b' }}>The reopen attempt did not succeed, so another automatic retry will not run. Starting a fresh board clears this device's saved board.</p>}
+            <details style={{ marginTop: 16, padding: 12, background: '#f1f5f9', borderRadius: 8, fontSize: 13 }}>
+              <summary style={{ cursor: 'pointer', fontWeight: 600, color: '#475569' }}>Error details</summary>
+              <pre style={{ marginTop: 8, whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: '#dc2626', fontFamily: 'monospace', fontSize: 12 }}>{error?.message || String(error)}</pre>
+            </details>
           </section>
         </main>
       )
