@@ -556,11 +556,8 @@
     height: 35px;
   }
 }
-.canvas-empty-state { position: absolute; top: 50%; left: 50%; width: min(310px, calc(100vw - 72px)); transform: translate(-50%, -50%); color: var(--text); text-align: center; pointer-events: none; }
-.canvas-empty-title { margin-bottom: 7px; font-size: 19px; font-weight: 720; letter-spacing: -.025em; }
-.canvas-empty-copy { color: var(--text-muted); font-size: 13px; line-height: 1.7; }
-.canvas-empty-copy span { display: inline-block; margin-top: 7px; font-size: 12px; }
-.canvas-empty-copy kbd { padding: 2px 6px; border: 1px solid var(--border); border-radius: 5px; background: var(--surface-solid); color: var(--text); font: 700 11px/1 "Segoe UI Variable", sans-serif; }
+.canvas-empty-state { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--text-muted); text-align: center; pointer-events: none; }
+.canvas-empty-title { font-size: 14px; font-weight: 500; letter-spacing: -.01em; opacity: .6; }
 @media (max-width: 380px) {
   .style-panel {
     bottom: 74px;
