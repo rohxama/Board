@@ -959,7 +959,7 @@ html[data-theme='dark'] .modal-fresh:hover { background: var(--surface); color: 
 /* Compact sidebar and inspector reference pass. */
 .left-toolbar {
   left: 12px;
-  top: 92px;
+  top: 78px;
   width: 54px;
   padding: 6px 5px;
   gap: 3px;
