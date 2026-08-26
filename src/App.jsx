@@ -29,7 +29,7 @@ const resolveRoute = () => {
   return 'board'
 }
 
-function Workspace({ splashDone }) {
+function Workspace({ splashDone, active = true }) {
   const stageRef = useRef()
   const imageInputRef = useRef()
   const clipboard = useRef([])
@@ -179,7 +179,7 @@ function Workspace({ splashDone }) {
     return () => window.removeEventListener('beforeunload', onUnload)
   }, [])
 
-  useKeyboardShortcuts({ enabled: !pendingBoard, dispatch, undo, redo, remove, nudge, duplicate, copy, paste, selectAll, deselect, openImage, zoomIn, zoomOut, zoomToFit, resetZoom })
+  useKeyboardShortcuts({ enabled: active && !pendingBoard, dispatch, undo, redo, remove, nudge, duplicate, copy, paste, selectAll, deselect, openImage, zoomIn, zoomOut, zoomToFit, resetZoom })
 
   return (
     <main>
@@ -197,34 +197,41 @@ function Workspace({ splashDone }) {
 const SPLASH_MIN_MS = 6200
 const SPLASH_EXIT_MS = 600
 
-function BoardExperience() {
-  const [splash, setSplash] = useState('visible')
-  useEffect(() => {
-    const id = window.setTimeout(() => setSplash('leaving'), SPLASH_MIN_MS)
-    return () => window.clearTimeout(id)
-  }, [])
-  useEffect(() => {
-    if (splash !== 'leaving') return
-    const id = window.setTimeout(() => setSplash('done'), SPLASH_EXIT_MS)
-    return () => window.clearTimeout(id)
-  }, [splash])
+function BoardExperience({ splashDone, active }) {
   return (
     <AppStateProvider>
       <HistoryProvider>
-        <Workspace splashDone={splash === 'done'} />
+        <Workspace splashDone={splashDone} active={active} />
         <CookieConsent />
-        {splash !== 'done' && <SplashScreen leaving={splash === 'leaving'} onHidden={() => setSplash('done')} />}
       </HistoryProvider>
     </AppStateProvider>
   )
 }
 
 export default function App() {
-  const [route, setRoute] = useState(resolveRoute)
+  // The route the app actually loaded with decides whether this is a genuine
+  // application start (splash + board) or a deep link to a standalone page.
+  const initialRouteRef = useRef(resolveRoute())
+  const [route, setRoute] = useState(initialRouteRef.current)
+  // Splash plays once per genuine load, and only when the session began on
+  // the board. Browser Back/Forward only changes the hash, so this state
+  // survives history navigation and the splash never replays.
+  const [splash, setSplash] = useState(() => initialRouteRef.current === 'board' ? 'visible' : 'done')
+  useEffect(() => {
+    if (splash !== 'visible') return
+    const id = window.setTimeout(() => setSplash('leaving'), SPLASH_MIN_MS)
+    return () => window.clearTimeout(id)
+  }, [splash])
+  useEffect(() => {
+    if (splash !== 'leaving') return
+    const id = window.setTimeout(() => setSplash('done'), SPLASH_EXIT_MS)
+    return () => window.clearTimeout(id)
+  }, [splash])
   useEffect(() => {
     const onHash = () => setRoute(resolveRoute())
     window.addEventListener('hashchange', onHash)
-    return () => window.removeEventListener('hashchange', onHash)
+    window.addEventListener('popstate', onHash)
+    return () => { window.removeEventListener('hashchange', onHash); window.removeEventListener('popstate', onHash) }
   }, [])
   useEffect(() => {
     const titles = {
@@ -237,9 +244,17 @@ export default function App() {
     document.title = titles[route]
   }, [route])
 
-  if (route === 'notfound') return <NotFoundPage />
-  if (route === 'docs') return <NotFoundPage message="The Documentation page is not available yet." />
-  if (route === 'thankyou') return <ThankYouPage />
-  if (route === 'waitlist') return <WaitlistPage />
-  return <BoardExperience />
+  // Keep the board mounted underneath standalone pages so Back/Forward
+  // restores it directly with all state intact — no remount, no splash.
+  const boardMounted = initialRouteRef.current === 'board' || route === 'board'
+  return (
+    <>
+      {boardMounted && <BoardExperience splashDone={splash === 'done'} active={route === 'board'} />}
+      {splash !== 'done' && route === 'board' && <SplashScreen leaving={splash === 'leaving'} onHidden={() => setSplash('done')} />}
+      {route === 'notfound' && <NotFoundPage />}
+      {route === 'docs' && <NotFoundPage message="The Documentation page is not available yet." />}
+      {route === 'thankyou' && <ThankYouPage />}
+      {route === 'waitlist' && <WaitlistPage />}
+    </>
+  )
 }
