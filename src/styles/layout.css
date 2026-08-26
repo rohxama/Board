@@ -1941,7 +1941,7 @@ html[data-theme='dark'] .share-card .share-role-select { border-color: var(--bor
   width: 0.78em;
   height: 0.78em;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 36%, #7ccb90 0%, #52bd6b 58%, #45b05f 100%);
+  background: #52bd6b;
   transform: translateY(-0.04em);
 }
 .not-found-face svg { width: 100%; height: 100%; display: block; }
@@ -2011,7 +2011,7 @@ html[data-theme='dark'] .share-card .share-role-select { border-color: var(--bor
   width: 0.78em;
   height: 0.78em;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 36%, #7ccb90 0%, #52bd6b 58%, #45b05f 100%);
+  background: #52bd6b;
   transform: translateY(-0.04em);
 }
 .thank-you-face svg { width: 100%; height: 100%; display: block; }
@@ -2077,7 +2077,7 @@ html[data-theme='dark'] .share-card .share-role-select { border-color: var(--bor
   width: 1.05em;
   height: 1.05em;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 36%, #7ccb90 0%, #52bd6b 58%, #45b05f 100%);
+  background: #52bd6b;
   transform: translateY(-0.02em);
 }
 .waitlist-clock svg { width: 100%; height: 100%; display: block; }
@@ -2328,8 +2328,8 @@ html[data-theme='dark'] .share-card .share-role-select { border-color: var(--bor
   transition: border-color .16s ease, box-shadow .16s ease;
 }
 .feedback-textarea:focus {
-  border-color: #45b05f;
-  box-shadow: 0 0 0 3px rgba(69, 176, 95, .15);
+  border-color: #52bd6b;
+  box-shadow: 0 0 0 3px rgba(82, 189, 107, .15);
 }
 .feedback-textarea::placeholder { color: #94a3b8; }
 .feedback-textarea:disabled { opacity: .6; cursor: not-allowed; }
@@ -2860,14 +2860,14 @@ html[data-theme='dark'] .side-saved-note { color: var(--accent); }
 }
 
 .cookie-btn-accept {
-  background: #2563eb;
+  background: #52bd6b;
   color: #ffffff;
-  border-color: #2563eb;
+  border-color: #52bd6b;
 }
 
 .cookie-btn-accept:hover {
-  background: #1d4ed8;
-  border-color: #1d4ed8;
+  background: #45b05f;
+  border-color: #45b05f;
 }
 
 .cookie-btn-reject {
@@ -2894,25 +2894,16 @@ html[data-theme='dark'] .side-saved-note { color: var(--accent); }
   border-color: #cbd5e1;
 }
 
-/* Dark mode for cookie consent */
-html[data-theme='dark'] .cookie-consent-bar {
-  background: var(--surface-solid);
-  border-top-color: var(--border);
-  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.3);
-}
-
-html[data-theme='dark'] .cookie-consent-message {
-  color: var(--text-muted);
-}
-
-html[data-theme='dark'] .cookie-btn-reject,
-html[data-theme='dark'] .cookie-btn-manage {
+/* Dark mode for cookie consent: the branded green banner keeps its look in
+   both themes, so only the standalone preferences panel is re-themed here. */
+html[data-theme='dark'] .cookie-preferences-panel .cookie-btn-reject,
+html[data-theme='dark'] .cookie-preferences-panel .cookie-btn-manage {
   border-color: var(--border);
   color: var(--text-muted);
 }
 
-html[data-theme='dark'] .cookie-btn-reject:hover,
-html[data-theme='dark'] .cookie-btn-manage:hover {
+html[data-theme='dark'] .cookie-preferences-panel .cookie-btn-reject:hover,
+html[data-theme='dark'] .cookie-preferences-panel .cookie-btn-manage:hover {
   background: var(--surface-muted);
   color: var(--text);
   border-color: var(--border-strong);
@@ -3264,14 +3255,14 @@ html[data-theme='dark'] .top-toolbar .board-dropdown:hover {
 /* Logo-relative toolbar placement: keep the toolbar centered beneath the brand mark. */
 .left-toolbar {
   left: var(--logo-toolbar-left, 12px);
-  top: var(--logo-toolbar-top, 92px);
+  top: 120px;
   bottom: auto;
   transform: none;
 }
 @media (max-width: 760px) {
   .left-toolbar {
     left: var(--logo-toolbar-left, 12px);
-    top: var(--logo-toolbar-top, 92px);
+    top: 120px;
     bottom: auto;
   }
 }
@@ -3338,43 +3329,45 @@ html[data-theme='dark'] .side-avatar-remove:hover { color: #ef7373; }
   z-index: 1200;
   min-height: 78px;
   border: 0;
-  border-radius: 14px;
+  border-radius: 16px;
   background: #52bd6b;
-  box-shadow: 0 12px 28px rgba(28, 36, 45, .18);
+  box-shadow: 0 18px 40px rgba(23, 58, 34, .22), 0 4px 14px rgba(23, 58, 34, .14);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
 .cookie-consent-content {
   min-height: 78px;
-  padding: 16px 22px;
-  gap: 22px;
+  padding: 16px 24px;
+  gap: 24px;
 }
 .cookie-consent-message {
   color: #ffffff;
   font-size: 14px;
   font-weight: 600;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 .cookie-consent-actions {
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 .cookie-consent-bar .cookie-btn {
-  min-height: 38px;
-  padding: 8px 14px;
-  border: 1px solid rgba(255, 255, 255, .92);
-  border-radius: 8px;
+  min-height: 40px;
+  padding: 9px 18px;
+  border: 1px solid rgba(255, 255, 255, .35);
+  border-radius: 10px;
   background: #ffffff;
-  color: #25713a;
-  font-size: 12px;
+  color: #1f7a3d;
+  font-size: 12.5px;
   font-weight: 700;
-  box-shadow: 0 1px 2px rgba(28, 36, 45, .08);
+  letter-spacing: .01em;
+  box-shadow: 0 2px 6px rgba(20, 51, 32, .16);
 }
 .cookie-consent-bar .cookie-btn:hover {
-  background: #effbf1;
-  border-color: #ffffff;
-  color: #1d5e30;
+  background: #f2fbf4;
+  border-color: rgba(255, 255, 255, .35);
+  color: #16612f;
   transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(20, 51, 32, .2);
 }
 .cookie-consent-bar .cookie-btn:focus-visible {
   outline: 2px solid rgba(255, 255, 255, .9);
@@ -3383,11 +3376,12 @@ html[data-theme='dark'] .side-avatar-remove:hover { color: #ef7373; }
 .cookie-consent-bar .cookie-btn-manage {
   background: transparent;
   color: #ffffff;
-  border-color: rgba(255, 255, 255, .78);
+  border-color: rgba(255, 255, 255, .55);
   box-shadow: none;
 }
 .cookie-consent-bar .cookie-btn-manage:hover {
-  background: rgba(255, 255, 255, .16);
+  background: rgba(255, 255, 255, .14);
+  border-color: rgba(255, 255, 255, .8);
   color: #ffffff;
 }
 @media (max-width: 760px) {
@@ -3578,4 +3572,61 @@ html[data-theme='dark'] .side-avatar-delete:hover { background: rgba(0, 0, 0, .7
   .not-found-message,
   .thank-you-message,
   .waitlist-message { font-size: 12.5px; }
+}
+
+/* Floating settings overlay: keep the existing inspector controls and theme, but
+   ensure every settings view sits above the workspace and remains viewport-safe. */
+.style-panel {
+  position: fixed;
+  z-index: 70;
+  top: max(68px, env(safe-area-inset-top));
+  right: clamp(12px, 2vw, 26px);
+  bottom: auto;
+  left: auto;
+  transform: none;
+  width: min(290px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  max-height: min(680px, calc(100dvh - 92px));
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
+  isolation: isolate;
+}
+.inspector-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: inherit;
+}
+.side-panel {
+  z-index: 80;
+  top: max(68px, env(safe-area-inset-top));
+  right: clamp(12px, 2vw, 26px);
+  width: min(320px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  max-height: calc(100dvh - 92px);
+}
+.top-toolbar { z-index: 90; }
+.top-toolbar .overflow-menu-wrap { z-index: 110; }
+.top-toolbar .account-menu { z-index: 1000; }
+@media (max-width: 760px) {
+  .style-panel,
+  .side-panel {
+    top: max(62px, env(safe-area-inset-top));
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-width: none;
+    max-height: calc(100dvh - 82px);
+    transform: none;
+  }
+}
+@media (max-width: 380px) {
+  .style-panel,
+  .side-panel {
+    top: max(58px, env(safe-area-inset-top));
+    right: 10px;
+    left: 10px;
+    max-height: calc(100dvh - 72px);
+  }
 }
