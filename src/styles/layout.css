@@ -14,8 +14,8 @@
   position: fixed;
   z-index: 5;
   left: clamp(16px, 2.4vw, 38px);
-  top: 50%;
-  transform: translateY(-50%);
+  top: 78px;
+  transform: none;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -775,7 +775,7 @@ html[data-theme='dark'] .style-panel select, html[data-theme='dark'] .clear-fill
 
 .left-toolbar {
   left: 26px;
-  top: 94px;
+  top: 78px;
   transform: none;
   width: 128px;
   align-items: stretch;
@@ -885,7 +885,7 @@ html[data-theme='dark'] .modal-fresh:hover { background: var(--surface); color: 
 .top-toolbar-left { gap: 12px; }
 .top-toolbar-center { min-width: 0; }
 .top-toolbar-right { gap: 10px; }
-.top-toolbar .board-label { gap: 9px; color: #1f2933; }
+.top-toolbar .board-label { gap: 12px; color: #1f2933; }
 .top-toolbar .board-mark { width: 54px; height: 32px; border-radius: 0; object-fit: contain; box-shadow: none; }
 .top-toolbar .board-name-stack { display: flex; min-width: 0; flex-direction: column; gap: 1px; }
 .top-toolbar .board-name-input { width: 190px; max-width: 190px; min-width: 130px; padding: 0; color: #1f2933; font-size: 14px; font-weight: 700; line-height: 1.2; }
@@ -948,7 +948,7 @@ html[data-theme='dark'] .modal-fresh:hover { background: var(--surface); color: 
 @media (max-width: 680px) {
   .top-toolbar { left: 10px; right: 10px; min-height: 56px; padding: 6px 8px; grid-template-columns: minmax(0, 1fr) auto; }
   .top-toolbar-center { display: none; }
-  .top-toolbar .board-mark { width: 38px; }
+  .top-toolbar .board-mark { width: 46px; }
   .top-toolbar .board-name-input { width: 130px; min-width: 86px; max-width: 130px; }
   .top-toolbar .last-saved { display: none; }
   .top-toolbar .header-export { min-width: 42px; width: 42px; padding: 0; }
@@ -1397,8 +1397,8 @@ html[data-theme='dark'] .top-toolbar { background: transparent; border-color: tr
 /* Use the transparent removebg logo at the requested larger height. */
 .top-toolbar .board-mark {
   width: auto;
-  height: 42px;
-  max-width: 72px;
+  height: 54px;
+  max-width: 90px;
   object-fit: contain;
   background: transparent;
   border: 0;
