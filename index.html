@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#6A6CF0" />
+    <meta name="theme-color" content="#52BD6B" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ws: wss:; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'" />
 
     <title>Board — Collaborative Whiteboard &amp; Diagram Tool</title>
@@ -59,13 +59,18 @@
           if (theme === 'dark') {
             document.documentElement.setAttribute('data-theme', 'dark');
             document.documentElement.style.background = '#121418';
+            var themeMeta = document.querySelector('meta[name="theme-color"]');
+            if (themeMeta) themeMeta.setAttribute('content', '#121418');
+            var bootStyle = document.createElement('style');
+            bootStyle.textContent = '#boot-splash{background:#121418 !important}';
+            document.head.appendChild(bootStyle);
           }
         } catch(e) {}
       })();
     </script>
   </head>
   <body>
-    <div id="root"><div class="splash-screen" role="status" aria-label="Opening diagram board" style="position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:var(--canvas,#f7f8fc);opacity:1"><div class="splash-content" style="display:grid;justify-items:center;gap:24px;transform:translateY(-10px)"><img class="splash-icon" src="/src/assets/images/site-logo-removebg-preview.png" alt="Board logo" style="width:154px;height:154px;object-fit:contain;border:none;outline:none;display:block"><div class="splash-loader" aria-hidden="true" style="position:relative;width:min(300px,calc(100vw - 72px));height:3px;overflow:hidden;border-radius:999px;background:rgba(82,189,107,.14)"><span style="position:absolute;inset:0 auto 0 0;width:0;border-radius:inherit;background:#52bd6b"></span></div></div></div></div>
+    <div id="root"><div id="boot-splash" class="splash-screen" role="status" aria-label="Opening diagram board" style="position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:var(--canvas,#f7f8fc);opacity:1"><div class="splash-content" style="display:grid;justify-items:center;gap:24px;transform:translateY(-10px)"><img class="splash-icon" src="/src/assets/images/site-logo-removebg-preview.png" alt="Board logo" style="width:154px;height:154px;object-fit:contain;border:none;outline:none;display:block"><div class="splash-loader" aria-hidden="true" style="position:relative;width:min(300px,calc(100vw - 72px));height:3px;overflow:hidden;border-radius:999px;background:rgba(82,189,107,.14)"><span style="position:absolute;inset:0 auto 0 0;border-radius:inherit;background:#52bd6b"></span></div></div></div></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

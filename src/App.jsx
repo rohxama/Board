@@ -16,7 +16,7 @@ import { usePreviousBoard } from './hooks/useVisitorStatus'
 import { usePageRefresh } from './hooks/usePageRefresh'
 import { newId } from './lib/idGenerator'
 import { INITIAL_IMAGE_WIDTH, readImageFile } from './lib/images'
-import { clearDiagram, loadDiagram, saveDiagram, moveDiagramToTrash } from './lib/storage'
+import { activateBoard, createBoard, loadDiagram, saveDiagram, moveDiagramToTrash } from './lib/storage'
 import { sanitizeShape, updateBoundArrows } from './lib/geometry'
 import { clampScale, zoomAtPoint } from './lib/viewport'
 
@@ -29,13 +29,20 @@ const resolveRoute = () => {
   return 'board'
 }
 
-function Workspace({ splashDone, active = true }) {
+function Workspace({ splashDone, active = true, onStartupReady }) {
   const stageRef = useRef()
   const imageInputRef = useRef()
   const clipboard = useRef([])
   const [view, setView] = useState({ x: 0, y: 0, scale: 1 })
   const { state, dispatch } = useAppState()
   const { shapes, commit, replace, undo, redo } = useHistory()
+
+  // The workspace is ready once its providers, state, restoration hooks, and
+  // canvas have mounted. Optional restoration remains non-blocking and can
+  // present the existing previous-board choice after the splash exits.
+  useEffect(() => {
+    if (active) onStartupReady?.()
+  }, [active, onStartupReady])
 
   const remove = useCallback(() => {
     if (!state.selectedShapeIds.length) return
@@ -107,6 +114,7 @@ function Workspace({ splashDone, active = true }) {
   // open the blank canvas immediately). Hydration stays held until the
   // startup choice is made so autosave cannot touch the saved board.
   const hydrated = useRef(false)
+  const boardIdRef = useRef(null)
   const [pendingBoard, setPendingBoard] = useState(null)
   const [lastSavedAt, setLastSavedAt] = useState(null)
   const isPageRefresh = usePageRefresh()
@@ -135,56 +143,89 @@ function Workspace({ splashDone, active = true }) {
       return valid
     }, [])
     replace(clean)
+    if (pendingBoard.boardId) {
+      boardIdRef.current = pendingBoard.boardId
+      activateBoard(pendingBoard.boardId)
+    }
     if (pendingBoard.fileName) dispatch({ type: 'SET_FILENAME', fileName: pendingBoard.fileName })
     setLastSavedAt(pendingBoard.savedAt || null)
     hydrated.current = true
     setPendingBoard(null)
   }, [pendingBoard, replace, dispatch])
 
-  const startFresh = useCallback(() => {
-    clearDiagram()
-    setLastSavedAt(null)
-    hydrated.current = true
-    setPendingBoard(null)
+  const saveCurrentBoard = useCallback(() => {
+    const saved = saveDiagram(latestRef.current.shapes, latestRef.current.fileName, boardIdRef.current)
+    if (saved && !boardIdRef.current) {
+      const record = loadDiagram()
+      boardIdRef.current = record?.boardId || boardIdRef.current
+    }
+    return saved
   }, [])
 
-  const duplicateBoard = useCallback(() => {
-    const nextName = `${state.fileName || 'Untitled board'} copy`
-    dispatch({ type: 'SET_FILENAME', fileName: nextName })
-    saveDiagram(shapes, nextName)
-  }, [state.fileName, shapes, dispatch])
-
-  const deleteBoard = useCallback(() => {
-    moveDiagramToTrash(shapes, state.fileName)
+  const startFresh = useCallback(() => {
+    if (hydrated.current && !saveCurrentBoard()) return
+    const fresh = createBoard([], 'Untitled board')
+    if (!fresh) return
+    boardIdRef.current = fresh.boardId
     replace([])
     dispatch({ type: 'SET_SELECTION', ids: [] })
-    dispatch({ type: 'SET_FILENAME', fileName: 'Untitled board' })
-    setLastSavedAt(null)
-  }, [shapes, state.fileName, replace, dispatch])
+    dispatch({ type: 'SET_FILENAME', fileName: fresh.fileName })
+    setLastSavedAt(fresh.savedAt)
+    hydrated.current = true
+    setPendingBoard(null)
+  }, [saveCurrentBoard, replace, dispatch])
+
+  const saveAsBoard = useCallback(name => {
+    const copy = createBoard(latestRef.current.shapes, name || `${latestRef.current.fileName || 'Untitled board'} copy`)
+    if (!copy) return false
+    boardIdRef.current = copy.boardId
+    dispatch({ type: 'SET_FILENAME', fileName: copy.fileName })
+    setLastSavedAt(copy.savedAt)
+    return true
+  }, [dispatch])
+
+  const deleteBoard = useCallback(() => {
+    if (!saveCurrentBoard()) return
+    if (!moveDiagramToTrash(latestRef.current.shapes, latestRef.current.fileName, boardIdRef.current)) return
+    const fresh = createBoard([], 'Untitled board')
+    if (!fresh) {
+      boardIdRef.current = null
+      replace([])
+      dispatch({ type: 'SET_SELECTION', ids: [] })
+      dispatch({ type: 'SET_FILENAME', fileName: 'Untitled board' })
+      setLastSavedAt(null)
+      return
+    }
+    boardIdRef.current = fresh.boardId
+    replace([])
+    dispatch({ type: 'SET_SELECTION', ids: [] })
+    dispatch({ type: 'SET_FILENAME', fileName: fresh.fileName })
+    setLastSavedAt(fresh.savedAt)
+  }, [saveCurrentBoard, replace, dispatch])
 
   // Debounced autosave: persist every change ~500ms after the last edit.
   const latestRef = useRef({ shapes, fileName: state.fileName })
   latestRef.current = { shapes, fileName: state.fileName }
   useEffect(() => {
     if (!hydrated.current) return
-    const id = window.setTimeout(() => saveDiagram(latestRef.current.shapes, latestRef.current.fileName), 500)
+    const id = window.setTimeout(() => saveCurrentBoard(), 500)
     return () => window.clearTimeout(id)
-  }, [shapes, state.fileName])
+  }, [shapes, state.fileName, saveCurrentBoard])
 
   // Flush a final synchronous save on unload. Skipped until the user has made
   // a startup choice, so closing early can never overwrite the saved board.
   useEffect(() => {
-    const onUnload = () => { if (hydrated.current) saveDiagram(latestRef.current.shapes, latestRef.current.fileName) }
+    const onUnload = () => { if (hydrated.current) saveCurrentBoard() }
     window.addEventListener('beforeunload', onUnload)
     return () => window.removeEventListener('beforeunload', onUnload)
-  }, [])
+  }, [saveCurrentBoard])
 
   useKeyboardShortcuts({ enabled: active && !pendingBoard, dispatch, undo, redo, remove, nudge, duplicate, copy, paste, selectAll, deselect, openImage, zoomIn, zoomOut, zoomToFit, resetZoom })
 
   return (
     <main>
       <CanvasStage stageRef={stageRef} view={view} setView={setView} onImageDrop={addImage} />
-      <Toolbar stageRef={stageRef} onImageUpload={addImage} imageInputRef={imageInputRef} view={view} onZoomReset={resetZoom} lastSavedAt={lastSavedAt} onDuplicateBoard={duplicateBoard} onDeleteBoard={deleteBoard} />
+      <Toolbar stageRef={stageRef} onImageUpload={addImage} imageInputRef={imageInputRef} view={view} onZoomReset={resetZoom} lastSavedAt={lastSavedAt} onNewBoard={startFresh} onSaveBoard={saveCurrentBoard} onSaveAsBoard={saveAsBoard} onDeleteBoard={deleteBoard} />
       <StylePanel />
       <ZoomControls view={view} setView={setView} />
       {splashDone && pendingBoard && <PreviousBoardModal onRestore={restorePrevious} onFresh={startFresh} />}
@@ -192,16 +233,17 @@ function Workspace({ splashDone, active = true }) {
   )
 }
 
-// Splash timing: the loader bar animation (splash-fill) is the designed
-// delay — the splash stays up for its full run, then exits smoothly.
-const SPLASH_MIN_MS = 6200
+// The splash exits only after the mounted workspace reports that the required
+// synchronous startup state is ready. SplashScreen owns the short exit
+// transition fallback, not application initialization.
 const SPLASH_EXIT_MS = 600
+const SPLASH_HARD_LIMIT_MS = 4000
 
-function BoardExperience({ splashDone, active }) {
+function BoardExperience({ splashDone, active, onStartupReady }) {
   return (
     <AppStateProvider>
       <HistoryProvider>
-        <Workspace splashDone={splashDone} active={active} />
+        <Workspace splashDone={splashDone} active={active} onStartupReady={onStartupReady} />
         <CookieConsent />
       </HistoryProvider>
     </AppStateProvider>
@@ -217,16 +259,36 @@ export default function App() {
   // the board. Browser Back/Forward only changes the hash, so this state
   // survives history navigation and the splash never replays.
   const [splash, setSplash] = useState(() => initialRouteRef.current === 'board' ? 'visible' : 'done')
+
+  // Stable callback for Workspace to signal that the board is ready.
+  const markStartupReady = useCallback(() => {
+    setSplash(current => current === 'visible' ? 'leaving' : current)
+  }, [])
+
+  // Stable callback for SplashScreen to signal that the exit transition is
+  // complete. Wrapped in useCallback so the SplashScreen fallback timeout
+  // is never invalidated by a new function reference.
+  const hideSplash = useCallback(() => setSplash('done'), [])
+
+  // SAFETY: If the splash is stuck in 'visible' (onStartupReady was never
+  // called — e.g. a render error in Workspace), force it to start leaving
+  // after a hard limit. This is NOT the primary exit path.
   useEffect(() => {
     if (splash !== 'visible') return
-    const id = window.setTimeout(() => setSplash('leaving'), SPLASH_MIN_MS)
+    const id = window.setTimeout(() => {
+      setSplash(current => current === 'visible' ? 'leaving' : current)
+    }, SPLASH_HARD_LIMIT_MS)
     return () => window.clearTimeout(id)
   }, [splash])
+
+  // Once the splash is leaving, give the CSS transition time to finish,
+  // then remove the splash unconditionally.
   useEffect(() => {
     if (splash !== 'leaving') return
     const id = window.setTimeout(() => setSplash('done'), SPLASH_EXIT_MS)
     return () => window.clearTimeout(id)
   }, [splash])
+
   useEffect(() => {
     const onHash = () => setRoute(resolveRoute())
     window.addEventListener('hashchange', onHash)
@@ -244,13 +306,13 @@ export default function App() {
     document.title = titles[route]
   }, [route])
 
-  // Keep the board mounted underneath standalone pages so Back/Forward
-  // restores it directly with all state intact — no remount, no splash.
-  const boardMounted = initialRouteRef.current === 'board' || route === 'board'
+  // Standalone routes must not keep any Whiteboard components mounted beneath
+  // their page. The board tree exists only while the active route is the board.
+  const boardMounted = route === 'board'
   return (
     <>
-      {boardMounted && <BoardExperience splashDone={splash === 'done'} active={route === 'board'} />}
-      {splash !== 'done' && route === 'board' && <SplashScreen leaving={splash === 'leaving'} onHidden={() => setSplash('done')} />}
+      {boardMounted && <BoardExperience splashDone={splash === 'done'} active={route === 'board'} onStartupReady={markStartupReady} />}
+      {splash !== 'done' && route === 'board' && <SplashScreen leaving={splash === 'leaving'} onHidden={hideSplash} />}
       {route === 'notfound' && <NotFoundPage />}
       {route === 'docs' && <NotFoundPage message="The Documentation page is not available yet." />}
       {route === 'thankyou' && <ThankYouPage />}
