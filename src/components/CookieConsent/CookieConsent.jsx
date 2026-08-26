@@ -84,7 +84,7 @@ export default function CookieConsent() {
               className="cookie-btn cookie-btn-reject"
               onClick={handleRejectNonEssential}
             >
-              Reject Non-Essential
+              Reject
             </button>
             <button
               type="button"
