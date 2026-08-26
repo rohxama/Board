@@ -20,6 +20,15 @@ import { clearDiagram, loadDiagram, saveDiagram, moveDiagramToTrash } from './li
 import { sanitizeShape, updateBoundArrows } from './lib/geometry'
 import { clampScale, zoomAtPoint } from './lib/viewport'
 
+const resolveRoute = () => {
+  const hash = window.location.hash
+  if (hash === '#/docs') return 'docs'
+  if (hash === '#/thank-you') return 'thankyou'
+  if (hash === '#/waitlist') return 'waitlist'
+  if (hash.startsWith('#/')) return 'notfound'
+  return 'board'
+}
+
 function Workspace({ splashDone }) {
   const stageRef = useRef()
   const imageInputRef = useRef()
@@ -101,35 +110,6 @@ function Workspace({ splashDone }) {
   const [pendingBoard, setPendingBoard] = useState(null)
   const [lastSavedAt, setLastSavedAt] = useState(null)
   const isPageRefresh = usePageRefresh()
-  // Temporary routing: '#/home' and '#/docs' each render the 404 page until the
-  // real Home / Documentation pages exist; any other hash path also falls back
-  // to the 404. No hash = the board (root route). Swap the route matches below
-  // for real page routing when those pages are built.
-  const resolveRoute = () => {
-    const hash = window.location.hash
-    if (hash === '#/docs') return 'docs'
-    if (hash === '#/thank-you') return 'thankyou'
-    if (hash === '#/waitlist') return 'waitlist'
-    if (hash.startsWith('#/')) return 'notfound'
-    return 'board'
-  }
-  const [route, setRoute] = useState(resolveRoute)
-  useEffect(() => {
-    const onHash = () => setRoute(resolveRoute())
-    window.addEventListener('hashchange', onHash)
-    return () => window.removeEventListener('hashchange', onHash)
-  }, [])
-  useEffect(() => {
-    const titles = {
-      board: null,
-      docs: '404 — Page Not Found',
-      notfound: '404 — Page Not Found',
-      thankyou: 'Thank You',
-      waitlist: 'Waitlist',
-    }
-    const title = titles[route]
-    if (title) document.title = title
-  }, [route])
   const { previousBoardAvailable, savedBoard } = usePreviousBoard(splashDone)
   useEffect(() => {
     if (splashDone && isPageRefresh && previousBoardAvailable && savedBoard) {
@@ -208,10 +188,6 @@ function Workspace({ splashDone }) {
       <StylePanel />
       <ZoomControls view={view} setView={setView} />
       {splashDone && pendingBoard && <PreviousBoardModal onRestore={restorePrevious} onFresh={startFresh} />}
-      {route === 'notfound' && <NotFoundPage />}
-      {route === 'docs' && <NotFoundPage title="404 — Page Not Found" message="The Documentation page is not available yet." buttonLabel="Back to Board" />}
-      {route === 'thankyou' && <ThankYouPage />}
-      {route === 'waitlist' && <WaitlistPage />}
     </main>
   )
 }
@@ -221,7 +197,7 @@ function Workspace({ splashDone }) {
 const SPLASH_MIN_MS = 6200
 const SPLASH_EXIT_MS = 600
 
-export default function App() {
+function BoardExperience() {
   const [splash, setSplash] = useState('visible')
   useEffect(() => {
     const id = window.setTimeout(() => setSplash('leaving'), SPLASH_MIN_MS)
@@ -241,4 +217,29 @@ export default function App() {
       </HistoryProvider>
     </AppStateProvider>
   )
+}
+
+export default function App() {
+  const [route, setRoute] = useState(resolveRoute)
+  useEffect(() => {
+    const onHash = () => setRoute(resolveRoute())
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
+  useEffect(() => {
+    const titles = {
+      board: 'Board — Collaborative Whiteboard & Diagram Tool',
+      docs: '404 — Page Not Found',
+      notfound: '404 — Page Not Found',
+      thankyou: 'Thank You',
+      waitlist: 'Waitlist',
+    }
+    document.title = titles[route]
+  }, [route])
+
+  if (route === 'notfound') return <NotFoundPage />
+  if (route === 'docs') return <NotFoundPage message="The Documentation page is not available yet." />
+  if (route === 'thankyou') return <ThankYouPage />
+  if (route === 'waitlist') return <WaitlistPage />
+  return <BoardExperience />
 }
