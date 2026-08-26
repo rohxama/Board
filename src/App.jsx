@@ -21,8 +21,6 @@ import { sanitizeShape, updateBoundArrows } from './lib/geometry'
 import { clampScale, zoomAtPoint } from './lib/viewport'
 
 function Workspace({ splashDone }) {
-  const [cursorPos, setCursorPos] = useState(null)
-  const cursorThrottleRef = useRef(0)
   const stageRef = useRef()
   const imageInputRef = useRef()
   const clipboard = useRef([])
@@ -205,10 +203,10 @@ function Workspace({ splashDone }) {
 
   return (
     <main>
-      <CanvasStage stageRef={stageRef} view={view} setView={setView} onCursorMove={pos => { const now = performance.now(); if (now - cursorThrottleRef.current > 50) { cursorThrottleRef.current = now; setCursorPos(pos) } }} onImageDrop={addImage} />
+      <CanvasStage stageRef={stageRef} view={view} setView={setView} onImageDrop={addImage} />
       <Toolbar stageRef={stageRef} onImageUpload={addImage} imageInputRef={imageInputRef} view={view} onZoomReset={resetZoom} lastSavedAt={lastSavedAt} onDuplicateBoard={duplicateBoard} onDeleteBoard={deleteBoard} />
       <StylePanel />
-      <ZoomControls view={view} setView={setView} cursorPos={cursorPos} shapes={shapes} />
+      <ZoomControls view={view} setView={setView} />
       {splashDone && pendingBoard && <PreviousBoardModal onRestore={restorePrevious} onFresh={startFresh} />}
       {route === 'notfound' && <NotFoundPage />}
       {route === 'docs' && <NotFoundPage title="404 — Page Not Found" message="The Documentation page is not available yet." buttonLabel="Back to Board" />}
