@@ -27,11 +27,39 @@ export default memo(function StylePanel() {
   const { state, dispatch } = useAppState()
   const { shapes, commit } = useHistory()
   const [tab, setTab] = useState('style')
+  const [panelDismissed, setPanelDismissed] = useState(false)
+  const panelRef = useRef(null)
+  const dismissedContextRef = useRef(null)
+  const selectionKey = state.selectedShapeIds.join('|')
+  const contextKey = `${state.activeTool}|${selectionKey}`
   const selected = state.selectedShapeIds.length ? shapes.filter(shape => state.selectedShapeIds.includes(shape.id)) : []
   const selectedShape = selected[0]
   const hasSelection = selected.length > 0
   const isCompatibleTool = COMPATIBLE_TOOLS.includes(state.activeTool)
-  const showPanel = hasSelection || isCompatibleTool
+  const showPanel = (hasSelection || isCompatibleTool) && !panelDismissed
+  const dismissPanel = () => { dismissedContextRef.current = contextKey; setPanelDismissed(true) }
+
+  useEffect(() => {
+    if (dismissedContextRef.current === contextKey) return
+    dismissedContextRef.current = null
+    setPanelDismissed(false)
+  }, [contextKey])
+  useEffect(() => {
+    if (!showPanel) return undefined
+    const onPointerDown = event => {
+      if (!panelRef.current?.contains(event.target)) dismissPanel()
+    }
+    const onKeyDown = event => {
+      const tag = event.target?.tagName
+      if (event.key === 'Escape' && tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') dismissPanel()
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [showPanel])
 
   const imagesOnly = hasSelection && selected.every(shape => shape.type === 'image')
   const hasImage = selected.some(shape => shape.type === 'image')
@@ -109,7 +137,7 @@ export default memo(function StylePanel() {
 
   if (!showPanel) return null
 
-  return <aside className="style-panel" aria-label="Properties inspector">
+  return <aside ref={panelRef} className="style-panel" aria-label="Properties inspector">
     <div className="inspector-tabs" role="tablist" aria-label="Inspector sections">
       <button type="button" role="tab" aria-selected={tab === 'style'} className={`inspector-tab${tab === 'style' ? ' is-active' : ''}`} onClick={() => setTab('style')}>Style</button>
       <button type="button" role="tab" aria-selected={tab === 'arrange'} className={`inspector-tab${tab === 'arrange' ? ' is-active' : ''}`} onClick={() => setTab('arrange')}>Arrange</button>
