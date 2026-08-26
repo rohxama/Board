@@ -9,7 +9,7 @@ export default function NotFoundPage({ message = "Oops! The page you're looking 
         <span className="not-found-digit" aria-hidden="true">4</span>
         <span className="not-found-face" aria-hidden="true">
           <svg viewBox="0 0 100 100" focusable="false" aria-hidden="true">
-            <g stroke="#101010" strokeWidth="7.5" strokeLinecap="round" fill="none">
+            <g stroke="currentColor" strokeWidth="7.5" strokeLinecap="round" fill="none">
               <path d="M23 28 L39 44" />
               <path d="M39 28 L23 44" />
               <path d="M61 28 L77 44" />

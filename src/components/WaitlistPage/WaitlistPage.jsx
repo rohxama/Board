@@ -30,7 +30,7 @@ export default function WaitlistPage() {
         <span className="waitlist-word" aria-hidden="true">WAIT</span>
         <span className="waitlist-clock" aria-hidden="true">
           <svg viewBox="0 0 100 100" focusable="false" aria-hidden="true">
-            <g stroke="#101010" strokeWidth="6" strokeLinecap="round" fill="none">
+            <g stroke="currentColor" strokeWidth="6" strokeLinecap="round" fill="none">
               <circle cx="50" cy="50" r="38" strokeWidth="5" />
               <path d="M50 30 V50 L64 58" strokeWidth="5.5" />
             </g>

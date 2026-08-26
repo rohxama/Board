@@ -3630,3 +3630,72 @@ html[data-theme='dark'] .side-avatar-delete:hover { background: rgba(0, 0, 0, .7
     max-height: calc(100dvh - 72px);
   }
 }
+
+/* Standalone routes are independent surfaces, but reuse the website's exact
+   primary green and the user's persisted theme. */
+.not-found-page,
+.thank-you-page,
+.waitlist-page {
+  color: #101010;
+  background: #ffffff;
+}
+.not-found-hero,
+.thank-you-hero,
+.waitlist-hero { color: #101010; }
+.not-found-face,
+.thank-you-face,
+.waitlist-clock {
+  color: #101010;
+  background: #52BD6B;
+}
+.thank-you-heart,
+.waitlist-heart { color: #52BD6B; }
+.thank-you-heart path,
+.waitlist-heart path { stroke: #52BD6B; }
+.waitlist-btn { background: #52BD6B; }
+.waitlist-btn:hover { background: #45B05F; }
+.waitlist-input:focus { border-color: #52BD6B; }
+.waitlist-success { color: #52BD6B; }
+.waitlist-success-icon { color: #52BD6B; }
+
+html[data-theme='dark'] .not-found-page,
+html[data-theme='dark'] .thank-you-page,
+html[data-theme='dark'] .waitlist-page {
+  color: #F5F7FA;
+  background: #121418;
+}
+html[data-theme='dark'] .not-found-hero,
+html[data-theme='dark'] .thank-you-hero,
+html[data-theme='dark'] .waitlist-hero {
+  color: #F5F7FA;
+}
+html[data-theme='dark'] .not-found-face,
+html[data-theme='dark'] .thank-you-face,
+html[data-theme='dark'] .waitlist-clock {
+  color: #FFFFFF;
+  background: #52BD6B;
+}
+html[data-theme='dark'] .not-found-message,
+html[data-theme='dark'] .thank-you-message,
+html[data-theme='dark'] .waitlist-message {
+  color: #AEB6C2;
+}
+html[data-theme='dark'] .not-found-tag,
+html[data-theme='dark'] .thank-you-tag,
+html[data-theme='dark'] .waitlist-tag,
+html[data-theme='dark'] .not-found-tag-bottom {
+  color: #8B93A5;
+}
+html[data-theme='dark'] .not-found-bottom-line { background: rgba(255, 255, 255, .12); }
+html[data-theme='dark'] .waitlist-input {
+  border-color: rgba(255, 255, 255, .16);
+  background: #181B22;
+  color: #F5F7FA;
+}
+html[data-theme='dark'] .waitlist-input::placeholder { color: #8B93A5; }
+html[data-theme='dark'] .waitlist-input-icon { color: #8B93A5; }
+html[data-theme='dark'] .waitlist-input:focus { border-color: #52BD6B; }
+html[data-theme='dark'] .waitlist-btn { background: #52BD6B; color: #FFFFFF; }
+html[data-theme='dark'] .waitlist-btn:hover { background: #45B05F; }
+html[data-theme='dark'] .waitlist-privacy { color: #8B93A5; }
+html[data-theme='dark'] .waitlist-success { color: #52BD6B; }
