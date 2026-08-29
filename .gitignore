@@ -1,5 +1,8 @@
 .vercel
 node_modules/.vite/
+dist/
+logs/
+artifacts/
 dev.log
 dev.err
 

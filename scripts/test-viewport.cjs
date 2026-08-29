@@ -5,7 +5,7 @@ const path = require('path')
 
 const CHROME = 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
 const URL = 'http://localhost:4179/'
-const OUT = path.join(__dirname, 'viewport-tests')
+const OUT = path.join(__dirname, '..', 'artifacts', 'viewport-tests')
 
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 const results = []

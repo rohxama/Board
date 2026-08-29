@@ -32,7 +32,7 @@ const resolveRoute = () => {
 
 const SPLASH_MIN_MS = 5000
 
-function Workspace({ splashDone, active = true, onStartupReady }) {
+function Workspace({ splashDone, active = true, onStartupReady, beginProcessing, finishProcessing, showUserMessage }) {
   const stageRef = useRef()
   const imageInputRef = useRef()
   const clipboard = useRef([])
@@ -82,24 +82,29 @@ function Workspace({ splashDone, active = true, onStartupReady }) {
 
   const viewRef = useRef(view); viewRef.current = view
   const addImage = useCallback(async file => {
-    const { src, width: naturalWidth, height: naturalHeight } = await readImageFile(file)
-    const stage = stageRef.current
-    const currentView = viewRef.current
-    const viewport = { width: stage?.width() || window.innerWidth, height: stage?.height() || window.innerHeight }
-    const width = INITIAL_IMAGE_WIDTH
-    const height = Math.max(20, width * naturalHeight / naturalWidth)
-    const image = {
-      id: newId(),
-      type: 'image',
-      src,
-      x: (viewport.width / 2 - currentView.x) / currentView.scale - width / 2,
-      y: (viewport.height / 2 - currentView.y) / currentView.scale - height / 2,
-      width, height, rotation: 0, opacity: 1, flipX: false, flipY: false, locked: false,
+    beginProcessing('Processing image...')
+    try {
+      const { src, width: naturalWidth, height: naturalHeight } = await readImageFile(file)
+      const stage = stageRef.current
+      const currentView = viewRef.current
+      const viewport = { width: stage?.width() || window.innerWidth, height: stage?.height() || window.innerHeight }
+      const width = INITIAL_IMAGE_WIDTH
+      const height = Math.max(20, width * naturalHeight / naturalWidth)
+      const image = {
+        id: newId(),
+        type: 'image',
+        src,
+        x: (viewport.width / 2 - currentView.x) / currentView.scale - width / 2,
+        y: (viewport.height / 2 - currentView.y) / currentView.scale - height / 2,
+        width, height, rotation: 0, opacity: 1, flipX: false, flipY: false, locked: false,
+      }
+      commit(prev => [...prev, image])
+      dispatch({ type: 'SET_SELECTION', ids: [image.id] })
+      dispatch({ type: 'SET_TOOL', tool: 'select' })
+    } finally {
+      finishProcessing()
     }
-    commit(prev => [...prev, image])
-    dispatch({ type: 'SET_SELECTION', ids: [image.id] })
-    dispatch({ type: 'SET_TOOL', tool: 'select' })
-  }, [commit, dispatch])
+  }, [beginProcessing, commit, dispatch, finishProcessing])
 
   const selectAll = useCallback(() => dispatch({ type: 'SET_SELECTION', ids: shapes.map(s => s.id) }), [shapes, dispatch])
   const deselect = useCallback(() => dispatch({ type: 'SET_SELECTION', ids: [] }), [dispatch])
@@ -216,8 +221,22 @@ function Workspace({ splashDone, active = true, onStartupReady }) {
 
   return (
     <main>
-      <CanvasStage stageRef={stageRef} view={view} setView={setView} onImageDrop={addImage} />
-      <Toolbar stageRef={stageRef} onImageUpload={addImage} imageInputRef={imageInputRef} view={view} onZoomReset={resetZoom} lastSavedAt={lastSavedAt} onNewBoard={startFresh} onSaveBoard={saveCurrentBoard} onSaveAsBoard={saveAsBoard} onDeleteBoard={deleteBoard} />
+      <CanvasStage stageRef={stageRef} view={view} setView={setView} onImageDrop={addImage} onUserMessage={showUserMessage} />
+      <Toolbar
+        stageRef={stageRef}
+        onImageUpload={addImage}
+        imageInputRef={imageInputRef}
+        view={view}
+        onZoomReset={resetZoom}
+        lastSavedAt={lastSavedAt}
+        onNewBoard={startFresh}
+        onSaveBoard={saveCurrentBoard}
+        onSaveAsBoard={saveAsBoard}
+        onDeleteBoard={deleteBoard}
+        beginProcessing={beginProcessing}
+        finishProcessing={finishProcessing}
+        showUserMessage={showUserMessage}
+      />
       <StylePanel />
       <ZoomControls view={view} setView={setView} />
       {splashDone && pendingBoard && <PreviousBoardModal onRestore={restorePrevious} onFresh={startFresh} />}
@@ -225,11 +244,18 @@ function Workspace({ splashDone, active = true, onStartupReady }) {
   )
 }
 
-function BoardExperience({ splashDone, active, onStartupReady }) {
+function BoardExperience({ splashDone, active, onStartupReady, beginProcessing, finishProcessing, showUserMessage }) {
   return (
     <AppStateProvider>
       <HistoryProvider>
-        <Workspace splashDone={splashDone} active={active} onStartupReady={onStartupReady} />
+        <Workspace
+          splashDone={splashDone}
+          active={active}
+          onStartupReady={onStartupReady}
+          beginProcessing={beginProcessing}
+          finishProcessing={finishProcessing}
+          showUserMessage={showUserMessage}
+        />
         <CookieConsent />
       </HistoryProvider>
     </AppStateProvider>
@@ -240,6 +266,21 @@ export default function App() {
   const initialRouteRef = useRef(resolveRoute())
   const [route, setRoute] = useState(initialRouteRef.current)
   const [splash, setSplash] = useState(() => initialRouteRef.current === 'board' ? 'visible' : 'done')
+  const [processing, setProcessing] = useState({ active: false, label: 'Processing...' })
+  const [userMessage, setUserMessage] = useState('')
+  const userMessageTimer = useRef(0)
+  const showUserMessage = useCallback(message => {
+    if (!message) return
+    setUserMessage(message)
+    window.clearTimeout(userMessageTimer.current)
+    userMessageTimer.current = window.setTimeout(() => setUserMessage(''), 2800)
+  }, [])
+  const beginProcessing = useCallback((label = 'Processing...') => {
+    setProcessing({ active: true, label })
+  }, [])
+  const finishProcessing = useCallback(() => {
+    setProcessing({ active: false, label: '' })
+  }, [])
 
   // The splash is the ONLY visible UI during startup. After the minimum
   // duration elapses it begins a short fade-out; when the fade completes the
@@ -274,7 +315,27 @@ export default function App() {
   const showSplash = route === 'board' && splash !== 'done'
   return (
     <ThemeProvider>
-      {showBoard && <BoardExperience splashDone active={route === 'board'} onStartupReady={() => {}} />}
+      {showBoard && (
+        <>
+          <BoardExperience
+            splashDone
+            active={route === 'board'}
+            onStartupReady={() => { }}
+            beginProcessing={beginProcessing}
+            finishProcessing={finishProcessing}
+            showUserMessage={showUserMessage}
+          />
+          {processing.active && (
+            <div className="processing-banner" aria-live="polite" aria-busy="true">
+              <span className="processing-spinner" aria-hidden="true" />
+              <span>{processing.label}</span>
+            </div>
+          )}
+          {userMessage && (
+            <div className="app-toast" role="status" aria-live="polite">{userMessage}</div>
+          )}
+        </>
+      )}
       {showSplash && <SplashScreen canHide={splash === 'fading'} onHidden={() => setSplash('done')} />}
       {route === 'notfound' && <NotFoundPage />}
       {route === 'docs' && <NotFoundPage message="The Documentation page is not available yet." />}

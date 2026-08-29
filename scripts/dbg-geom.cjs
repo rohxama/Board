@@ -1,8 +1,12 @@
 const puppeteer = require('puppeteer-core')
+const fs = require('fs')
+const path = require('path')
 const CHROME = 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
+const OUT = path.join(__dirname, '..', 'artifacts', 'viewport-tests')
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 
 ;(async () => {
+  fs.mkdirSync(OUT, { recursive: true })
   const browser = await puppeteer.launch({ executablePath: CHROME, headless: true, args: ['--window-size=1200,800'] })
   const page = await browser.newPage()
   await page.setViewport({ width: 1200, height: 800 })
@@ -51,7 +55,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms))
 
 await dump('AFTER  pan: ')
 
-  const shot1 = await page.screenshot({ path: 'viewport-tests/debug-mid.png' })
+  const shot1 = await page.screenshot({ path: path.join(OUT, 'debug-mid.png') })
   console.log('screenshot bytes (with patch):', shot1.length)
 
   await page.evaluate(() => {
@@ -60,7 +64,7 @@ await dump('AFTER  pan: ')
   })
   await sleep(300)
   await dump('FORCED cache clear: ')
-  const shot2 = await page.screenshot({ path: 'viewport-tests/debug-mid-cleared.png' })
+  const shot2 = await page.screenshot({ path: path.join(OUT, 'debug-mid-cleared.png') })
   console.log('screenshot bytes (cache cleared):', shot2.length)
 
   await browser.close()

@@ -11,6 +11,7 @@ import { bindArrowEndpoints, normalizeBox, updateBoundArrows } from '../../lib/g
 
 import { clampScale, zoomAtPoint } from '../../lib/viewport'
 import { hasPointerEvents } from '../../lib/browser'
+import { addEventListenerOnce } from '../../lib/eventListeners'
 import { useImageAsset } from '../../hooks/useImageAsset'
 
 const NO_POINTER = !hasPointerEvents
@@ -162,8 +163,8 @@ const Shape = memo(function Shape({ shape, nodeRef, onEdit, draggable = true, vi
   // point-array identity stable across unrelated canvas renders so React-Konva
   // does not reapply the initial (zero-size) draft geometry mid-drag.
   const diamondPoints = useMemo(() => [shape.width / 2, 0, shape.width, shape.height / 2, shape.width / 2, shape.height, 0, shape.height / 2], [shape.width, shape.height])
-  const safeHit = fn => (ctx, node) => { try { fn(ctx, node) } catch (_e) {} }
-    const rectHitFunc = useCallback(safeHit((ctx, node) => { ctx.beginPath(); ctx.rect(0, 0, node.width(), node.height()); ctx.fillStrokeShape(node) }), [])
+  const safeHit = fn => (ctx, node) => { try { fn(ctx, node) } catch (_e) { } }
+  const rectHitFunc = useCallback(safeHit((ctx, node) => { ctx.beginPath(); ctx.rect(0, 0, node.width(), node.height()); ctx.fillStrokeShape(node) }), [])
   const ellipseHitFunc = useCallback(safeHit((ctx, node) => { ctx.beginPath(); ctx.ellipse(0, 0, node.radiusX(), node.radiusY(), 0, 0, Math.PI * 2, false); ctx.fillStrokeShape(node) }), [])
   const diamondHitFunc = useCallback(safeHit((ctx, node) => { const points = node.points(); if (!points || points.length < 8) return; ctx.beginPath(); ctx.moveTo(points[0], points[1]); for (let i = 2; i < points.length; i += 2) ctx.lineTo(points[i], points[i + 1]); ctx.closePath(); ctx.fillStrokeShape(node) }), [])
 
@@ -186,17 +187,17 @@ const Shape = memo(function Shape({ shape, nodeRef, onEdit, draggable = true, vi
 // (retracting) beams share this so they read identically.
 const getLaserStyle = dark => dark
   ? {
-      core: '#ff6b6b', glow: '#ff2424', outer: '#ff0a33',
-      coreWidth: 1.5, glowWidth: 3, outerWidth: 7,
-      coreOpacity: 1, glowOpacity: 0.5, outerOpacity: 0.3,
-      shadowBlur: 12, shadowOpacity: 1,
-    }
+    core: '#ff6b6b', glow: '#ff2424', outer: '#ff0a33',
+    coreWidth: 1.5, glowWidth: 3, outerWidth: 7,
+    coreOpacity: 1, glowOpacity: 0.5, outerOpacity: 0.3,
+    shadowBlur: 12, shadowOpacity: 1,
+  }
   : {
-      core: '#ff4d4d', glow: '#ff2a2a', outer: '#ff0a33',
-      coreWidth: 1.5, glowWidth: 2.5, outerWidth: 6,
-      coreOpacity: 1, glowOpacity: 0.42, outerOpacity: 0.22,
-      shadowBlur: 5, shadowOpacity: 0.65,
-    }
+    core: '#ff4d4d', glow: '#ff2a2a', outer: '#ff0a33',
+    coreWidth: 1.5, glowWidth: 2.5, outerWidth: 6,
+    coreOpacity: 1, glowOpacity: 0.42, outerOpacity: 0.22,
+    shadowBlur: 5, shadowOpacity: 0.65,
+  }
 
 function LaserBeam({ points, opacity, dark, groupRef }) {
   const s = getLaserStyle(dark)
@@ -221,7 +222,7 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
   const { theme } = useTheme()
   const dark = theme === 'dark'
   const hostRef = useRef(); const nodes = useRef({}); const refCallbacks = useRef({}); const transformer = useRef(); const editorRef = useRef()
-    const dragSelection = useRef([])
+  const dragSelection = useRef([])
   const marqueeStart = useRef(null)
   const marqueeRef = useRef(null)
   const [marquee, setMarquee] = useState(null)
@@ -236,6 +237,7 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
   const [interaction, dispatchInteraction] = useReducer(interactionReducer, initialInteraction)
   const interactionRef = useRef(initialInteraction); interactionRef.current = interaction
   const start = useRef(null); const panStart = useRef(null); const activePointer = useRef(null)
+  const panMoveHandlerRef = useRef(null)
   const abortRef = useRef(null)
   const eraserSquareRef = useRef(null)
   const [eraserSquare, setEraserSquare] = useState(null)
@@ -244,8 +246,8 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
   if (erasedIdsRef.current === null) erasedIdsRef.current = new Set()
   const [stageEpoch, setStageEpoch] = useState(0); const lastCanvasRecovery = useRef(0); const epochRef = useRef(0); epochRef.current = stageEpoch
   const cullStateRef = useRef(new Map()); const cullRafRef = useRef(0); const lastCullEpochRef = useRef(-1)
-    const viewScaleRef = useRef(view.scale); viewScaleRef.current = view.scale
-    const hitGraphOn = useRef(true)
+  const viewScaleRef = useRef(view.scale); viewScaleRef.current = view.scale
+  const hitGraphOn = useRef(true)
   const spacePanRef = useRef(false)
   const emptyDismissed = useRef(false)
   const prevToolForEmptyRef = useRef(state.activeTool)
@@ -288,7 +290,7 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
     if (!stage) return
     stage.getLayers().forEach(layer => layer.listening(on))
   }, [])
-  useEffect(() => { const stage=stageRef.current; return()=>{} }, [stageEpoch])
+  useEffect(() => { const stage = stageRef.current; return () => { } }, [stageEpoch])
   const updateDraft = next => { draftRef.current = next; setDraft(next) }
   const updateLaser = next => { laserRef.current = next; setLaser(next) }
   // Eraser square size in world units, derived from a constant on-screen size so
@@ -357,8 +359,8 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
     }, LASER_VISIBLE_DURATION)
     laserTimersRef.current.set(id, timer)
   }, [])
-  const startInteraction = mode => { interactionRef.current={mode}; dispatchInteraction({type:'START',mode}) }
-    // PAN: while the pointer moves, the viewport is recomputed from the gesture
+  const startInteraction = mode => { interactionRef.current = { mode }; dispatchInteraction({ type: 'START', mode }) }
+  // PAN: while the pointer moves, the viewport is recomputed from the gesture
   // origin and written straight into React state. The Stage renders x/y/scale
   // from that state — one source of truth, no imperative stage movement.
   const handlePanMove = useCallback(e => {
@@ -444,13 +446,13 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
     })
   }, [cullShapes])
 
-    // WHEEL ZOOM: wheel zooms around the pointer, clamped to the viewport scale
+  // WHEEL ZOOM: wheel zooms around the pointer, clamped to the viewport scale
   // range. It only changes the viewport; shapes and history remain untouched.
 
   const handleWheel = useCallback(event => {
     const native = event.evt
     native.preventDefault()
-    
+
     const stage = stageRef.current
     if (!stage) return
     const point = stage.getPointerPosition()
@@ -465,19 +467,20 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
     setView(zoomAtPoint(point, current, nextScale))
     requestCull()
   }, [])
-  const abort = () => { if(panMoveRafRef.current){cancelAnimationFrame(panMoveRafRef.current);panMoveRafRef.current=0} pendingPanMoveRef.current=null; lastPanPointRef.current=null;if(cursorRafRef.current){cancelAnimationFrame(cursorRafRef.current);cursorRafRef.current=0}
-    window.removeEventListener('pointermove', handlePanMove)
-    const gesture=dragGesture.current
-    if(gesture) gesture.ids.forEach(id=>{const node=nodes.current[id],initial=gesture.nodePositions[id];if(node&&initial)node.position(initial)})
-    if(pointerMoveRafRef.current){cancelAnimationFrame(pointerMoveRafRef.current);pointerMoveRafRef.current=0} pendingPointerMoveRef.current=null;if(dragMoveRafRef.current){cancelAnimationFrame(dragMoveRafRef.current);dragMoveRafRef.current=0} pendingDragMoveRef.current=null;dragGesture.current=null; start.current=null; panStart.current=null; penPointsRef.current=null; draftNodeRef.current=null; activePointer.current=null
-        if(draftRef.current)updateDraft(null)
-    marqueeStart.current=null
-    marqueeRef.current=null
+  const abort = () => {
+    if (panMoveRafRef.current) { cancelAnimationFrame(panMoveRafRef.current); panMoveRafRef.current = 0 } pendingPanMoveRef.current = null; lastPanPointRef.current = null; if (cursorRafRef.current) { cancelAnimationFrame(cursorRafRef.current); cursorRafRef.current = 0 }
+    if (panMoveHandlerRef.current) { panMoveHandlerRef.current(); panMoveHandlerRef.current = null }
+    const gesture = dragGesture.current
+    if (gesture) gesture.ids.forEach(id => { const node = nodes.current[id], initial = gesture.nodePositions[id]; if (node && initial) node.position(initial) })
+    if (pointerMoveRafRef.current) { cancelAnimationFrame(pointerMoveRafRef.current); pointerMoveRafRef.current = 0 } pendingPointerMoveRef.current = null; if (dragMoveRafRef.current) { cancelAnimationFrame(dragMoveRafRef.current); dragMoveRafRef.current = 0 } pendingDragMoveRef.current = null; dragGesture.current = null; start.current = null; panStart.current = null; penPointsRef.current = null; draftNodeRef.current = null; activePointer.current = null
+    if (draftRef.current) updateDraft(null)
+    marqueeStart.current = null
+    marqueeRef.current = null
     setMarquee(null)
     updateLaser(null)
 
     setHitGraph(true)
-    interactionRef.current=initialInteraction; dispatchInteraction({type:'RESET'})
+    interactionRef.current = initialInteraction; dispatchInteraction({ type: 'RESET' })
   }
   abortRef.current = abort
   useEffect(() => {
@@ -496,10 +499,10 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
     if (observer && hostRef.current) observer.observe(hostRef.current)
     if (!observer) window.addEventListener('resize', resize)
     resize()
-    const blur=()=>{abort()}
-    const end=e=>{if(interactionRef.current.mode==='idle')return;const pid=Number.isFinite(e?.pointerId)?e.pointerId:null;if(pid!==null&&activePointer.current!==null&&activePointer.current!==pid)return;abort()}
-    addEventListener('blur',blur); addEventListener('pointerup',end); addEventListener('pointercancel',end); addEventListener('touchend',end); if(NO_POINTER)addEventListener('mouseup',end)
-    return()=>{if(observer)observer.disconnect();else window.removeEventListener('resize',resize);removeEventListener('blur',blur);removeEventListener('pointerup',end);removeEventListener('pointercancel',end);removeEventListener('touchend',end); if(NO_POINTER)removeEventListener('mouseup',end)}
+    const blur = () => { abort() }
+    const end = e => { if (interactionRef.current.mode === 'idle') return; const pid = Number.isFinite(e?.pointerId) ? e.pointerId : null; if (pid !== null && activePointer.current !== null && activePointer.current !== pid) return; abort() }
+    addEventListener('blur', blur); addEventListener('pointerup', end); addEventListener('pointercancel', end); addEventListener('touchend', end); if (NO_POINTER) addEventListener('mouseup', end)
+    return () => { if (observer) observer.disconnect(); else window.removeEventListener('resize', resize); removeEventListener('blur', blur); removeEventListener('pointerup', end); removeEventListener('pointercancel', end); removeEventListener('touchend', end); if (NO_POINTER) removeEventListener('mouseup', end) }
   }, [])
   useEffect(() => {
     const onError = event => {
@@ -522,25 +525,25 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
     // Konva canvases keep their old backing scale and go blurry. Recreate the stage
     // with the new ratio so Chrome/Edge/Firefox/Safari stay crisp.
     if (typeof window.matchMedia !== 'function' || typeof window.devicePixelRatio !== 'number') return
-    const mql=window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`)
-    const onChange=()=>{Konva.pixelRatio=window.devicePixelRatio||1;setStageEpoch(epoch=>epoch+1)}
-    if(mql.addEventListener)mql.addEventListener('change',onChange)
-    else if(mql.addListener)mql.addListener(onChange)
-    return()=>{if(mql.removeEventListener)mql.removeEventListener('change',onChange);else if(mql.removeListener)mql.removeListener(onChange)}
+    const mql = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`)
+    const onChange = () => { Konva.pixelRatio = window.devicePixelRatio || 1; setStageEpoch(epoch => epoch + 1) }
+    if (mql.addEventListener) mql.addEventListener('change', onChange)
+    else if (mql.addListener) mql.addListener(onChange)
+    return () => { if (mql.removeEventListener) mql.removeEventListener('change', onChange); else if (mql.removeListener) mql.removeListener(onChange) }
   }, [])
-  useEffect(() => { const container=stageRef.current?.container(); if(!container) return; const leave=e=>{if(e.buttons===0&&(panStart.current||start.current||draftRef.current))abort(); if(stateRef.current.activeTool==='eraser')setEraserSquare(null)}; container.addEventListener('pointerleave',leave); return()=>container.removeEventListener('pointerleave',leave) }, [])
-  useEffect(() => { if (!editing) return; const frame=requestAnimationFrame(()=>editorRef.current?.focus()); return()=>cancelAnimationFrame(frame) }, [editing])
+  useEffect(() => { const container = stageRef.current?.container(); if (!container) return; const leave = e => { if (e.buttons === 0 && (panStart.current || start.current || draftRef.current)) abort(); if (stateRef.current.activeTool === 'eraser') setEraserSquare(null) }; container.addEventListener('pointerleave', leave); return () => container.removeEventListener('pointerleave', leave) }, [])
+  useEffect(() => { if (!editing) return; const frame = requestAnimationFrame(() => editorRef.current?.focus()); return () => cancelAnimationFrame(frame) }, [editing])
   useEffect(() => {
     try {
-      const selected=state.selectedShapeIds.map(id=>{const shape=shapesRef.current.find(item=>item.id===id);const node=nodes.current[id];return shape?.locked?null:node}).filter(node=>node && !node.isDestroyed?.())
+      const selected = state.selectedShapeIds.map(id => { const shape = shapesRef.current.find(item => item.id === id); const node = nodes.current[id]; return shape?.locked ? null : node }).filter(node => node && !node.isDestroyed?.())
       transformer.current?.nodes(selected)
       transformer.current?.getLayer()?.batchDraw()
     } catch (_e) {
       abort()
     }
   }, [state.selectedShapeIds, shapes])
-  useEffect(() => { const live=new Set(shapes.map(shape=>shape.id)); const pruned=state.selectedShapeIds.filter(id=>live.has(id)); if(pruned.length!==state.selectedShapeIds.length) dispatch({type:'SET_SELECTION',ids:pruned}) }, [shapes])
-  useEffect(() => { const liveIds=new Set(shapes.map(shape=>shape.id)); Object.keys(refCallbacks.current).forEach(id=>{if(!liveIds.has(id)){delete refCallbacks.current[id];delete nodes.current[id]}}); _bboxCache.forEach((_,id)=>{if(!liveIds.has(id))_bboxCache.delete(id)}); cullStateRef.current.forEach((_,id)=>{if(!liveIds.has(id))cullStateRef.current.delete(id)}) }, [shapes])
+  useEffect(() => { const live = new Set(shapes.map(shape => shape.id)); const pruned = state.selectedShapeIds.filter(id => live.has(id)); if (pruned.length !== state.selectedShapeIds.length) dispatch({ type: 'SET_SELECTION', ids: pruned }) }, [shapes])
+  useEffect(() => { const liveIds = new Set(shapes.map(shape => shape.id)); Object.keys(refCallbacks.current).forEach(id => { if (!liveIds.has(id)) { delete refCallbacks.current[id]; delete nodes.current[id] } }); _bboxCache.forEach((_, id) => { if (!liveIds.has(id)) _bboxCache.delete(id) }); cullStateRef.current.forEach((_, id) => { if (!liveIds.has(id)) cullStateRef.current.delete(id) }) }, [shapes])
   // After any commit / zoom / remount, drop offscreen shapes before paint so the
   // frame only rasterizes the visible world. Continuous pointer pan and wheel
   // pan already request their own culls per animation frame.
@@ -551,10 +554,18 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
     laserTimersRef.current.clear()
     laserRafsRef.current.clear()
     laserStrokesRef.current = []
-    nodes.current={}; refCallbacks.current={}
-    if(cullRafRef.current){cancelAnimationFrame(cullRafRef.current)}
+    nodes.current = {}; refCallbacks.current = {}
+    if (cullRafRef.current) { cancelAnimationFrame(cullRafRef.current) }
   }, [])
-  useEffect(() => () => { if(pointerMoveRafRef.current)cancelAnimationFrame(pointerMoveRafRef.current); if(dragMoveRafRef.current)cancelAnimationFrame(dragMoveRafRef.current); if(panMoveRafRef.current)cancelAnimationFrame(panMoveRafRef.current); if(cursorRafRef.current)cancelAnimationFrame(cursorRafRef.current); if(cullRafRef.current)cancelAnimationFrame(cullRafRef.current); pendingPointerMoveRef.current=null; pendingDragMoveRef.current=null; pendingPanMoveRef.current=null; window.removeEventListener('pointermove',handlePanMove) }, []);   const toolCursor = () => interaction.mode==='panning' ? 'grabbing' : state.activeTool === 'pan' ? 'grab' : state.activeTool === 'select' ? 'default' : state.activeTool === 'text' ? 'text' : state.activeTool === 'eraser' ? 'none' : 'crosshair'
+  useEffect(() => () => {
+    if (pointerMoveRafRef.current) cancelAnimationFrame(pointerMoveRafRef.current)
+    if (dragMoveRafRef.current) cancelAnimationFrame(dragMoveRafRef.current)
+    if (panMoveRafRef.current) cancelAnimationFrame(panMoveRafRef.current)
+    if (cursorRafRef.current) cancelAnimationFrame(cursorRafRef.current)
+    if (cullRafRef.current) cancelAnimationFrame(cullRafRef.current)
+    if (panMoveHandlerRef.current) { panMoveHandlerRef.current(); panMoveHandlerRef.current = null }
+    pendingPointerMoveRef.current = null; pendingDragMoveRef.current = null; pendingPanMoveRef.current = null
+  }, []); const toolCursor = () => interaction.mode === 'panning' ? 'grabbing' : state.activeTool === 'pan' ? 'grab' : state.activeTool === 'select' ? 'default' : state.activeTool === 'text' ? 'text' : state.activeTool === 'eraser' ? 'none' : 'crosshair'
   // True when the pointer target sits on (or inside) the selection Transformer.
   const isOnTransformer = node => { let n = node; while (n) { if (n.className === 'Transformer') return true; n = n.getParent ? n.getParent() : null } return false }
   // Map a Transformer anchor name to its directional resize cursor.
@@ -612,8 +623,20 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
     })
   }
 
-    const point = () => { const p=stageRef.current.getPointerPosition(); if(!p) return null; return { x:(p.x-view.x)/view.scale, y:(p.y-view.y)/view.scale } }
-  const handleImageDrop = event => { event.preventDefault(); const file = event.dataTransfer?.files?.[0]; if (!file || !onImageDrop) return; Promise.resolve(onImageDrop(file)).catch(error => window.alert(error.message)) }
+  const point = () => { const p = stageRef.current.getPointerPosition(); if (!p) return null; return { x: (p.x - view.x) / view.scale, y: (p.y - view.y) / view.scale } }
+  const handleImageDrop = event => {
+    event.preventDefault()
+    const file = event.dataTransfer?.files?.[0]
+    if (!file || !onImageDrop) return
+    Promise.resolve(onImageDrop(file)).catch(error => {
+      const message = typeof error?.message === 'string' && error.message.trim()
+        ? error.message
+        : 'Image upload failed — This file isn’t supported or couldn’t be processed. Try another image.'
+      onUserMessage?.(message.includes('Use a PNG, JPG, SVG, or WEBP image.') || message.includes('image')
+        ? 'Image upload failed — This file isn’t supported or couldn’t be processed. Try another image.'
+        : message)
+    })
+  }
 
   const targetShapeId = target => target?.getAttr('shapeId') || null
   const isTransformerTarget = target => { let node = target; while (node && node !== transformer.current) node = node.parent; return !!node }
@@ -637,7 +660,7 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
         commit(prev => prev.filter(s => s.id !== current.id))
         dispatch({ type: 'SET_SELECTION', ids: [] })
       }
-      } else if (text.trim().length > 0) {
+    } else if (text.trim().length > 0) {
       const id = newId()
       commit(prev => [...prev, { id, type: 'text', x: current.x, y: current.y, width: current.width, height: current.height, text, ...stateRef.current.activeStyle, fontSize: current.fontSize, stroke: current.stroke }])
       dispatch({ type: 'SET_SELECTION', ids: [id] })
@@ -647,51 +670,61 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
     lastTextCommitRef.current = Date.now()
   }
 
-    const selectShape = (id, event) => {
-    const ids=stateRef.current.selectedShapeIds
-    let nextSel=ids.includes(id)?ids:[id]
-    if(event.evt.shiftKey) nextSel=ids.includes(id)?ids.filter(value=>value!==id):[...ids,id]
-    dragSelection.current=nextSel
-    dispatch({type:'SET_SELECTION',ids:nextSel})
-    if(stateRef.current.activeTool!=='select'&&stateRef.current.activeTool!=='pan') dispatch({type:'SET_TOOL',tool:'select'})
+  const selectShape = (id, event) => {
+    const ids = stateRef.current.selectedShapeIds
+    let nextSel = ids.includes(id) ? ids : [id]
+    if (event.evt.shiftKey) nextSel = ids.includes(id) ? ids.filter(value => value !== id) : [...ids, id]
+    dragSelection.current = nextSel
+    dispatch({ type: 'SET_SELECTION', ids: nextSel })
+    if (stateRef.current.activeTool !== 'select' && stateRef.current.activeTool !== 'pan') dispatch({ type: 'SET_TOOL', tool: 'select' })
   }
   const updateMarquee = p => {
-    const startPoint=marqueeStart.current
-    if(!startPoint||!p) return
-    const next={x:Math.min(startPoint.x,p.x),y:Math.min(startPoint.y,p.y),width:Math.abs(p.x-startPoint.x),height:Math.abs(p.y-startPoint.y)}
-    marqueeRef.current=next
+    const startPoint = marqueeStart.current
+    if (!startPoint || !p) return
+    const next = { x: Math.min(startPoint.x, p.x), y: Math.min(startPoint.y, p.y), width: Math.abs(p.x - startPoint.x), height: Math.abs(p.y - startPoint.y) }
+    marqueeRef.current = next
     setMarquee(next)
   }
   const finishMarquee = event => {
-    const box=marqueeRef.current
-    const hasArea=box&&box.width>4&&box.height>4
-    if(hasArea){
-      const ids=shapesRef.current.filter(shape=>{const bounds=getShapeBounds(shape);return bounds.l>=box.x&&bounds.t>=box.y&&bounds.r<=box.x+box.width&&bounds.b<=box.y+box.height}).map(shape=>shape.id)
-      const next=event.evt.shiftKey?[...new Set([...stateRef.current.selectedShapeIds,...ids])]:ids
-      dragSelection.current=next
-      dispatch({type:'SET_SELECTION',ids:next})
-    } else if(!event.evt.shiftKey) dispatch({type:'SET_SELECTION',ids:[]})
-    marqueeStart.current=null
-    marqueeRef.current=null
+    const box = marqueeRef.current
+    const hasArea = box && box.width > 4 && box.height > 4
+    if (hasArea) {
+      const ids = shapesRef.current.filter(shape => { const bounds = getShapeBounds(shape); return bounds.l >= box.x && bounds.t >= box.y && bounds.r <= box.x + box.width && bounds.b <= box.y + box.height }).map(shape => shape.id)
+      const next = event.evt.shiftKey ? [...new Set([...stateRef.current.selectedShapeIds, ...ids])] : ids
+      dragSelection.current = next
+      dispatch({ type: 'SET_SELECTION', ids: next })
+    } else if (!event.evt.shiftKey) dispatch({ type: 'SET_SELECTION', ids: [] })
+    marqueeStart.current = null
+    marqueeRef.current = null
     setMarquee(null)
   }
 
   const down = event => {
     try {
-      const pid=Number.isFinite(event.evt?.pointerId)?event.evt.pointerId:null
+      const pid = Number.isFinite(event.evt?.pointerId) ? event.evt.pointerId : null
       if (panStart.current || start.current || draftRef.current) {
-        if (pid===null || activePointer.current===pid) abort()
+        if (pid === null || activePointer.current === pid) abort()
         else return
       }
-            if (stateRef.current.activeTool === 'pan' || spacePanRef.current) { event.evt.preventDefault(); panStart.current={px:event.evt.clientX,py:event.evt.clientY,view:{...viewRef2.current}}; if(pid!==null)activePointer.current=pid; setHitGraph(false); startInteraction('panning'); window.addEventListener('pointermove', handlePanMove); return }
-            if (isTransformerTarget(event.target) && !['line','arrow'].includes(stateRef.current.activeTool)) { event.cancelBubble = true; return }
+      if (stateRef.current.activeTool === 'pan' || spacePanRef.current) {
+        event.evt.preventDefault();
+        panStart.current = { px: event.evt.clientX, py: event.evt.clientY, view: { ...viewRef2.current } }
+        if (pid !== null) activePointer.current = pid
+        setHitGraph(false)
+        startInteraction('panning')
+        if (!panMoveHandlerRef.current) {
+          panMoveHandlerRef.current = addEventListenerOnce(window, 'pointermove', handlePanMove)
+        }
+        return
+      }
+      if (isTransformerTarget(event.target) && !['line', 'arrow'].includes(stateRef.current.activeTool)) { event.cancelBubble = true; return }
 
       // Any stage click while a text editor is open finishes it and keeps the
       // committed text. The dismiss click itself won't spawn a second empty
       // box, so you need one extra click (like Excalidraw) to add another box.
       const wasEditing = !!editingRef.current
       if (editingRef.current) finishText()
-      const id=targetShapeId(event.target)
+      const id = targetShapeId(event.target)
       const activeTool = stateRef.current.activeTool
       if (activeTool === 'eraser') {
         const p = point()
@@ -717,17 +750,17 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
       if (stateRef.current.activeTool === 'select') {
         if (id) { selectShape(id, event); return }
         if (event.target === event.target.getStage()) {
-          if(!isTransformerTarget(event.target)) {
+          if (!isTransformerTarget(event.target)) {
             abort()
-            const startPoint=point()
-            if(startPoint){marqueeStart.current=startPoint;marqueeRef.current=null;setMarquee(null);if(!event.evt.shiftKey)dispatch({type:'SET_SELECTION',ids:[]});startInteraction('marquee')}
+            const startPoint = point()
+            if (startPoint) { marqueeStart.current = startPoint; marqueeRef.current = null; setMarquee(null); if (!event.evt.shiftKey) dispatch({ type: 'SET_SELECTION', ids: [] }); startInteraction('marquee') }
           }
         }
         return
       }
 
-      const p=point()
-      if(!p) return
+      const p = point()
+      if (!p) return
       if (stateRef.current.activeTool === 'text') {
         // A prior text edit was open and just got committed (either above via
         // finishText(), or by the textarea's onBlur which fires before this
@@ -739,94 +772,95 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
         setEditing({ ...p, value: '', fontSize, stroke: stateRef.current.activeStyle.stroke, width: box.width, height: box.height })
         return
       }
-      start.current=p; if(pid!==null)activePointer.current=pid; draftEndRef.current=p; setHitGraph(false); startInteraction('drawing')
-      if (stateRef.current.activeTool === 'laser') { updateLaser({points:[p.x,p.y],opacity:.8}); return }
-            const base={id:newId(),type:stateRef.current.activeTool,...stateRef.current.activeStyle,x:p.x,y:p.y}
-      if(['rectangle','ellipse','diamond'].includes(base.type)){base.width=0;base.height=0}
+      start.current = p; if (pid !== null) activePointer.current = pid; draftEndRef.current = p; setHitGraph(false); startInteraction('drawing')
+      if (stateRef.current.activeTool === 'laser') { updateLaser({ points: [p.x, p.y], opacity: .8 }); return }
+      const base = { id: newId(), type: stateRef.current.activeTool, ...stateRef.current.activeStyle, x: p.x, y: p.y }
+      if (['rectangle', 'ellipse', 'diamond'].includes(base.type)) { base.width = 0; base.height = 0 }
 
-      if(['arrow','line','pen'].includes(base.type)) base.points=[0,0]
-      if(base.type==='pen') penPointsRef.current=base.points
+      if (['arrow', 'line', 'pen'].includes(base.type)) base.points = [0, 0]
+      if (base.type === 'pen') penPointsRef.current = base.points
       updateDraft(base)
     } catch (_e) { abort() }
   }
   const applyPointerMove = event => {
     try {
-      const pid=Number.isFinite(event.evt?.pointerId)?event.evt.pointerId:null
-      if(activePointer.current!==null&&activePointer.current!==pid) return
-            if(panStart.current) return
-      let p=point()
-      if(!p) return
-      if(marqueeStart.current){updateMarquee(p);return}
-      if(!start.current) return
+      const pid = Number.isFinite(event.evt?.pointerId) ? event.evt.pointerId : null
+      if (activePointer.current !== null && activePointer.current !== pid) return
+      if (panStart.current) return
+      let p = point()
+      if (!p) return
+      if (marqueeStart.current) { updateMarquee(p); return }
+      if (!start.current) return
 
-      if(event.evt.shiftKey&&['line','arrow'].includes(stateRef.current.activeTool)){const dx=p.x-start.current.x,dy=p.y-start.current.y,angle=Math.round(Math.atan2(dy,dx)/(Math.PI/4))*Math.PI/4,distance=Math.hypot(dx,dy);p={x:start.current.x+Math.cos(angle)*distance,y:start.current.y+Math.sin(angle)*distance}}
-      if(stateRef.current.activeTool==='laser'){const cur=laserRef.current;if(!cur)return;cur.points.push(p.x,p.y);const node=laserNodeRef.current;if(node){node.getChildren().forEach(child=>child.points(cur.points));node.getLayer()?.batchDraw()}return}
-      if(stateRef.current.activeTool==='eraser'){ setEraserSquare({ x: p.x, y: p.y, size: eraserWorldSize() }); eraseAt(p); return }
-      const current=draftRef.current; if(!current) return
-      const node=draftNodeRef.current
-      if(current.type==='pen'){const pts=penPointsRef.current||current.points,lastX=pts[pts.length-2],lastY=pts[pts.length-1],nx=p.x-current.x,ny=p.y-current.y;if(pts.length<100000&&(nx-lastX)*(nx-lastX)+(ny-lastY)*(ny-lastY)>=1){pts.push(nx,ny);if(node){node.points(pts);node.getLayer()?.batchDraw()}}}
-      else if(current.type==='arrow'||current.type==='line'){current.points[2]=p.x-current.x;current.points[3]=p.y-current.y;if(node){node.points(current.points);node.getLayer()?.batchDraw()}}
-            else{const box=normalizeBox({x:current.x,y:current.y,width:p.x-current.x,height:p.y-current.y});draftEndRef.current=p;if(node){if(current.type==='diamond'){node.position({x:box.x,y:box.y});node.points([box.width/2,0,box.width,box.height/2,box.width/2,box.height,0,box.height/2])}else{node.position(current.type==='ellipse'?{x:box.x+box.width/2,y:box.y+box.height/2}:{x:box.x,y:box.y});node.size({width:box.width,height:box.height})}node.getLayer()?.batchDraw()}}
+      if (event.evt.shiftKey && ['line', 'arrow'].includes(stateRef.current.activeTool)) { const dx = p.x - start.current.x, dy = p.y - start.current.y, angle = Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) * Math.PI / 4, distance = Math.hypot(dx, dy); p = { x: start.current.x + Math.cos(angle) * distance, y: start.current.y + Math.sin(angle) * distance } }
+      if (stateRef.current.activeTool === 'laser') { const cur = laserRef.current; if (!cur) return; cur.points.push(p.x, p.y); const node = laserNodeRef.current; if (node) { node.getChildren().forEach(child => child.points(cur.points)); node.getLayer()?.batchDraw() } return }
+      if (stateRef.current.activeTool === 'eraser') { setEraserSquare({ x: p.x, y: p.y, size: eraserWorldSize() }); eraseAt(p); return }
+      const current = draftRef.current; if (!current) return
+      const node = draftNodeRef.current
+      if (current.type === 'pen') { const pts = penPointsRef.current || current.points, lastX = pts[pts.length - 2], lastY = pts[pts.length - 1], nx = p.x - current.x, ny = p.y - current.y; if (pts.length < 100000 && (nx - lastX) * (nx - lastX) + (ny - lastY) * (ny - lastY) >= 1) { pts.push(nx, ny); if (node) { node.points(pts); node.getLayer()?.batchDraw() } } }
+      else if (current.type === 'arrow' || current.type === 'line') { current.points[2] = p.x - current.x; current.points[3] = p.y - current.y; if (node) { node.points(current.points); node.getLayer()?.batchDraw() } }
+      else { const box = normalizeBox({ x: current.x, y: current.y, width: p.x - current.x, height: p.y - current.y }); draftEndRef.current = p; if (node) { if (current.type === 'diamond') { node.position({ x: box.x, y: box.y }); node.points([box.width / 2, 0, box.width, box.height / 2, box.width / 2, box.height, 0, box.height / 2]) } else { node.position(current.type === 'ellipse' ? { x: box.x + box.width / 2, y: box.y + box.height / 2 } : { x: box.x, y: box.y }); node.size({ width: box.width, height: box.height }) } node.getLayer()?.batchDraw() } }
 
     } catch (_e) { abort() }
   }
-  const flushPointerMove = () => { if(pointerMoveRafRef.current){cancelAnimationFrame(pointerMoveRafRef.current);pointerMoveRafRef.current=0} const pending=pendingPointerMoveRef.current;pendingPointerMoveRef.current=null;if(pending)applyPointerMove(pending) };   const move = event => { try { const pid=Number.isFinite(event.evt?.pointerId)?event.evt.pointerId:null;if(activePointer.current!==null&&activePointer.current!==pid)return;if(panStart.current||(!start.current&&!marqueeStart.current))return;pendingPointerMoveRef.current=event;if(pointerMoveRafRef.current)return;pointerMoveRafRef.current=requestAnimationFrame(()=>{pointerMoveRafRef.current=0;const pending=pendingPointerMoveRef.current;pendingPointerMoveRef.current=null;if(pending)applyPointerMove(pending)}) } catch (_e) { abort() } };   const up = event => { flushPointerMove();
+  const flushPointerMove = () => { if (pointerMoveRafRef.current) { cancelAnimationFrame(pointerMoveRafRef.current); pointerMoveRafRef.current = 0 } const pending = pendingPointerMoveRef.current; pendingPointerMoveRef.current = null; if (pending) applyPointerMove(pending) }; const move = event => { try { const pid = Number.isFinite(event.evt?.pointerId) ? event.evt.pointerId : null; if (activePointer.current !== null && activePointer.current !== pid) return; if (panStart.current || (!start.current && !marqueeStart.current)) return; pendingPointerMoveRef.current = event; if (pointerMoveRafRef.current) return; pointerMoveRafRef.current = requestAnimationFrame(() => { pointerMoveRafRef.current = 0; const pending = pendingPointerMoveRef.current; pendingPointerMoveRef.current = null; if (pending) applyPointerMove(pending) }) } catch (_e) { abort() } }; const up = event => {
+    flushPointerMove();
     try {
-      const pid=Number.isFinite(event?.evt?.pointerId)?event.evt.pointerId:null
-      if(activePointer.current!==null&&pid!==null&&activePointer.current!==pid) return
-            activePointer.current=null
-      if(interactionRef.current.mode==='erasing'){ const ids=erasedIdsRef.current; if(ids&&ids.size)commit(prev=>prev.filter(s=>!ids.has(s.id))); erasedIdsRef.current=new Set(); setErasedLive(new Set()); start.current=null; return }
-      if(marqueeStart.current){finishMarquee(event);setHitGraph(true);interactionRef.current=initialInteraction;dispatchInteraction({type:'END'});return}
-      if(panStart.current){flushPanMove();window.removeEventListener('pointermove', handlePanMove);panStart.current=null;lastPanPointRef.current=null;activePointer.current=null;setHitGraph(true);interactionRef.current=initialInteraction;dispatchInteraction({type:'END'});return}
+      const pid = Number.isFinite(event?.evt?.pointerId) ? event.evt.pointerId : null
+      if (activePointer.current !== null && pid !== null && activePointer.current !== pid) return
+      activePointer.current = null
+      if (interactionRef.current.mode === 'erasing') { const ids = erasedIdsRef.current; if (ids && ids.size) commit(prev => prev.filter(s => !ids.has(s.id))); erasedIdsRef.current = new Set(); setErasedLive(new Set()); start.current = null; return }
+      if (marqueeStart.current) { finishMarquee(event); setHitGraph(true); interactionRef.current = initialInteraction; dispatchInteraction({ type: 'END' }); return }
+      if (panStart.current) { flushPanMove(); window.removeEventListener('pointermove', handlePanMove); panStart.current = null; lastPanPointRef.current = null; activePointer.current = null; setHitGraph(true); interactionRef.current = initialInteraction; dispatchInteraction({ type: 'END' }); return }
 
-      if(laserRef.current){
+      if (laserRef.current) {
         scheduleLaserStroke(laserRef.current.points)
-        laserRef.current=null
+        laserRef.current = null
         updateLaser(null)
-        start.current=null
+        start.current = null
         return
       }
-      const current=draftRef.current
-            if(current){let completed;if(isPointShape(current.type)){completed={...current,points:current.points.slice()}}else{const end=draftEndRef.current||current;completed={...current,...normalizeBox({x:current.x,y:current.y,width:end.x-current.x,height:end.y-current.y})}}const points=completed.points||[];const pointDistance=points.length>=4?Math.hypot(points[2]-points[0],points[3]-points[1]):0;const valid=current.type==='line'||current.type==='arrow'?pointDistance>MIN_SIZE:current.type==='pen'?points.length>3:completed.width>MIN_SIZE&&completed.height>MIN_SIZE;if(valid){commit(prev=>{const created=completed.type==='arrow'?bindArrowEndpoints(completed,prev):completed;return [...prev,created]});    if(['rectangle','ellipse','diamond','line','arrow','pen'].includes(completed.type)){dispatch({type:'SET_SELECTION',ids:[completed.id]});dispatch({type:'SET_TOOL',tool:'select'})}}updateDraft(null)}
+      const current = draftRef.current
+      if (current) { let completed; if (isPointShape(current.type)) { completed = { ...current, points: current.points.slice() } } else { const end = draftEndRef.current || current; completed = { ...current, ...normalizeBox({ x: current.x, y: current.y, width: end.x - current.x, height: end.y - current.y }) } } const points = completed.points || []; const pointDistance = points.length >= 4 ? Math.hypot(points[2] - points[0], points[3] - points[1]) : 0; const valid = current.type === 'line' || current.type === 'arrow' ? pointDistance > MIN_SIZE : current.type === 'pen' ? points.length > 3 : completed.width > MIN_SIZE && completed.height > MIN_SIZE; if (valid) { commit(prev => { const created = completed.type === 'arrow' ? bindArrowEndpoints(completed, prev) : completed; return [...prev, created] }); if (['rectangle', 'ellipse', 'diamond', 'line', 'arrow', 'pen'].includes(completed.type)) { dispatch({ type: 'SET_SELECTION', ids: [completed.id] }); dispatch({ type: 'SET_TOOL', tool: 'select' }) } } updateDraft(null) }
 
-      draftEndRef.current=null; penPointsRef.current=null; draftNodeRef.current=null
-      start.current=null
-    } catch (_e) { abort() } finally { setHitGraph(true); interactionRef.current=initialInteraction; dispatchInteraction({type:'END'}) }
+      draftEndRef.current = null; penPointsRef.current = null; draftNodeRef.current = null
+      start.current = null
+    } catch (_e) { abort() } finally { setHitGraph(true); interactionRef.current = initialInteraction; dispatchInteraction({ type: 'END' }) }
   }
 
   const transformedShape = (shape, node) => {
-    const rawScaleX=node.scaleX(),rawScaleY=node.scaleY(),scaleX=Math.abs(rawScaleX),scaleY=Math.abs(rawScaleY),rotation=node.rotation()
-    if(shape.type==='image'){const width=Math.max(20,shape.width*scaleX),height=Math.max(20,shape.height*scaleY),flipX=rawScaleX<0,flipY=rawScaleY<0;node.scaleX(flipX?-1:1);node.scaleY(flipY?-1:1);return {...shape,x:node.x()-(flipX?width:0),y:node.y()-(flipY?height:0),width,height,rotation,flipX,flipY}}
+    const rawScaleX = node.scaleX(), rawScaleY = node.scaleY(), scaleX = Math.abs(rawScaleX), scaleY = Math.abs(rawScaleY), rotation = node.rotation()
+    if (shape.type === 'image') { const width = Math.max(20, shape.width * scaleX), height = Math.max(20, shape.height * scaleY), flipX = rawScaleX < 0, flipY = rawScaleY < 0; node.scaleX(flipX ? -1 : 1); node.scaleY(flipY ? -1 : 1); return { ...shape, x: node.x() - (flipX ? width : 0), y: node.y() - (flipY ? height : 0), width, height, rotation, flipX, flipY } }
     node.scaleX(1); node.scaleY(1)
-        if(shape.type==='ellipse'){const width=Math.max(MIN_SIZE,shape.width*scaleX),height=Math.max(MIN_SIZE,shape.height*scaleY);return {...shape,x:node.x()-width/2,y:node.y()-height/2,width,height,rotation}}
-    if(shape.type==='diamond'){const width=Math.max(MIN_SIZE,shape.width*scaleX),height=Math.max(MIN_SIZE,shape.height*scaleY);return {...shape,x:node.x(),y:node.y(),width,height,rotation}}
+    if (shape.type === 'ellipse') { const width = Math.max(MIN_SIZE, shape.width * scaleX), height = Math.max(MIN_SIZE, shape.height * scaleY); return { ...shape, x: node.x() - width / 2, y: node.y() - height / 2, width, height, rotation } }
+    if (shape.type === 'diamond') { const width = Math.max(MIN_SIZE, shape.width * scaleX), height = Math.max(MIN_SIZE, shape.height * scaleY); return { ...shape, x: node.x(), y: node.y(), width, height, rotation } }
 
-    if(shape.type==='rectangle'){const width=Math.max(MIN_SIZE,shape.width*scaleX);const height=Math.max(MIN_SIZE,shape.height*scaleY);return {...shape,x:node.x(),y:node.y(),width,height,rotation}}
-    if(shape.type==='text'){
+    if (shape.type === 'rectangle') { const width = Math.max(MIN_SIZE, shape.width * scaleX); const height = Math.max(MIN_SIZE, shape.height * scaleY); return { ...shape, x: node.x(), y: node.y(), width, height, rotation } }
+    if (shape.type === 'text') {
       // Text resizes uniformly (font size), not independently in width/height —
       // matches Excalidraw's corner-only text resize behavior.
-      const uniformScale=Math.max(scaleX,scaleY)
-      const fontSize=Math.max(8,Math.round((shape.fontSize||20)*uniformScale))
-      const box=measureTextBox(shape.text,fontSize)
-      return {...shape,x:node.x(),y:node.y(),width:box.width,height:box.height,rotation,fontSize}
+      const uniformScale = Math.max(scaleX, scaleY)
+      const fontSize = Math.max(8, Math.round((shape.fontSize || 20) * uniformScale))
+      const box = measureTextBox(shape.text, fontSize)
+      return { ...shape, x: node.x(), y: node.y(), width: box.width, height: box.height, rotation, fontSize }
     }
-    if(isPointShape(shape.type)){const points=shape.points.map((value,index)=>value*(index%2?scaleY:scaleX));return {...shape,x:node.x(),y:node.y(),points,rotation}}
+    if (isPointShape(shape.type)) { const points = shape.points.map((value, index) => value * (index % 2 ? scaleY : scaleX)); return { ...shape, x: node.x(), y: node.y(), points, rotation } }
     return shape
   }
   const commitTransform = useCallback((shape, node) => {
-    commit(prev=>updateBoundArrows(prev.map(sh=>sh.id===shape.id&&!sh.locked?transformedShape(sh,node):sh)))
+    commit(prev => updateBoundArrows(prev.map(sh => sh.id === shape.id && !sh.locked ? transformedShape(sh, node) : sh)))
   }, [commit])
 
   const handleDragEnd = useCallback((shape) => {
-    const gesture=dragGesture.current
-    if(!gesture || gesture.primaryId!==shape.id) return
-    const node=nodes.current[shape.id]
-    if(!node) return
-    const offset=shape.type==='ellipse'?{x:shape.width/2,y:shape.height/2}:{x:shape.type==='image'&&shape.flipX?shape.width:0,y:shape.type==='image'&&shape.flipY?shape.height:0}
-    const snapped=snapToGrid(node.x()-offset.x,node.y()-offset.y)
-    const delta={x:snapped.x-gesture.positions[shape.id].x,y:snapped.y-gesture.positions[shape.id].y}
-    const selected=new Set(gesture.ids)
-        commit(prev=>updateBoundArrows(prev.map(item=>selected.has(item.id)&&!item.locked?{...item,x:gesture.positions[item.id].x+delta.x,y:gesture.positions[item.id].y+delta.y}:item)))
+    const gesture = dragGesture.current
+    if (!gesture || gesture.primaryId !== shape.id) return
+    const node = nodes.current[shape.id]
+    if (!node) return
+    const offset = shape.type === 'ellipse' ? { x: shape.width / 2, y: shape.height / 2 } : { x: shape.type === 'image' && shape.flipX ? shape.width : 0, y: shape.type === 'image' && shape.flipY ? shape.height : 0 }
+    const snapped = snapToGrid(node.x() - offset.x, node.y() - offset.y)
+    const delta = { x: snapped.x - gesture.positions[shape.id].x, y: snapped.y - gesture.positions[shape.id].y }
+    const selected = new Set(gesture.ids)
+    commit(prev => updateBoundArrows(prev.map(item => selected.has(item.id) && !item.locked ? { ...item, x: gesture.positions[item.id].x + delta.x, y: gesture.positions[item.id].y + delta.y } : item)))
 
   }, [commit])
 
@@ -852,99 +886,100 @@ export default function CanvasStage({ stageRef, view, setView, onCursorMove, onI
     if (shape && shape.type === 'text') handleEdit(shape)
   }, [handleEdit])
   const handleStageDragStart = event => {
-    const primaryId=targetShapeId(event.target)
-    if(!primaryId) return
-    const ids=[...new Set(dragSelection.current.includes(primaryId)?dragSelection.current:[primaryId])]
-    const positions={}; const nodePositions={}
-    shapesRef.current.forEach(shape=>{if(ids.includes(shape.id)&&!shape.locked) positions[shape.id]={x:shape.x,y:shape.y}})
-    ids.forEach(id=>{const node=nodes.current[id];if(node)nodePositions[id]={x:node.x(),y:node.y()}})
-        dragGesture.current={primaryId,ids:ids.filter(id=>positions[id]&&nodePositions[id]),positions,nodePositions,altDuplicate:Boolean(event.evt?.altKey)}
+    const primaryId = targetShapeId(event.target)
+    if (!primaryId) return
+    const ids = [...new Set(dragSelection.current.includes(primaryId) ? dragSelection.current : [primaryId])]
+    const positions = {}; const nodePositions = {}
+    shapesRef.current.forEach(shape => { if (ids.includes(shape.id) && !shape.locked) positions[shape.id] = { x: shape.x, y: shape.y } })
+    ids.forEach(id => { const node = nodes.current[id]; if (node) nodePositions[id] = { x: node.x(), y: node.y() } })
+    dragGesture.current = { primaryId, ids: ids.filter(id => positions[id] && nodePositions[id]), positions, nodePositions, altDuplicate: Boolean(event.evt?.altKey) }
 
     setHitGraph(false)
     startInteraction('dragging')
   }
   const applyStageDragMove = event => {
-    const gesture=dragGesture.current
-    if(!gesture || targetShapeId(event.target)!==gesture.primaryId) return
-    const primaryStart=gesture.nodePositions[gesture.primaryId]
-    if(!primaryStart) return
-    const dx=event.target.x()-primaryStart.x,dy=event.target.y()-primaryStart.y
-    gesture.ids.forEach(id=>{if(id!==gesture.primaryId){const node=nodes.current[id],initial=gesture.nodePositions[id];if(node&&initial)node.position({x:initial.x+dx,y:initial.y+dy})}})
+    const gesture = dragGesture.current
+    if (!gesture || targetShapeId(event.target) !== gesture.primaryId) return
+    const primaryStart = gesture.nodePositions[gesture.primaryId]
+    if (!primaryStart) return
+    const dx = event.target.x() - primaryStart.x, dy = event.target.y() - primaryStart.y
+    gesture.ids.forEach(id => { if (id !== gesture.primaryId) { const node = nodes.current[id], initial = gesture.nodePositions[id]; if (node && initial) node.position({ x: initial.x + dx, y: initial.y + dy }) } })
     // Snap guides
-    const shapesArr=shapesRef.current
-    const selectedSet=new Set(gesture.ids)
-    const primaryShape=shapesArr.find(s=>s.id===gesture.primaryId)
-    if(primaryShape){
-      const bx=event.target.x()-(primaryShape.width||0)/2, by=event.target.y()-(primaryShape.height||0)/2, bw=primaryShape.width||0, bh=primaryShape.height||0
-      const others=shapesArr.filter(s=>!selectedSet.has(s.id)).map(s=>({x:s.x,y:s.y,width:s.width,height:s.height}))
-      const result=getSnapGuides({x:bx,y:by,width:bw,height:bh},others,6/view.scale)
-      if(result.snapped.x!=null)gesture.ids.forEach(id=>{const node=nodes.current[id];if(node)node.x(node.x()+result.snapped.x)})
-      if(result.snapped.y!=null)gesture.ids.forEach(id=>{const node=nodes.current[id];if(node)node.y(node.y()+result.snapped.y)})
-      setSnapGuides(result.guides.length?result.guides:null)
+    const shapesArr = shapesRef.current
+    const selectedSet = new Set(gesture.ids)
+    const primaryShape = shapesArr.find(s => s.id === gesture.primaryId)
+    if (primaryShape) {
+      const bx = event.target.x() - (primaryShape.width || 0) / 2, by = event.target.y() - (primaryShape.height || 0) / 2, bw = primaryShape.width || 0, bh = primaryShape.height || 0
+      const others = shapesArr.filter(s => !selectedSet.has(s.id)).map(s => ({ x: s.x, y: s.y, width: s.width, height: s.height }))
+      const result = getSnapGuides({ x: bx, y: by, width: bw, height: bh }, others, 6 / view.scale)
+      if (result.snapped.x != null) gesture.ids.forEach(id => { const node = nodes.current[id]; if (node) node.x(node.x() + result.snapped.x) })
+      if (result.snapped.y != null) gesture.ids.forEach(id => { const node = nodes.current[id]; if (node) node.y(node.y() + result.snapped.y) })
+      setSnapGuides(result.guides.length ? result.guides : null)
     }
     requestCull()
   }
-  const flushStageDragMove = () => { if(dragMoveRafRef.current){cancelAnimationFrame(dragMoveRafRef.current);dragMoveRafRef.current=0} const pending=pendingDragMoveRef.current;pendingDragMoveRef.current=null;if(pending)applyStageDragMove(pending) }; const handleStageDragMove = event => { const gesture=dragGesture.current;if(!gesture || targetShapeId(event.target)!==gesture.primaryId)return;pendingDragMoveRef.current=event;if(dragMoveRafRef.current)return;dragMoveRafRef.current=requestAnimationFrame(()=>{dragMoveRafRef.current=0;const pending=pendingDragMoveRef.current;pendingDragMoveRef.current=null;if(pending)applyStageDragMove(pending)}) };   const handleAltDuplicate = useCallback((shape) => {
-    const gesture=dragGesture.current
-    if(!gesture||gesture.primaryId!==shape.id) return
-    const node=nodes.current[shape.id]
-    if(!node) return
-    const offset=shape.type==='ellipse'?{x:shape.width/2,y:shape.height/2}:{x:shape.type==='image'&&shape.flipX?shape.width:0,y:shape.type==='image'&&shape.flipY?shape.height:0}
-    const snapped=snapToGrid(node.x()-offset.x,node.y()-offset.y)
-    const primaryStart=gesture.positions[shape.id]
-    const delta={x:snapped.x-primaryStart.x,y:snapped.y-primaryStart.y}
-    const selected=new Set(gesture.ids)
-    const copies=shapesRef.current.filter(item=>selected.has(item.id)).map(item=>({...item,id:newId(),x:item.x+delta.x,y:item.y+delta.y,locked:false}))
-    if(!copies.length) return
-    commit(prev=>[...prev,...copies])
-    dispatch({type:'SET_SELECTION',ids:copies.map(item=>item.id)})
+  const flushStageDragMove = () => { if (dragMoveRafRef.current) { cancelAnimationFrame(dragMoveRafRef.current); dragMoveRafRef.current = 0 } const pending = pendingDragMoveRef.current; pendingDragMoveRef.current = null; if (pending) applyStageDragMove(pending) }; const handleStageDragMove = event => { const gesture = dragGesture.current; if (!gesture || targetShapeId(event.target) !== gesture.primaryId) return; pendingDragMoveRef.current = event; if (dragMoveRafRef.current) return; dragMoveRafRef.current = requestAnimationFrame(() => { dragMoveRafRef.current = 0; const pending = pendingDragMoveRef.current; pendingDragMoveRef.current = null; if (pending) applyStageDragMove(pending) }) }; const handleAltDuplicate = useCallback((shape) => {
+    const gesture = dragGesture.current
+    if (!gesture || gesture.primaryId !== shape.id) return
+    const node = nodes.current[shape.id]
+    if (!node) return
+    const offset = shape.type === 'ellipse' ? { x: shape.width / 2, y: shape.height / 2 } : { x: shape.type === 'image' && shape.flipX ? shape.width : 0, y: shape.type === 'image' && shape.flipY ? shape.height : 0 }
+    const snapped = snapToGrid(node.x() - offset.x, node.y() - offset.y)
+    const primaryStart = gesture.positions[shape.id]
+    const delta = { x: snapped.x - primaryStart.x, y: snapped.y - primaryStart.y }
+    const selected = new Set(gesture.ids)
+    const copies = shapesRef.current.filter(item => selected.has(item.id)).map(item => ({ ...item, id: newId(), x: item.x + delta.x, y: item.y + delta.y, locked: false }))
+    if (!copies.length) return
+    commit(prev => [...prev, ...copies])
+    dispatch({ type: 'SET_SELECTION', ids: copies.map(item => item.id) })
   }, [commit, dispatch])
-  const handleStageDragEnd = event => { flushStageDragMove();
+  const handleStageDragEnd = event => {
+    flushStageDragMove();
 
     try {
-      const shape=shapesRef.current.find(item=>item.id===targetShapeId(event.target))
-            if(shape&&!shape.locked){if(dragGesture.current?.altDuplicate)handleAltDuplicate(shape);else handleDragEnd(shape)}
+      const shape = shapesRef.current.find(item => item.id === targetShapeId(event.target))
+      if (shape && !shape.locked) { if (dragGesture.current?.altDuplicate) handleAltDuplicate(shape); else handleDragEnd(shape) }
 
-    } catch (_e) { abort() } finally { dragGesture.current=null; setHitGraph(true); setSnapGuides(null); interactionRef.current=initialInteraction; dispatchInteraction({type:'END'}) }
+    } catch (_e) { abort() } finally { dragGesture.current = null; setHitGraph(true); setSnapGuides(null); interactionRef.current = initialInteraction; dispatchInteraction({ type: 'END' }) }
   }
   const handleStageTransformStart = () => { setHitGraph(false); startInteraction('resizing') }
-    const handleStageTransformEnd = event => {
+  const handleStageTransformEnd = event => {
     try {
-      const targetNode=targetShapeId(event.target)?event.target:event.target?.nodes?.()[0]
-      const shape=shapesRef.current.find(item=>item.id===targetShapeId(targetNode))
-      if(shape&&!shape.locked&&targetNode) {
-        const ids=stateRef.current.selectedShapeIds
-        if(ids.length>1) {
-          const selected=new Set(ids)
-          commit(prev=>updateBoundArrows(prev.map(item=>{const node=nodes.current[item.id];return selected.has(item.id)&&node&&!item.locked?transformedShape(item,node):item})))
-        } else commitTransform(shape,targetNode)
+      const targetNode = targetShapeId(event.target) ? event.target : event.target?.nodes?.()[0]
+      const shape = shapesRef.current.find(item => item.id === targetShapeId(targetNode))
+      if (shape && !shape.locked && targetNode) {
+        const ids = stateRef.current.selectedShapeIds
+        if (ids.length > 1) {
+          const selected = new Set(ids)
+          commit(prev => updateBoundArrows(prev.map(item => { const node = nodes.current[item.id]; return selected.has(item.id) && node && !item.locked ? transformedShape(item, node) : item })))
+        } else commitTransform(shape, targetNode)
       }
-    } catch (_e) { abort() } finally { setHitGraph(true); interactionRef.current=initialInteraction; dispatchInteraction({type:'END'}) }
+    } catch (_e) { abort() } finally { setHitGraph(true); interactionRef.current = initialInteraction; dispatchInteraction({ type: 'END' }) }
   }
 
-  const refFor = useCallback(id => refCallbacks.current[id] || (refCallbacks.current[id] = node => { if(node) nodes.current[id]=node; else delete nodes.current[id] }), [])
-  const selectedImages=state.selectedShapeIds.filter(id=>shapesRef.current.find(shape=>shape.id===id)?.type==='image')
-  const minTransformSize=selectedImages.length?20:8
+  const refFor = useCallback(id => refCallbacks.current[id] || (refCallbacks.current[id] = node => { if (node) nodes.current[id] = node; else delete nodes.current[id] }), [])
+  const selectedImages = state.selectedShapeIds.filter(id => shapesRef.current.find(shape => shape.id === id)?.type === 'image')
+  const minTransformSize = selectedImages.length ? 20 : 8
   // Text gets corner-only resize handles (uniform font scaling); every other
   // shape keeps the full 8-handle set.
-  const selectedForAnchors=state.selectedShapeIds.map(id=>shapesRef.current.find(shape=>shape.id===id)).filter(Boolean)
-  const soleTextSelected=selectedForAnchors.length===1&&selectedForAnchors[0].type==='text'
-  const transformerAnchors=soleTextSelected
-    ? ['top-left','top-right','bottom-left','bottom-right']
-    : ['top-left','top-center','top-right','middle-left','middle-right','bottom-left','bottom-center','bottom-right']
+  const selectedForAnchors = state.selectedShapeIds.map(id => shapesRef.current.find(shape => shape.id === id)).filter(Boolean)
+  const soleTextSelected = selectedForAnchors.length === 1 && selectedForAnchors[0].type === 'text'
+  const transformerAnchors = soleTextSelected
+    ? ['top-left', 'top-right', 'bottom-left', 'bottom-right']
+    : ['top-left', 'top-center', 'top-right', 'middle-left', 'middle-right', 'bottom-left', 'bottom-center', 'bottom-right']
   // On browsers without Pointer Events (Safari <13.1 / iOS <13) Konva fires mouse/touch
   // events instead of pointer events; the handlers accept those too (pointerId stays null).
   const inputProps = NO_POINTER
     ? {
-        onMouseDown: down,
-        onMouseMove: event => { move(event); onStageMouseMove(event) },
-        onMouseUp: up,
-        onMouseLeave: event => { if(event.evt.buttons===0) abort() },
-        onTouchStart: down,
-        onTouchMove: move,
-        onTouchEnd: up,
-        onTouchCancel: up
-      }
+      onMouseDown: down,
+      onMouseMove: event => { move(event); onStageMouseMove(event) },
+      onMouseUp: up,
+      onMouseLeave: event => { if (event.evt.buttons === 0) abort() },
+      onTouchStart: down,
+      onTouchMove: move,
+      onTouchEnd: up,
+      onTouchCancel: up
+    }
     : { onPointerDown: down, onPointerMove: move, onPointerUp: up, onPointerCancel: up, onMouseMove: onStageMouseMove }
-return <div ref={hostRef} className="canvas-host" style={{ touchAction: 'none' }} data-interaction-mode={interaction.mode} onDragOver={event=>event.preventDefault()} onDrop={handleImageDrop}><Stage key={stageEpoch} ref={stageRef} width={size.width} height={size.height} x={view.x} y={view.y} scaleX={view.scale} scaleY={view.scale} onWheel={handleWheel} draggable={false} {...inputProps} onDragStart={handleStageDragStart} onDragMove={handleStageDragMove} onDragEnd={handleStageDragEnd} onContextMenu={event=>event.evt.preventDefault()}><Layer listening={state.activeTool !== 'pan'}><ShapesLayer shapes={shapes.filter(s => !erasedLive.has(s.id))} editingId={editing?.id} draggable={state.activeTool==='select'} viewScaleRef={viewScaleRef} onEdit={handleEdit} refFor={refFor}/>{draft&&<Shape shape={draft} draggable={false} viewScaleRef={viewScaleRef} nodeRef={draftNodeRef} onEdit={()=>{}}/>}</Layer><Layer name="overlay">{laser&&<LaserBeam groupRef={laserNodeRef} points={laser.points} opacity={laser.opacity ?? .8} dark={dark} />}{laserStrokes.map(stroke => { const points = trimLaserPoints(stroke.points, stroke.progress); return points.length >= 4 ? <LaserBeam key={stroke.id} points={points} opacity={Math.max(0, (1 - stroke.progress) * .8)} dark={dark} /> : null })}{snapGuides&&snapGuides.map((g,i)=>g.orientation==='vertical'?<Line key={i} listening={false} points={[g.value,0,g.value,size.height]} stroke="#52bd6b" strokeWidth={1} dash={[4,4]} opacity={0.7}/>:<Line key={i} listening={false} points={[0,g.value,size.width,g.value]} stroke="#52bd6b" strokeWidth={1} dash={[4,4]} opacity={0.7}/>)}{marquee&&<Rect listening={false} x={marquee.x} y={marquee.y} width={marquee.width} height={marquee.height} fill="#52bd6b" opacity={0.08} stroke="#52bd6b" strokeWidth={1/view.scale} dash={[4,4]} />}{state.activeTool==='eraser'&&eraserSquare&&<Rect listening={false} x={eraserSquare.x-eraserSquare.size/2} y={eraserSquare.y-eraserSquare.size/2} width={eraserSquare.size} height={eraserSquare.size} cornerRadius={2} fill="rgba(255,255,255,0.12)" stroke="#ffffff" strokeWidth={1/view.scale} dash={[4,3]} />}<Transformer ref={transformer} onTransformStart={handleStageTransformStart} onTransformEnd={handleStageTransformEnd} onDblClick={handleTransformerDblClick} onDblTap={handleTransformerDblClick} rotateEnabled flipEnabled shiftBehavior="inverted" boundBoxFunc={(oldBox,newBox)=>((newBox.width<minTransformSize||newBox.height<minTransformSize)&&transformer.current?.getActiveAnchor()!=='rotater'?oldBox:newBox)} enabledAnchors={transformerAnchors} /></Layer></Stage>{shapes.length===0&&!editing&&!draft&&!emptyDismissed.current&&<div className="canvas-empty-wrap"><div className="canvas-empty-state"><svg className="canvas-empty-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="1.5" opacity=".18"/><path d="M22 42l4-14L38 16l4 4-12 12-14 4z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M34 20l4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><path d="M22 42l-2 6 6-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity=".5"/></svg><div className="canvas-empty-title">Turn your thoughts into something real.</div><div className="canvas-empty-subtitle">Pick a tool, sketch an idea, and make it yours.</div><div className="canvas-shortcuts"><span className="canvas-shortcut"><kbd className="canvas-shortcut-key">V</kbd>Select</span><span className="canvas-shortcut"><kbd className="canvas-shortcut-key">R</kbd>Rectangle</span><span className="canvas-shortcut"><kbd className="canvas-shortcut-key">P</kbd>Pencil</span></div></div><div className="canvas-empty-guide"><svg className="canvas-guide-arrow" viewBox="0 0 120 60" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 10 C80 10, 40 20, 20 45" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="4 3"/><path d="M18 40 L20 48 L26 43" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg><span className="canvas-guide-text">Pick a tool &amp; bring your idea to life!</span></div></div>}{editing&&<textarea ref={editorRef} className="text-editor" style={{position:'fixed',left:editing.x*view.scale+view.x,top:editing.y*view.scale+view.y,width:editing.width*view.scale,height:editing.height*view.scale,minWidth:0,minHeight:0,maxWidth:'none',maxHeight:'none',fontSize:editing.fontSize*view.scale,lineHeight:TEXT_LINE_HEIGHT,fontFamily:TEXT_FONT_FAMILY,color:editing.stroke||'#1e293b',resize:'none',boxSizing:'border-box',overflow:'hidden',padding:0,border:'none',outline:'2px solid #52bd6b',outlineOffset:'1px',background:'transparent',zIndex:4}} defaultValue={editing.value} onChange={event=>{const value=event.target.value;const prev=editingRef.current;if(!prev)return;const box=measureTextBox(value,prev.fontSize);const el=editorRef.current;if(el){el.style.width=(box.width*view.scale)+'px';el.style.height=(box.height*view.scale)+'px'}if(box.width!==prev.width||box.height!==prev.height){const next={...prev,value,width:box.width,height:box.height};editingRef.current=next;setEditing(next)}else{editingRef.current={...prev,value}}}} onBlur={finishText} onKeyDown={event=>{if(event.key==='Escape'){event.preventDefault();finishText()}if(event.key==='Enter'&&(event.metaKey||event.ctrlKey)){event.preventDefault();finishText()}}}/>}</div>
+  return <div ref={hostRef} className="canvas-host" style={{ touchAction: 'none' }} data-interaction-mode={interaction.mode} onDragOver={event => event.preventDefault()} onDrop={handleImageDrop}><Stage key={stageEpoch} ref={stageRef} width={size.width} height={size.height} x={view.x} y={view.y} scaleX={view.scale} scaleY={view.scale} onWheel={handleWheel} draggable={false} {...inputProps} onDragStart={handleStageDragStart} onDragMove={handleStageDragMove} onDragEnd={handleStageDragEnd} onContextMenu={event => event.evt.preventDefault()}><Layer listening={state.activeTool !== 'pan'}><ShapesLayer shapes={shapes.filter(s => !erasedLive.has(s.id))} editingId={editing?.id} draggable={state.activeTool === 'select'} viewScaleRef={viewScaleRef} onEdit={handleEdit} refFor={refFor} />{draft && <Shape shape={draft} draggable={false} viewScaleRef={viewScaleRef} nodeRef={draftNodeRef} onEdit={() => { }} />}</Layer><Layer name="overlay">{laser && <LaserBeam groupRef={laserNodeRef} points={laser.points} opacity={laser.opacity ?? .8} dark={dark} />}{laserStrokes.map(stroke => { const points = trimLaserPoints(stroke.points, stroke.progress); return points.length >= 4 ? <LaserBeam key={stroke.id} points={points} opacity={Math.max(0, (1 - stroke.progress) * .8)} dark={dark} /> : null })}{snapGuides && snapGuides.map((g, i) => g.orientation === 'vertical' ? <Line key={i} listening={false} points={[g.value, 0, g.value, size.height]} stroke="#52bd6b" strokeWidth={1} dash={[4, 4]} opacity={0.7} /> : <Line key={i} listening={false} points={[0, g.value, size.width, g.value]} stroke="#52bd6b" strokeWidth={1} dash={[4, 4]} opacity={0.7} />)}{marquee && <Rect listening={false} x={marquee.x} y={marquee.y} width={marquee.width} height={marquee.height} fill="#52bd6b" opacity={0.08} stroke="#52bd6b" strokeWidth={1 / view.scale} dash={[4, 4]} />}{state.activeTool === 'eraser' && eraserSquare && <Rect listening={false} x={eraserSquare.x - eraserSquare.size / 2} y={eraserSquare.y - eraserSquare.size / 2} width={eraserSquare.size} height={eraserSquare.size} cornerRadius={2} fill="rgba(255,255,255,0.12)" stroke="#ffffff" strokeWidth={1 / view.scale} dash={[4, 3]} />}<Transformer ref={transformer} onTransformStart={handleStageTransformStart} onTransformEnd={handleStageTransformEnd} onDblClick={handleTransformerDblClick} onDblTap={handleTransformerDblClick} rotateEnabled flipEnabled shiftBehavior="inverted" boundBoxFunc={(oldBox, newBox) => ((newBox.width < minTransformSize || newBox.height < minTransformSize) && transformer.current?.getActiveAnchor() !== 'rotater' ? oldBox : newBox)} enabledAnchors={transformerAnchors} /></Layer></Stage>{shapes.length === 0 && !editing && !draft && !emptyDismissed.current && <div className="canvas-empty-wrap"><div className="canvas-empty-state"><svg className="canvas-empty-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="1.5" opacity=".18" /><path d="M22 42l4-14L38 16l4 4-12 12-14 4z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M34 20l4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /><path d="M22 42l-2 6 6-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity=".5" /></svg><div className="canvas-empty-title">Turn your thoughts into something real.</div><div className="canvas-empty-subtitle">Start drawing — pick a tool, drag to pan, or scroll to zoom. Press ? for shortcuts.</div><div className="canvas-shortcuts"><span className="canvas-shortcut"><kbd className="canvas-shortcut-key">V</kbd>Select</span><span className="canvas-shortcut"><kbd className="canvas-shortcut-key">R</kbd>Rectangle</span><span className="canvas-shortcut"><kbd className="canvas-shortcut-key">P</kbd>Pencil</span></div></div><div className="canvas-empty-guide"><svg className="canvas-guide-arrow" viewBox="0 0 120 60" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 10 C80 10, 40 20, 20 45" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="4 3" /><path d="M18 40 L20 48 L26 43" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg><span className="canvas-guide-text">Pick a tool &amp; bring your idea to life!</span></div></div>}{editing && <textarea ref={editorRef} className="text-editor" style={{ position: 'fixed', left: editing.x * view.scale + view.x, top: editing.y * view.scale + view.y, width: editing.width * view.scale, height: editing.height * view.scale, minWidth: 0, minHeight: 0, maxWidth: 'none', maxHeight: 'none', fontSize: editing.fontSize * view.scale, lineHeight: TEXT_LINE_HEIGHT, fontFamily: TEXT_FONT_FAMILY, color: editing.stroke || '#1e293b', resize: 'none', boxSizing: 'border-box', overflow: 'hidden', padding: 0, border: 'none', outline: '2px solid #52bd6b', outlineOffset: '1px', background: 'transparent', zIndex: 4 }} defaultValue={editing.value} onChange={event => { const value = event.target.value; const prev = editingRef.current; if (!prev) return; const box = measureTextBox(value, prev.fontSize); const el = editorRef.current; if (el) { el.style.width = (box.width * view.scale) + 'px'; el.style.height = (box.height * view.scale) + 'px' } if (box.width !== prev.width || box.height !== prev.height) { const next = { ...prev, value, width: box.width, height: box.height }; editingRef.current = next; setEditing(next) } else { editingRef.current = { ...prev, value } } }} onBlur={finishText} onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); finishText() } if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) { event.preventDefault(); finishText() } }} />}</div>
 }

@@ -4,6 +4,7 @@ import { useHistory } from '../../context/HistoryContext'
 import { useTheme } from '../../context/ThemeContext'
 import { exportJSON, exportJPG, exportPDF, exportPNG, exportSVG, copyBoardAsImage, printBoard, importJSON } from '../../lib/io'
 import { IMAGE_ACCEPT, readImageFile } from '../../lib/images'
+import { friendlyErrorMessage } from '../../lib/userMessages'
 import siteIcon from '../../assets/images/site-logo-removebg-preview.png'
 import ShareModal from '../ShareModal/ShareModal'
 import FeedbackModal from '../FeedbackModal/FeedbackModal'
@@ -28,7 +29,7 @@ const ACCOUNT_PANELS = { profile: 'Profile', settings: 'Settings', appearance: '
 const DEFAULT_STROKES = ['#1e293b', '#dc4545', '#d4943a', '#eab308', '#45b05f', '#4585d1']
 const DEFAULT_WIDTHS = [[1, 'Thin'], [2, 'Regular'], [4, 'Medium'], [8, 'Thick']]
 
-const tools = [['select', 'cursor', 'Select', 'V'], ['pan', 'hand', 'Hand', 'H'], ['rectangle', 'square', 'Rectangle', 'R'], ['ellipse', 'circle', 'Ellipse', 'O'], ['diamond', 'diamond', 'Diamond', 'D'], ['arrow', 'arrow', 'Arrow', 'A'], ['line', 'line', 'Line', 'L'], ['pen', 'pen', 'Pencil', 'P'], ['laser', 'laser', 'Laser', 'K'], ['eraser', 'eraser', 'Eraser', 'E'], ['text', 'text', 'Text', 'T']]
+const tools = [['select', 'cursor', 'Select', 'V'], ['pan', 'hand', 'Pan', 'H'], ['rectangle', 'square', 'Rectangle', 'R'], ['ellipse', 'circle', 'Ellipse', 'O'], ['diamond', 'diamond', 'Diamond', 'D'], ['arrow', 'arrow', 'Arrow', 'A'], ['line', 'line', 'Line', 'L'], ['pen', 'pen', 'Pencil', 'P'], ['laser', 'laser', 'Laser', 'K'], ['eraser', 'eraser', 'Eraser', 'E'], ['text', 'text', 'Text', 'T']]
 
 // Tooltips explain what each tool does (the icon alone is sometimes ambiguous,
 // e.g. the laser reticle or the hand/pan glyph).
@@ -52,7 +53,7 @@ function Icon({ name }) {
     cursor: <path d="m5 3 6 17 2-7 7-2L5 3Z" {...common} />, x: <path d="M6 6l12 12M18 6 6 18" {...common} />, hand: <><path d="M5 12h14M8 10V5a1.5 1.5 0 0 1 3 0v5V3.5a1.5 1.5 0 0 1 3 0V10V5a1.5 1.5 0 0 1 3 0v6" {...common} /><path d="M8 11 6.8 8.3a1.5 1.5 0 0 0-2.1 2.1l4.4 6a3.8 3.8 0 0 0 3.2 1.6h2.2a4 4 0 0 0 4-4V11" {...common} /></>,
     square: <rect x="4" y="4" width="16" height="16" rx="2" {...common} />, circle: <circle cx="12" cy="12" r="8" {...common} />, diamond: <path d="M12 3 21 12 12 21 3 12 12 3" {...common} />, arrow: <path d="M5 19 19 5M8 5h11v11" {...common} />, line: <path d="M5 19 19 5" {...common} />, pen: <><path d="m4 20 4-1 10-10-3-3L5 16l-1 4Z" {...common} /><path d="m13 8 3 3" {...common} /></>, laser: <><path d="M4 7V5h2M18 5h2v2M20 17v2h-2M6 19H4v-2M5 12h14" {...common} /></>,
     text: <><path d="M4 6V4h16v2M12 4v16M8 20h8" {...common} /></>, eraser: <path d="m7 19-3-3a2 2 0 0 1 0-3l7-7a2 2 0 0 1 3 0l5 5a2 2 0 0 1 0 3l-5 5H7Z" {...common} />, image: <><rect x="3" y="4" width="18" height="16" rx="2" {...common} /><circle cx="8" cy="9" r="1" {...common} /><path d="m21 15-5-5L5 20" {...common} /></>,
-    undo: <path d="M9 7 4 12l5 5M4 12h10a5 5 0 0 1 5 5" {...common} />, redo: <path d="m15 7 5 5-5 5M20 12H10a5 5 0 0 0-5 5" {...common} />, upload: <><path d="M12 15V3M7 8l5-5 5 5M5 21h14" {...common} /></>, download: <><path d="M12 3v12M7 10l5 5 5-5M5 21h14" {...common} /></>, home: <><path d="m4 11 8-7 8 7" {...common} /><path d="M6.5 10.5V20h11v-9.5M10 20v-5h4v5" {...common} /></>, info: <><circle cx="12" cy="12" r="9" {...common} /><path d="M12 11v5M12 8h.01" strokeWidth="2.2" {...common} /></>, feedback: <><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" {...common} /></>, user: <><circle cx="12" cy="8" r="3" {...common} /><path d="M5 20a7 7 0 0 1 14 0" {...common} /></>, more: <path d="M12 5.5h.01M12 12h.01M12 18.5h.01" strokeWidth="3.2" {...common} />, menu: <path d="M4 7h16M4 12h16M4 17h16" {...common} />,     chevron: <path d="m9 18 6-6-6-6" {...common} />, 'chevron-left': <path d="m15 18-6-6 6-6" {...common} />, dropdown: <path d="m7 9 5 5 5-5Z" fill="currentColor" stroke="none" />, camera: <><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z" {...common} /><circle cx="12" cy="13" r="3.5" {...common} /></>, file: <><path d="M13 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8l-5-5Z" {...common} /><path d="M13 3v5h5" {...common} /></>, code: <><path d="m8 9-4 3 4 3M16 9l4 3-4 3M13 5l-2 14" {...common} /></>, print: <><path d="M6 9V4h12v5M6 18H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-1M6 14h12v6H6v-6Z" {...common} /></>, copy: <><rect x="9" y="9" width="11" height="11" rx="2" {...common} /><path d="M5 15V5a2 2 0 0 1 2-2h10" {...common} /></>, folder: <path d="M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" {...common} />, trash: <><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13h10l1-13M10 11v6M14 11v6" {...common} /></>, moon: <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" {...common} />, sun: <><circle cx="12" cy="12" r="4" {...common} /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l-1.41 1.41M17.66 6.34l1.41-1.41" {...common} /></>, settings: <><circle cx="12" cy="12" r="3" {...common} /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z" {...common} /></>, logout: <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" {...common} /><path d="m16 17 5-5-5-5" {...common} /><path d="M21 12H9" {...common} /></>,
+    undo: <path d="M9 7 4 12l5 5M4 12h10a5 5 0 0 1 5 5" {...common} />, redo: <path d="m15 7 5 5-5 5M20 12H10a5 5 0 0 0-5 5" {...common} />, upload: <><path d="M12 15V3M7 8l5-5 5 5M5 21h14" {...common} /></>, download: <><path d="M12 3v12M7 10l5 5 5-5M5 21h14" {...common} /></>, home: <><path d="m4 11 8-7 8 7" {...common} /><path d="M6.5 10.5V20h11v-9.5M10 20v-5h4v5" {...common} /></>, info: <><circle cx="12" cy="12" r="9" {...common} /><path d="M12 11v5M12 8h.01" strokeWidth="2.2" {...common} /></>, feedback: <><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" {...common} /></>, user: <><circle cx="12" cy="8" r="3" {...common} /><path d="M5 20a7 7 0 0 1 14 0" {...common} /></>, more: <path d="M12 5.5h.01M12 12h.01M12 18.5h.01" strokeWidth="3.2" {...common} />, menu: <path d="M4 7h16M4 12h16M4 17h16" {...common} />, chevron: <path d="m9 18 6-6-6-6" {...common} />, 'chevron-left': <path d="m15 18-6-6 6-6" {...common} />, dropdown: <path d="m7 9 5 5 5-5Z" fill="currentColor" stroke="none" />, camera: <><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z" {...common} /><circle cx="12" cy="13" r="3.5" {...common} /></>, file: <><path d="M13 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8l-5-5Z" {...common} /><path d="M13 3v5h5" {...common} /></>, code: <><path d="m8 9-4 3 4 3M16 9l4 3-4 3M13 5l-2 14" {...common} /></>, print: <><path d="M6 9V4h12v5M6 18H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-1M6 14h12v6H6v-6Z" {...common} /></>, copy: <><rect x="9" y="9" width="11" height="11" rx="2" {...common} /><path d="M5 15V5a2 2 0 0 1 2-2h10" {...common} /></>, folder: <path d="M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" {...common} />, trash: <><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13h10l1-13M10 11v6M14 11v6" {...common} /></>, moon: <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" {...common} />, sun: <><circle cx="12" cy="12" r="4" {...common} /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l-1.41 1.41M17.66 6.34l1.41-1.41" {...common} /></>, settings: <><circle cx="12" cy="12" r="3" {...common} /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z" {...common} /></>, logout: <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" {...common} /><path d="m16 17 5-5-5-5" {...common} /><path d="M21 12H9" {...common} /></>,
 
   }
   return <svg viewBox="0 0 24 24" aria-hidden="true">{icons[name]}</svg>
@@ -101,13 +102,13 @@ function SaveAsModal({ initialName, onClose, onSave }) {
   </div>
 }
 
-function DesignToolbar({ stageRef, onImageUpload, imageInputRef, view, onZoomReset, lastSavedAt, onNewBoard, onSaveBoard, onSaveAsBoard, onDeleteBoard }) {
+function DesignToolbar({ stageRef, onImageUpload, imageInputRef, view, onZoomReset, lastSavedAt, onNewBoard, onSaveBoard, onSaveAsBoard, onDeleteBoard, beginProcessing, finishProcessing, showUserMessage }) {
 
   const { state, dispatch } = useAppState()
   const { shapes, commit, undo, redo, revision } = useHistory()
   const { darkMode, setDarkMode } = useTheme()
 
-const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
   const [boardMenuOpen, setBoardMenuOpen] = useState(false)
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
@@ -127,7 +128,7 @@ const [sidebarOpen, setSidebarOpen] = useState(true)
   const profileEmailRef = useRef(null)
   const profileImageInputRef = useRef(null)
   const accountPanelRef = useRef(null)
-  
+
   const [, setClockTick] = useState(0)
   const menuRef = useRef(null)
   const boardMenuRef = useRef(null)
@@ -172,8 +173,39 @@ const [sidebarOpen, setSidebarOpen] = useState(true)
   }, [sidebarOpen])
   useEffect(() => { if (nameRef.current && document.activeElement !== nameRef.current) nameRef.current.value = state.fileName }, [state.fileName])
 
-  const importDiagram = async event => { const token = ++importToken.current; const baseline = revisionRef.current; try { const imported = await importJSON(event.target.files?.[0]); if (token === importToken.current && revisionRef.current === baseline) commit(() => imported) } catch (error) { if (token === importToken.current) window.alert(error.message) } finally { event.target.value = '' } }
-  const importImage = async event => { try { const file = event.target.files?.[0]; if (file) await onImageUpload(file) } catch (error) { window.alert(error.message) } finally { event.target.value = '' } }
+  const importDiagram = async event => {
+    const token = ++importToken.current
+    const baseline = revisionRef.current
+    const file = event.target.files?.[0]
+    if (!file) {
+      event.target.value = ''
+      return
+    }
+    beginProcessing?.('Importing board...')
+    try {
+      const imported = await importJSON(file)
+      if (token === importToken.current && revisionRef.current === baseline) commit(() => imported)
+    } catch (error) {
+      if (token === importToken.current) showUserMessage?.(friendlyErrorMessage(error, 'Import Failed — This file isn’t supported or appears to be corrupted. Try another file.'))
+    } finally {
+      event.target.value = ''
+      if (token === importToken.current) finishProcessing?.()
+    }
+  }
+  const importImage = async event => {
+    const file = event.target.files?.[0]
+    if (!file) {
+      event.target.value = ''
+      return
+    }
+    try {
+      await onImageUpload(file)
+    } catch (error) {
+      showUserMessage?.(friendlyErrorMessage(error, 'Image upload failed — This file isn’t supported or couldn’t be processed. Try another image.'))
+    } finally {
+      event.target.value = ''
+    }
+  }
   const toolsFor = items => items.map(([tool, icon, label, shortcut]) => <button key={tool} className={state.activeTool === tool ? 'active' : ''} title={TOOL_TIPS[tool]} aria-label={TOOL_TIPS[tool]} onClick={() => dispatch({ type: 'SET_TOOL', tool })}><Icon name={icon} /><span className="tool-label">{label}</span></button>)
 
   const action = (icon, title, onClick) => <button title={title} aria-label={title} onClick={onClick}><Icon name={icon} /></button>
@@ -219,15 +251,26 @@ const [sidebarOpen, setSidebarOpen] = useState(true)
   const setTheme = value => { setDarkMode(value); setMenuOpen(false) }
   const relativeSavedTime = value => { if (!value) return 'just now'; const seconds = Math.max(0, Math.floor((Date.now() - value) / 1000)); if (seconds < 60) return 'just now'; const minutes = Math.floor(seconds / 60); if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`; const hours = Math.floor(minutes / 60); return `${hours} hour${hours === 1 ? '' : 's'} ago` }
   const renameBoard = () => { setBoardMenuOpen(false); nameRef.current?.focus(); nameRef.current?.select() }
-  const doExport = run => { run(); setExportMenuOpen(false) }
+  const doExport = run => {
+    beginProcessing?.('Preparing export...')
+    Promise.resolve()
+      .then(run)
+      .catch(error => {
+        showUserMessage?.(friendlyErrorMessage(error, 'Export Failed — Something went wrong while generating the file. Please try again.'))
+      })
+      .finally(() => {
+        finishProcessing?.()
+        setExportMenuOpen(false)
+      })
+  }
   const showDetails = () => { setBoardMenuOpen(false); setDetailsOpen(true) }
   const closeDetails = () => { setDetailsOpen(false); setBoardMenuOpen(false) }
 
   return <>
     <nav className="top-toolbar" aria-label="Document actions">
       <div className="top-toolbar-left">
-        <div className="board-identity" ref={boardMenuRef}><span className="board-label"><img ref={logoRef} className="board-mark" src={siteIcon} alt="Board icon" /><span className="board-name-stack"><input ref={nameRef} className="board-name-input" aria-label="Board name" defaultValue={state.fileName} onFocus={beginNameEdit} onBlur={saveName} onKeyDown={finishNameKey} /><span className="last-saved">Last saved: {relativeSavedTime(lastSavedAt)}</span><button className="board-dropdown" title="Board options" aria-label="Board options" aria-expanded={boardMenuOpen} onClick={() => setBoardMenuOpen(value => !value)}><Icon name="dropdown" /></button>{boardMenuOpen && <div className="board-management-menu" role="menu" aria-label="Board management"><button role="menuitem" onClick={() => { onNewBoard?.(); setBoardMenuOpen(false) }}><Icon name="file" /><span>New</span></button><button role="menuitem" onClick={() => { onSaveBoard?.(); setBoardMenuOpen(false) }}><Icon name="download" /><span>Save</span></button><button role="menuitem" onClick={() => { setBoardMenuOpen(false); setSaveAsOpen(true) }}><Icon name="copy" /><span>Save as</span></button><button role="menuitem" onClick={showDetails}><Icon name="info" /><span>Board details</span></button><button className="danger" role="menuitem" onClick={() => { onDeleteBoard?.(); setBoardMenuOpen(false) }}><Icon name="trash" /><span>Move to trash</span></button></div>}{detailsOpen && <div className="board-details-popover" role="dialog" aria-label="Board details"><strong>Board details</strong><span>{shapes.length} object{shapes.length === 1 ? '' : 's'}</span><span>Last saved: {relativeSavedTime(lastSavedAt)}</span><button onClick={closeDetails}>Close</button></div>}</span></span></div>
-        <div className="header-export-wrap" ref={exportMenuRef}><button className="header-export" title="Export board" aria-label="Export board" aria-haspopup="menu" aria-expanded={exportMenuOpen} onClick={() => setExportMenuOpen(value => !value)}><Icon name="download" /><span>Export board</span><Icon name="dropdown" /></button>{exportMenuOpen && <div className="export-menu" role="menu" aria-label="Export options"><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => exportPNG(stageRef.current, state.fileName)) }}><Icon name="image" /><span>Download PNG</span></button><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => exportJPG(stageRef.current, state.fileName)) }}><Icon name="camera" /><span>Download JPG</span></button><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => exportPDF(stageRef.current, state.fileName)) }}><Icon name="file" /><span>Download PDF</span></button><span className="menu-separator" role="separator" /><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => exportSVG(shapes, state.fileName)) }}><Icon name="pen" /><span>Export SVG</span></button><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => exportJSON(shapes, state.fileName)) }}><Icon name="code" /><span>Export JSON</span></button><span className="menu-separator" role="separator" /><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => { copyBoardAsImage(stageRef.current).then(ok => { if (!ok) window.alert('Image copy is not supported in this browser. Use Download PNG instead.') }) }) }}><Icon name="copy" /><span>Copy Image</span></button><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => printBoard(stageRef.current, state.fileName)) }}><Icon name="print" /><span>Print Board</span></button></div>}</div>
+        <div className="board-identity" ref={boardMenuRef}><span className="board-label"><img ref={logoRef} className="board-mark" src={siteIcon} alt="Board icon" /><span className="board-name-stack"><input ref={nameRef} className="board-name-input" aria-label="Board name" defaultValue={state.fileName} onFocus={beginNameEdit} onBlur={saveName} onKeyDown={finishNameKey} /><span className="last-saved">Last saved: {relativeSavedTime(lastSavedAt)}</span><button className="board-dropdown" title="Board options" aria-label="Board options" aria-expanded={boardMenuOpen} onClick={() => setBoardMenuOpen(value => !value)}><Icon name="dropdown" /></button>{boardMenuOpen && <div className="board-management-menu" role="menu" aria-label="Board management"><button role="menuitem" onClick={() => { onNewBoard?.(); setBoardMenuOpen(false) }}><Icon name="file" /><span>New</span></button><button role="menuitem" onClick={() => { onSaveBoard?.(); setBoardMenuOpen(false) }}><Icon name="download" /><span>Save</span></button><button role="menuitem" onClick={() => { setBoardMenuOpen(false); setSaveAsOpen(true) }}><Icon name="copy" /><span>Save as</span></button><button role="menuitem" onClick={showDetails}><Icon name="info" /><span>Board details</span></button><button className="danger" role="menuitem" onClick={() => { onDeleteBoard?.(); setBoardMenuOpen(false) }}><Icon name="trash" /><span>Clear board</span></button></div>}{detailsOpen && <div className="board-details-popover" role="dialog" aria-label="Board details"><strong>Board details</strong><span>{shapes.length} object{shapes.length === 1 ? '' : 's'}</span><span>Last saved: {relativeSavedTime(lastSavedAt)}</span><button onClick={closeDetails}>Close</button></div>}</span></span></div>
+        <div className="header-export-wrap" ref={exportMenuRef}><button className="header-export" title="Export board" aria-label="Export board" aria-haspopup="menu" aria-expanded={exportMenuOpen} onClick={() => setExportMenuOpen(value => !value)}><Icon name="download" /><span>Export board</span><Icon name="dropdown" /></button>{exportMenuOpen && <div className="export-menu" role="menu" aria-label="Export options"><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => exportPNG(stageRef.current, state.fileName)) }}><Icon name="image" /><span>Download PNG</span></button><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => exportJPG(stageRef.current, state.fileName)) }}><Icon name="camera" /><span>Download JPG</span></button><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => exportPDF(stageRef.current, state.fileName)) }}><Icon name="file" /><span>Download PDF</span></button><span className="menu-separator" role="separator" /><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => exportSVG(shapes, state.fileName)) }}><Icon name="pen" /><span>Export SVG</span></button><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => exportJSON(shapes, state.fileName)) }}><Icon name="code" /><span>Export JSON</span></button><span className="menu-separator" role="separator" /><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => { copyBoardAsImage(stageRef.current).then(ok => { if (!ok) showUserMessage?.('Copy Failed — This browser can’t copy the image from here. Try Download PNG instead.') }) }) }}><Icon name="copy" /><span>Copy Image</span></button><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => printBoard(stageRef.current, state.fileName)) }}><Icon name="print" /><span>Print Board</span></button></div>}</div>
         <button type="button" className="header-invite" title="Invite collaborators" aria-label="Invite collaborators" onClick={() => setInviteOpen(true)}><Icon name="user" /><span>Invite</span></button>
       </div>
       <div className="top-toolbar-center" aria-hidden="true"></div>
