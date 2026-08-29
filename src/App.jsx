@@ -14,6 +14,7 @@ import CookieConsent from './components/CookieConsent/CookieConsent'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { usePreviousBoard } from './hooks/useVisitorStatus'
 import { usePageRefresh } from './hooks/usePageRefresh'
+import { ThemeProvider } from './context/ThemeContext'
 import { newId } from './lib/idGenerator'
 import { INITIAL_IMAGE_WIDTH, readImageFile } from './lib/images'
 import { activateBoard, createBoard, loadDiagram, saveDiagram, moveDiagramToTrash } from './lib/storage'
@@ -29,6 +30,8 @@ const resolveRoute = () => {
   return 'board'
 }
 
+const SPLASH_MIN_MS = 5000
+
 function Workspace({ splashDone, active = true, onStartupReady }) {
   const stageRef = useRef()
   const imageInputRef = useRef()
@@ -37,9 +40,6 @@ function Workspace({ splashDone, active = true, onStartupReady }) {
   const { state, dispatch } = useAppState()
   const { shapes, commit, replace, undo, redo } = useHistory()
 
-  // The workspace is ready once its providers, state, restoration hooks, and
-  // canvas have mounted. Optional restoration remains non-blocking and can
-  // present the existing previous-board choice after the splash exits.
   useEffect(() => {
     if (active) onStartupReady?.()
   }, [active, onStartupReady])
@@ -76,7 +76,7 @@ function Workspace({ splashDone, active = true, onStartupReady }) {
     if (!clipboard.current.length) return
     const copies = clipboard.current.map(shape => ({ ...shape, id: newId(), x: shape.x + 20, y: shape.y + 20, locked: false }))
     commit(prev => [...prev, ...copies])
-    dispatch({ type: 'SET_SELECTION', ids: copies.map(shape => shape.id) })
+    dispatch({ type: 'SET_SELECTION', ids: copies.map(s => s.id) })
     dispatch({ type: 'SET_TOOL', tool: 'select' })
   }, [commit, dispatch])
 
@@ -109,10 +109,6 @@ function Workspace({ splashDone, active = true, onStartupReady }) {
   const resetZoom = useCallback(() => setView({ x: 0, y: 0, scale: 1 }), [])
   const zoomToFit = useCallback(() => { const next = fitViewToContent(shapes, window.innerWidth, window.innerHeight); if (next) setView(next) }, [shapes])
 
-  // Startup: only a returning visitor with a saved board is offered the
-  // previous board (first-time users and returning users without saved data
-  // open the blank canvas immediately). Hydration stays held until the
-  // startup choice is made so autosave cannot touch the saved board.
   const hydrated = useRef(false)
   const boardIdRef = useRef(null)
   const [pendingBoard, setPendingBoard] = useState(null)
@@ -138,7 +134,6 @@ function Workspace({ splashDone, active = true, onStartupReady }) {
         const sanitized = sanitizeShape(shape)
         if (sanitized) valid.push(sanitized)
       } catch (_error) {
-        // Skip only the corrupted shape; preserve the rest of the saved board.
       }
       return valid
     }, [])
@@ -203,7 +198,6 @@ function Workspace({ splashDone, active = true, onStartupReady }) {
     setLastSavedAt(fresh.savedAt)
   }, [saveCurrentBoard, replace, dispatch])
 
-  // Debounced autosave: persist every change ~500ms after the last edit.
   const latestRef = useRef({ shapes, fileName: state.fileName })
   latestRef.current = { shapes, fileName: state.fileName }
   useEffect(() => {
@@ -212,8 +206,6 @@ function Workspace({ splashDone, active = true, onStartupReady }) {
     return () => window.clearTimeout(id)
   }, [shapes, state.fileName, saveCurrentBoard])
 
-  // Flush a final synchronous save on unload. Skipped until the user has made
-  // a startup choice, so closing early can never overwrite the saved board.
   useEffect(() => {
     const onUnload = () => { if (hydrated.current) saveCurrentBoard() }
     window.addEventListener('beforeunload', onUnload)
@@ -233,12 +225,6 @@ function Workspace({ splashDone, active = true, onStartupReady }) {
   )
 }
 
-// The splash exits only after the mounted workspace reports that the required
-// synchronous startup state is ready. SplashScreen owns the short exit
-// transition fallback, not application initialization.
-const SPLASH_EXIT_MS = 600
-const SPLASH_HARD_LIMIT_MS = 4000
-
 function BoardExperience({ splashDone, active, onStartupReady }) {
   return (
     <AppStateProvider>
@@ -251,43 +237,21 @@ function BoardExperience({ splashDone, active, onStartupReady }) {
 }
 
 export default function App() {
-  // The route the app actually loaded with decides whether this is a genuine
-  // application start (splash + board) or a deep link to a standalone page.
   const initialRouteRef = useRef(resolveRoute())
   const [route, setRoute] = useState(initialRouteRef.current)
-  // Splash plays once per genuine load, and only when the session began on
-  // the board. Browser Back/Forward only changes the hash, so this state
-  // survives history navigation and the splash never replays.
   const [splash, setSplash] = useState(() => initialRouteRef.current === 'board' ? 'visible' : 'done')
 
-  // Stable callback for Workspace to signal that the board is ready.
-  const markStartupReady = useCallback(() => {
-    setSplash(current => current === 'visible' ? 'leaving' : current)
+  // The splash is the ONLY visible UI during startup. After the minimum
+  // duration elapses it begins a short fade-out; when the fade completes the
+  // SplashScreen calls onHidden and the whiteboard is mounted. The whiteboard
+  // (and all of its panels, modals and floating UI) is never rendered while the
+  // splash is showing, so no element can flash on screen during initialization.
+  useEffect(() => {
+    if (initialRouteRef.current !== 'board') return
+    const id = window.setTimeout(() => setSplash('fading'), SPLASH_MIN_MS)
+    return () => window.clearTimeout(id)
   }, [])
 
-  // Stable callback for SplashScreen to signal that the exit transition is
-  // complete. Wrapped in useCallback so the SplashScreen fallback timeout
-  // is never invalidated by a new function reference.
-  const hideSplash = useCallback(() => setSplash('done'), [])
-
-  // SAFETY: If the splash is stuck in 'visible' (onStartupReady was never
-  // called — e.g. a render error in Workspace), force it to start leaving
-  // after a hard limit. This is NOT the primary exit path.
-  useEffect(() => {
-    if (splash !== 'visible') return
-    const id = window.setTimeout(() => {
-      setSplash(current => current === 'visible' ? 'leaving' : current)
-    }, SPLASH_HARD_LIMIT_MS)
-    return () => window.clearTimeout(id)
-  }, [splash])
-
-  // Once the splash is leaving, give the CSS transition time to finish,
-  // then remove the splash unconditionally.
-  useEffect(() => {
-    if (splash !== 'leaving') return
-    const id = window.setTimeout(() => setSplash('done'), SPLASH_EXIT_MS)
-    return () => window.clearTimeout(id)
-  }, [splash])
 
   useEffect(() => {
     const onHash = () => setRoute(resolveRoute())
@@ -297,7 +261,7 @@ export default function App() {
   }, [])
   useEffect(() => {
     const titles = {
-      board: 'Board — Collaborative Whiteboard & Diagram Tool',
+      board: 'Kanvas — Think. Draw. Create.',
       docs: '404 — Page Not Found',
       notfound: '404 — Page Not Found',
       thankyou: 'Thank You',
@@ -306,17 +270,16 @@ export default function App() {
     document.title = titles[route]
   }, [route])
 
-  // Standalone routes must not keep any Whiteboard components mounted beneath
-  // their page. The board tree exists only while the active route is the board.
-  const boardMounted = route === 'board'
+  const showBoard = route === 'board' && splash === 'done'
+  const showSplash = route === 'board' && splash !== 'done'
   return (
-    <>
-      {boardMounted && <BoardExperience splashDone={splash === 'done'} active={route === 'board'} onStartupReady={markStartupReady} />}
-      {splash !== 'done' && route === 'board' && <SplashScreen leaving={splash === 'leaving'} onHidden={hideSplash} />}
+    <ThemeProvider>
+      {showBoard && <BoardExperience splashDone active={route === 'board'} onStartupReady={() => {}} />}
+      {showSplash && <SplashScreen canHide={splash === 'fading'} onHidden={() => setSplash('done')} />}
       {route === 'notfound' && <NotFoundPage />}
       {route === 'docs' && <NotFoundPage message="The Documentation page is not available yet." />}
       {route === 'thankyou' && <ThankYouPage />}
       {route === 'waitlist' && <WaitlistPage />}
-    </>
+    </ThemeProvider>
   )
 }

@@ -3,6 +3,7 @@ const sanitize = name => name.replace(/[/\\?%*:|"<>]/g, '_')
 import { sanitizeShape } from './geometry'
 import { newId } from './idGenerator'
 import { getCanvas2DContext, readFileAsText } from './browser'
+import { getThemeAwareColor, getCurrentTheme, THEME_PAPER } from './themeColors'
 const MAX_IMPORT_BYTES = 25 * 1024 * 1024
 const MAX_IMPORT_SHAPES = 10000
 export const exportJSON = (shapes, fileName = 'diagram') => download(new Blob([JSON.stringify({ version: 1, shapes }, null, 2)], { type: 'application/json' }), sanitize(fileName) + '.json')
@@ -34,6 +35,12 @@ const dataUrlToBlob = dataUrl => {
 export const EXPORT_BACKGROUND = '#f8fafc'
 export const EXPORT_GRID_COLOR = '#cbd5e1'
 export const EXPORT_GRID_SIZE = 20
+
+// Resolve the active-theme paper colors for an export so the exported file
+// matches what the user sees on the board (dark mode exports dark, etc.).
+function paperTheme() {
+  return THEME_PAPER[getCurrentTheme()] || THEME_PAPER.light
+}
 
 function loadImage(src) {
   return new Promise((resolve, reject) => {
@@ -84,12 +91,13 @@ async function withPaper(dataUrl) {
   canvas.height = src.height
   const context = getCanvas2DContext(canvas)
   if (!context) throw new Error('Canvas export is not supported by this browser.')
+  const { background, grid } = paperTheme()
   // Paper fill.
-  context.fillStyle = EXPORT_BACKGROUND
+  context.fillStyle = background
   context.fillRect(0, 0, canvas.width, canvas.height)
   // Dot grid (same look as .canvas-host: 20px cells, 1px dots centered in each cell).
   const step = EXPORT_GRID_SIZE * ratio
-  context.fillStyle = EXPORT_GRID_COLOR
+  context.fillStyle = grid
   for (let x = step / 2; x < canvas.width; x += step) {
     for (let y = step / 2; y < canvas.height; y += step) {
       context.beginPath()
@@ -197,8 +205,9 @@ function svgGroupTransform(shape) {
 }
 
 function svgShape(shape) {
-  const stroke = svgPaint(shape.stroke)
-  const fill = svgPaint(shape.fill)
+  const theme = getCurrentTheme()
+  const stroke = svgPaint(getThemeAwareColor(shape.stroke, theme))
+  const fill = svgPaint(getThemeAwareColor(shape.fill, theme))
   const strokeWidth = svgNumber(shape.strokeWidth || 1)
   const dash = svgDash(shape.dash)
   const common = `stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round" opacity="${svgNumber(shape.opacity ?? 1)}"${dash ? ` stroke-dasharray="${dash}"` : ''}`
@@ -228,7 +237,8 @@ export const exportSVG = (shapes, fileName = 'diagram') => {
   const items = Array.isArray(shapes) ? shapes.filter(Boolean) : []
   const bounds = items.reduce((result, shape) => { const box = svgBounds(shape); return { minX: Math.min(result.minX, box.minX), minY: Math.min(result.minY, box.minY), maxX: Math.max(result.maxX, box.maxX), maxY: Math.max(result.maxY, box.maxY) } }, { minX: 0, minY: 0, maxX: 1, maxY: 1 })
   const padding = 40, viewX = bounds.minX - padding, viewY = bounds.minY - padding, viewWidth = Math.max(1, bounds.maxX - bounds.minX + padding * 2), viewHeight = Math.max(1, bounds.maxY - bounds.minY + padding * 2)
+  const { background, grid } = paperTheme()
   const gridId = 'diagram-grid', arrowId = 'diagram-arrow'
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="${svgNumber(viewX)} ${svgNumber(viewY)} ${svgNumber(viewWidth)} ${svgNumber(viewHeight)}" width="${svgNumber(viewWidth)}" height="${svgNumber(viewHeight)}"><defs><pattern id="${gridId}" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="${EXPORT_GRID_COLOR}"/></pattern><marker id="${arrowId}" markerWidth="10" markerHeight="10" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L10,3.5 L0,7 z" fill="context-stroke"/></marker></defs><rect x="${svgNumber(viewX)}" y="${svgNumber(viewY)}" width="${svgNumber(viewWidth)}" height="${svgNumber(viewHeight)}" fill="${EXPORT_BACKGROUND}"/><rect x="${svgNumber(viewX)}" y="${svgNumber(viewY)}" width="${svgNumber(viewWidth)}" height="${svgNumber(viewHeight)}" fill="url(#${gridId})"/>${items.map(svgShape).join('')}</svg>`
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="${svgNumber(viewX)} ${svgNumber(viewY)} ${svgNumber(viewWidth)} ${svgNumber(viewHeight)}" width="${svgNumber(viewWidth)}" height="${svgNumber(viewHeight)}"><defs><pattern id="${gridId}" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="${svgEscape(grid)}"/></pattern><marker id="${arrowId}" markerWidth="10" markerHeight="10" refX="9" refY="3.5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L10,3.5 L0,7 z" fill="context-stroke"/></marker></defs><rect x="${svgNumber(viewX)}" y="${svgNumber(viewY)}" width="${svgNumber(viewWidth)}" height="${svgNumber(viewHeight)}" fill="${svgEscape(background)}"/><rect x="${svgNumber(viewX)}" y="${svgNumber(viewY)}" width="${svgNumber(viewWidth)}" height="${svgNumber(viewHeight)}" fill="url(#${gridId})"/>${items.map(svgShape).join('')}</svg>`
   download(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }), sanitize(fileName) + '.svg')
 }

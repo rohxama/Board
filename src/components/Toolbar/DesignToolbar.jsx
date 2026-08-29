@@ -1,6 +1,7 @@
 import { memo, useEffect, useRef, useState } from 'react'
 import { useAppState } from '../../context/AppStateContext'
 import { useHistory } from '../../context/HistoryContext'
+import { useTheme } from '../../context/ThemeContext'
 import { exportJSON, exportJPG, exportPDF, exportPNG, exportSVG, copyBoardAsImage, printBoard, importJSON } from '../../lib/io'
 import { IMAGE_ACCEPT, readImageFile } from '../../lib/images'
 import siteIcon from '../../assets/images/site-logo-removebg-preview.png'
@@ -29,6 +30,22 @@ const DEFAULT_WIDTHS = [[1, 'Thin'], [2, 'Regular'], [4, 'Medium'], [8, 'Thick']
 
 const tools = [['select', 'cursor', 'Select', 'V'], ['pan', 'hand', 'Hand', 'H'], ['rectangle', 'square', 'Rectangle', 'R'], ['ellipse', 'circle', 'Ellipse', 'O'], ['diamond', 'diamond', 'Diamond', 'D'], ['arrow', 'arrow', 'Arrow', 'A'], ['line', 'line', 'Line', 'L'], ['pen', 'pen', 'Pencil', 'P'], ['laser', 'laser', 'Laser', 'K'], ['eraser', 'eraser', 'Eraser', 'E'], ['text', 'text', 'Text', 'T']]
 
+// Tooltips explain what each tool does (the icon alone is sometimes ambiguous,
+// e.g. the laser reticle or the hand/pan glyph).
+const TOOL_TIPS = {
+  select: 'Select and move objects (V)',
+  pan: 'Pan the canvas (H)',
+  rectangle: 'Draw a rectangle (R)',
+  ellipse: 'Draw an ellipse (O)',
+  diamond: 'Draw a diamond (D)',
+  arrow: 'Draw an arrow (A)',
+  line: 'Draw a straight line (L)',
+  pen: 'Draw freehand (P)',
+  laser: 'Laser pointer — drag to show a temporary beam that fades (K)',
+  eraser: 'Erase objects (E)',
+  text: 'Add text (T)'
+}
+
 function Icon({ name }) {
   const common = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.85, strokeLinecap: 'round', strokeLinejoin: 'round' }
   const icons = {
@@ -41,11 +58,54 @@ function Icon({ name }) {
   return <svg viewBox="0 0 24 24" aria-hidden="true">{icons[name]}</svg>
 }
 
-function DesignToolbar({ stageRef, onImageUpload, imageInputRef, view, onZoomReset, lastSavedAt, onDuplicateBoard, onDeleteBoard }) {
+function SaveAsModal({ initialName, onClose, onSave }) {
+  const [name, setName] = useState(`${initialName || 'Untitled board'} copy`)
+  const [error, setError] = useState('')
+  const cardRef = useRef(null)
+  const inputRef = useRef(null)
+
+  useEffect(() => {
+    inputRef.current?.focus()
+    inputRef.current?.select()
+    const onKeyDown = event => {
+      if (event.key === 'Escape') { event.preventDefault(); onClose(); return }
+      if (event.key !== 'Tab') return
+      const focusables = Array.from(cardRef.current?.querySelectorAll('button, input') || []).filter(element => !element.disabled)
+      if (!focusables.length) return
+      const first = focusables[0]
+      const last = focusables[focusables.length - 1]
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [onClose])
+
+  const submit = event => {
+    event.preventDefault()
+    const clean = name.trim()
+    if (!clean) { setError('Enter a name for this saved copy.'); inputRef.current?.focus(); return }
+    if (onSave(clean)) onClose()
+    else setError('The copy could not be saved. Please try again.')
+  }
+
+  return <div className="save-as-modal" onMouseDown={event => { if (event.target === event.currentTarget) onClose() }}>
+    <form className="save-as-card" role="dialog" aria-modal="true" aria-labelledby="save-as-title" ref={cardRef} onSubmit={submit}>
+      <button type="button" className="save-as-close" title="Close" aria-label="Close Save as dialog" onClick={onClose}><Icon name="x" /></button>
+      <h2 id="save-as-title">Save as</h2>
+      <p>Create a separate saved copy of the current board.</p>
+      <label className="save-as-field"><span>Board name</span><input ref={inputRef} value={name} maxLength={80} onChange={event => { setName(event.target.value); setError('') }} aria-invalid={Boolean(error)} /></label>
+      {error && <span className="save-as-error" role="alert">{error}</span>}
+      <div className="save-as-actions"><button type="button" className="save-as-cancel" onClick={onClose}>Cancel</button><button type="submit" className="save-as-submit">Save</button></div>
+    </form>
+  </div>
+}
+
+function DesignToolbar({ stageRef, onImageUpload, imageInputRef, view, onZoomReset, lastSavedAt, onNewBoard, onSaveBoard, onSaveAsBoard, onDeleteBoard }) {
 
   const { state, dispatch } = useAppState()
   const { shapes, commit, undo, redo, revision } = useHistory()
-  const [darkMode, setDarkMode] = useState(() => { try { return localStorage.getItem('diagram-board-theme') === 'dark' } catch { return false } })
+  const { darkMode, setDarkMode } = useTheme()
 
 const [sidebarOpen, setSidebarOpen] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -57,6 +117,7 @@ const [sidebarOpen, setSidebarOpen] = useState(true)
   const [accountPanel, setAccountPanel] = useState(null)
   const [logoutOpen, setLogoutOpen] = useState(false)
   const [feedbackOpen, setFeedbackOpen] = useState(false)
+  const [saveAsOpen, setSaveAsOpen] = useState(false)
   const [userName, setUserName] = useState(() => { try { return localStorage.getItem('diagram-board-user-name') || USER_NAME_FALLBACK } catch { return USER_NAME_FALLBACK } })
   const [userEmail, setUserEmail] = useState(() => { try { return localStorage.getItem('diagram-board-user-email') || USER_EMAIL_FALLBACK } catch { return USER_EMAIL_FALLBACK } })
   const [profileImage, setProfileImage] = useState(() => { try { return localStorage.getItem(PROFILE_IMAGE_KEY) || '' } catch { return '' } })
@@ -66,7 +127,7 @@ const [sidebarOpen, setSidebarOpen] = useState(true)
   const profileEmailRef = useRef(null)
   const profileImageInputRef = useRef(null)
   const accountPanelRef = useRef(null)
-  const [folderName, setFolderName] = useState(() => { try { return localStorage.getItem('diagram-board-folder') || '' } catch { return '' } })
+  
   const [, setClockTick] = useState(0)
   const menuRef = useRef(null)
   const boardMenuRef = useRef(null)
@@ -81,7 +142,6 @@ const [sidebarOpen, setSidebarOpen] = useState(true)
   const importToken = useRef(0)
   const imageInput = imageInputRef || localImageInputRef
 
-  useEffect(() => { document.documentElement.dataset.theme = darkMode ? 'dark' : 'light'; try { localStorage.setItem('diagram-board-theme', darkMode ? 'dark' : 'light') } catch { } }, [darkMode])
   useEffect(() => { const nextStroke = darkMode ? '#e2e8f0' : '#1e293b'; if (!state.selectedShapeIds.length && state.activeStyle.stroke === themeDefaultStrokeRef.current) dispatch({ type: 'SET_STYLE', style: { stroke: nextStroke } }); themeDefaultStrokeRef.current = nextStroke }, [darkMode, state.selectedShapeIds.length, state.activeStyle.stroke, dispatch])
   useEffect(() => { revisionRef.current = revision }, [revision])
   useEffect(() => { document.title = `${state.fileName} - Diagram board` }, [state.fileName])
@@ -114,7 +174,7 @@ const [sidebarOpen, setSidebarOpen] = useState(true)
 
   const importDiagram = async event => { const token = ++importToken.current; const baseline = revisionRef.current; try { const imported = await importJSON(event.target.files?.[0]); if (token === importToken.current && revisionRef.current === baseline) commit(() => imported) } catch (error) { if (token === importToken.current) window.alert(error.message) } finally { event.target.value = '' } }
   const importImage = async event => { try { const file = event.target.files?.[0]; if (file) await onImageUpload(file) } catch (error) { window.alert(error.message) } finally { event.target.value = '' } }
-  const toolsFor = items => items.map(([tool, icon, label, shortcut]) => <button key={tool} className={state.activeTool === tool ? 'active' : ''} title={`${label} (${shortcut})`} aria-label={`${label} (${shortcut})`} onClick={() => dispatch({ type: 'SET_TOOL', tool })}><Icon name={icon} /><span className="tool-label">{label}</span></button>)
+  const toolsFor = items => items.map(([tool, icon, label, shortcut]) => <button key={tool} className={state.activeTool === tool ? 'active' : ''} title={TOOL_TIPS[tool]} aria-label={TOOL_TIPS[tool]} onClick={() => dispatch({ type: 'SET_TOOL', tool })}><Icon name={icon} /><span className="tool-label">{label}</span></button>)
 
   const action = (icon, title, onClick) => <button title={title} aria-label={title} onClick={onClick}><Icon name={icon} /></button>
   const menuAction = (icon, label, onClick) => <button role="menuitem" onClick={() => { onClick(); setMenuOpen(false) }}><Icon name={icon} /><span>{label}</span></button>
@@ -126,9 +186,9 @@ const [sidebarOpen, setSidebarOpen] = useState(true)
     const email = profileEmailRef.current?.value.trim()
     const nextName = name || USER_NAME_FALLBACK
     const nextEmail = email || USER_EMAIL_FALLBACK
+    try { localStorage.setItem('diagram-board-user-name', nextName); localStorage.setItem('diagram-board-user-email', nextEmail) } catch { return }
     setUserName(nextName); setUserEmail(nextEmail); setProfileSaved(true)
-    try { localStorage.setItem('diagram-board-user-name', nextName); localStorage.setItem('diagram-board-user-email', nextEmail) } catch { }
-    window.setTimeout(() => setProfileSaved(false), 1800)
+    window.setTimeout(() => { setProfileSaved(false); setAccountPanel(panel => panel === 'profile' ? null : panel) }, 1800)
   }
   const handleProfileImage = async event => {
     const file = event.target.files?.[0]
@@ -160,15 +220,14 @@ const [sidebarOpen, setSidebarOpen] = useState(true)
   const relativeSavedTime = value => { if (!value) return 'just now'; const seconds = Math.max(0, Math.floor((Date.now() - value) / 1000)); if (seconds < 60) return 'just now'; const minutes = Math.floor(seconds / 60); if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`; const hours = Math.floor(minutes / 60); return `${hours} hour${hours === 1 ? '' : 's'} ago` }
   const renameBoard = () => { setBoardMenuOpen(false); nameRef.current?.focus(); nameRef.current?.select() }
   const doExport = run => { run(); setExportMenuOpen(false) }
-  const moveToFolder = () => { const next = window.prompt('Folder name', folderName); if (next === null) return; const clean = next.trim(); setFolderName(clean); try { if (clean) localStorage.setItem('diagram-board-folder', clean); else localStorage.removeItem('diagram-board-folder') } catch {} setBoardMenuOpen(false) }
   const showDetails = () => { setBoardMenuOpen(false); setDetailsOpen(true) }
   const closeDetails = () => { setDetailsOpen(false); setBoardMenuOpen(false) }
 
   return <>
     <nav className="top-toolbar" aria-label="Document actions">
       <div className="top-toolbar-left">
-        <div className="board-identity" ref={boardMenuRef}><span className="board-label"><img ref={logoRef} className="board-mark" src={siteIcon} alt="Board icon" /><span className="board-name-stack"><input ref={nameRef} className="board-name-input" aria-label="Board name" defaultValue={state.fileName} onFocus={beginNameEdit} onBlur={saveName} onKeyDown={finishNameKey} /><span className="last-saved">Last saved: {relativeSavedTime(lastSavedAt)}</span><button className="board-dropdown" title="Board options" aria-label="Board options" aria-expanded={boardMenuOpen} onClick={() => setBoardMenuOpen(value => !value)}><Icon name="dropdown" /></button>{boardMenuOpen && <div className="board-management-menu" role="menu" aria-label="Board management"><button role="menuitem" onClick={renameBoard}><Icon name="pen" /><span>Rename</span></button><button role="menuitem" onClick={() => { onDuplicateBoard?.(); setBoardMenuOpen(false) }}><Icon name="copy" /><span>Duplicate</span></button><button role="menuitem" onClick={moveToFolder}><Icon name="folder" /><span>Move to folder</span></button><button role="menuitem" onClick={showDetails}><Icon name="info" /><span>Board details</span></button><button className="danger" role="menuitem" onClick={() => { onDeleteBoard?.(); setBoardMenuOpen(false) }}><Icon name="trash" /><span>Move to trash</span></button></div>}{detailsOpen && <div className="board-details-popover" role="dialog" aria-label="Board details"><strong>Board details</strong><span>{shapes.length} object{shapes.length === 1 ? '' : 's'}</span><span>{folderName ? `Folder: ${folderName}` : 'Folder: none'}</span><span>Last saved: {relativeSavedTime(lastSavedAt)}</span><button onClick={closeDetails}>Close</button></div>}</span></span></div>
-        <div className="header-export-wrap" ref={exportMenuRef}><button className="header-export" title="Export board" aria-label="Export board" aria-haspopup="menu" aria-expanded={exportMenuOpen} onClick={() => setExportMenuOpen(value => !value)}><Icon name="download" /><span>Export board</span><Icon name="dropdown" /></button>{exportMenuOpen && <div className="export-menu" role="menu" aria-label="Export options"><button role="menuitem" onClick={() => doExport(() => exportPNG(stageRef.current, state.fileName))}><Icon name="image" /><span>Download PNG</span></button><button role="menuitem" onClick={() => doExport(() => exportJPG(stageRef.current, state.fileName))}><Icon name="camera" /><span>Download JPG</span></button><button role="menuitem" onClick={() => doExport(() => exportPDF(stageRef.current, state.fileName))}><Icon name="file" /><span>Download PDF</span></button><span className="menu-separator" role="separator" /><button role="menuitem" onClick={() => doExport(() => exportSVG(shapes, state.fileName))}><Icon name="pen" /><span>Export SVG</span></button><button role="menuitem" onClick={() => doExport(() => exportJSON(shapes, state.fileName))}><Icon name="code" /><span>Export JSON</span></button><span className="menu-separator" role="separator" /><button role="menuitem" onClick={() => doExport(() => { copyBoardAsImage(stageRef.current).then(ok => { if (!ok) window.alert('Image copy is not supported in this browser. Use Download PNG instead.') }) })}><Icon name="copy" /><span>Copy Image</span></button><button role="menuitem" onClick={() => doExport(() => printBoard(stageRef.current, state.fileName))}><Icon name="print" /><span>Print Board</span></button></div>}</div>
+        <div className="board-identity" ref={boardMenuRef}><span className="board-label"><img ref={logoRef} className="board-mark" src={siteIcon} alt="Board icon" /><span className="board-name-stack"><input ref={nameRef} className="board-name-input" aria-label="Board name" defaultValue={state.fileName} onFocus={beginNameEdit} onBlur={saveName} onKeyDown={finishNameKey} /><span className="last-saved">Last saved: {relativeSavedTime(lastSavedAt)}</span><button className="board-dropdown" title="Board options" aria-label="Board options" aria-expanded={boardMenuOpen} onClick={() => setBoardMenuOpen(value => !value)}><Icon name="dropdown" /></button>{boardMenuOpen && <div className="board-management-menu" role="menu" aria-label="Board management"><button role="menuitem" onClick={() => { onNewBoard?.(); setBoardMenuOpen(false) }}><Icon name="file" /><span>New</span></button><button role="menuitem" onClick={() => { onSaveBoard?.(); setBoardMenuOpen(false) }}><Icon name="download" /><span>Save</span></button><button role="menuitem" onClick={() => { setBoardMenuOpen(false); setSaveAsOpen(true) }}><Icon name="copy" /><span>Save as</span></button><button role="menuitem" onClick={showDetails}><Icon name="info" /><span>Board details</span></button><button className="danger" role="menuitem" onClick={() => { onDeleteBoard?.(); setBoardMenuOpen(false) }}><Icon name="trash" /><span>Move to trash</span></button></div>}{detailsOpen && <div className="board-details-popover" role="dialog" aria-label="Board details"><strong>Board details</strong><span>{shapes.length} object{shapes.length === 1 ? '' : 's'}</span><span>Last saved: {relativeSavedTime(lastSavedAt)}</span><button onClick={closeDetails}>Close</button></div>}</span></span></div>
+        <div className="header-export-wrap" ref={exportMenuRef}><button className="header-export" title="Export board" aria-label="Export board" aria-haspopup="menu" aria-expanded={exportMenuOpen} onClick={() => setExportMenuOpen(value => !value)}><Icon name="download" /><span>Export board</span><Icon name="dropdown" /></button>{exportMenuOpen && <div className="export-menu" role="menu" aria-label="Export options"><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => exportPNG(stageRef.current, state.fileName)) }}><Icon name="image" /><span>Download PNG</span></button><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => exportJPG(stageRef.current, state.fileName)) }}><Icon name="camera" /><span>Download JPG</span></button><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => exportPDF(stageRef.current, state.fileName)) }}><Icon name="file" /><span>Download PDF</span></button><span className="menu-separator" role="separator" /><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => exportSVG(shapes, state.fileName)) }}><Icon name="pen" /><span>Export SVG</span></button><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => exportJSON(shapes, state.fileName)) }}><Icon name="code" /><span>Export JSON</span></button><span className="menu-separator" role="separator" /><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => { copyBoardAsImage(stageRef.current).then(ok => { if (!ok) window.alert('Image copy is not supported in this browser. Use Download PNG instead.') }) }) }}><Icon name="copy" /><span>Copy Image</span></button><button role="menuitem" onClick={() => { setExportMenuOpen(false); doExport(() => printBoard(stageRef.current, state.fileName)) }}><Icon name="print" /><span>Print Board</span></button></div>}</div>
         <button type="button" className="header-invite" title="Invite collaborators" aria-label="Invite collaborators" onClick={() => setInviteOpen(true)}><Icon name="user" /><span>Invite</span></button>
       </div>
       <div className="top-toolbar-center" aria-hidden="true"></div>
@@ -234,6 +293,7 @@ const [sidebarOpen, setSidebarOpen] = useState(true)
         </>}
       </div>
     </aside>}
+    {saveAsOpen && <SaveAsModal initialName={state.fileName} onClose={() => setSaveAsOpen(false)} onSave={onSaveAsBoard} />}
     {inviteOpen && <ShareModal fileName={state.fileName} onClose={() => setInviteOpen(false)} />}
     {logoutOpen && <div className="logout-dialog-backdrop" onPointerDown={() => setLogoutOpen(false)}><div className="logout-dialog" role="dialog" aria-modal="true" aria-labelledby="logout-title" onPointerDown={event => event.stopPropagation()}><span className="logout-dialog-icon"><Icon name="logout" /></span><h2 id="logout-title">Log out?</h2><p>You're about to log out. You can sign back in anytime to access your boards and settings.</p><div className="logout-dialog-actions"><button type="button" className="logout-cancel" onClick={() => setLogoutOpen(false)}>Cancel</button><button type="button" className="logout-confirm" onClick={() => setLogoutOpen(false)}>Log out</button></div></div></div>}
     {feedbackOpen && <FeedbackModal onClose={() => setFeedbackOpen(false)} />}

@@ -1,4 +1,7 @@
+import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import { clampScale, centeredZoom } from '../../lib/viewport'
+
+const ZOOM_LEVELS = [0.25, 0.5, 0.75, 1, 1.5]
 
 export function fitViewToContent(shapes, viewportWidth = window.innerWidth, viewportHeight = window.innerHeight) {
   const list = shapes || []
@@ -16,10 +19,102 @@ export function fitViewToContent(shapes, viewportWidth = window.innerWidth, view
 }
 
 export default function ZoomControls({ view, setView }) {
+  const [open, setOpen] = useState(false)
+  const [popoverPosition, setPopoverPosition] = useState(null)
+  const wrapRef = useRef(null)
+  const percentRef = useRef(null)
+  const popoverRef = useRef(null)
+  const currentPercent = Math.round(view.scale * 100)
+
   const change = direction => setView(current => {
     const next = clampScale(current.scale * (direction > 0 ? 1.15 : 1 / 1.15))
     return next === current.scale ? current : centeredZoom(current, next)
   })
+  const applyZoom = scale => {
+    setView(current => centeredZoom(current, clampScale(scale)))
+    setOpen(false)
+  }
   const toggleFullscreen = async () => { try { if (!document.fullscreenElement) await document.documentElement.requestFullscreen?.(); else await document.exitFullscreen?.() } catch {} }
-  return <div className="zoom-controls"><button title="Zoom out" aria-label="Zoom out" onClick={()=>change(-1)}>−</button><button title="Reset zoom (double-click)" onDoubleClick={()=>setView({x:0,y:0,scale:1})} onClick={()=>setView({x:0,y:0,scale:1})}>{Math.round(view.scale*100)}%</button><button title="Zoom in" aria-label="Zoom in" onClick={()=>change(1)}>+</button><span className="zoom-divider" aria-hidden="true"/><button title="Toggle fullscreen" aria-label="Toggle fullscreen" className="fullscreen-button" onClick={toggleFullscreen}>⤢</button></div>
+
+  useLayoutEffect(() => {
+    if (!open) {
+      setPopoverPosition(null)
+      return undefined
+    }
+    const updatePosition = () => {
+      const trigger = percentRef.current
+      const popover = popoverRef.current
+      if (!trigger || !popover) return
+      const triggerRect = trigger.getBoundingClientRect()
+      const width = popover.offsetWidth || 84
+      const height = popover.offsetHeight || 190
+      const gutter = 8
+      const left = Math.min(
+        Math.max(triggerRect.left + triggerRect.width / 2 - width / 2, gutter),
+        Math.max(gutter, window.innerWidth - width - gutter),
+      )
+      const top = Math.max(gutter, triggerRect.top - height - 6)
+      setPopoverPosition({ left, top })
+    }
+    updatePosition()
+    const frame = window.requestAnimationFrame(updatePosition)
+    window.addEventListener('resize', updatePosition)
+    window.addEventListener('scroll', updatePosition, true)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.removeEventListener('resize', updatePosition)
+      window.removeEventListener('scroll', updatePosition, true)
+    }
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    const onDocClick = e => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false) }
+    const onKey = e => { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('mousedown', onDocClick)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDocClick)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
+  return (
+    <div className="zoom-controls" ref={wrapRef}>
+      <button title="Zoom out" aria-label="Zoom out" onClick={() => change(-1)}>−</button>
+      <button
+        className="zoom-percent-btn"
+        title="Zoom levels"
+        aria-haspopup="true"
+        aria-expanded={open}
+        ref={percentRef}
+        onClick={() => setOpen(o => !o)}
+      >{currentPercent}%</button>
+      <button title="Zoom in" aria-label="Zoom in" onClick={() => change(1)}>+</button>
+      <span className="zoom-divider" aria-hidden="true" />
+      <button title="Toggle fullscreen" aria-label="Toggle fullscreen" className="fullscreen-button" onClick={toggleFullscreen}>⤢</button>
+      {open && (
+        <div
+          ref={popoverRef}
+          className="zoom-popover"
+          role="menu"
+          style={popoverPosition ? { left: `${popoverPosition.left}px`, top: `${popoverPosition.top}px` } : undefined}
+        >
+          {ZOOM_LEVELS.map(level => {
+            const percent = Math.round(level * 100)
+            const active = percent === currentPercent
+            return (
+              <button
+                key={level}
+                role="menuitemradio"
+                aria-checked={active}
+                className={active ? 'is-active' : ''}
+                onClick={() => applyZoom(level)}
+              >{percent}%</button>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
 }

@@ -1,12 +1,14 @@
-import { useEffect, useRef, useState, memo } from 'react'
+import { useEffect, useMemo, useRef, useState, memo } from 'react'
 import { useAppState } from '../../context/AppStateContext'
 import { useHistory } from '../../context/HistoryContext'
 
 const STROKE_SWATCHES = ['#111111', '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6']
-const BG_SWATCHES = ['#111111', '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6']
+const BG_SWATCHES = ['#111111', '#ef4444', '#f97316', '#eab308', '#22c55e']
 const FILL_TYPES = ['rectangle', 'ellipse', 'diamond']
 const STROKE_TYPES = ['rectangle', 'ellipse', 'diamond', 'arrow', 'line', 'pen']
-const COMPATIBLE_TOOLS = ['rectangle', 'ellipse', 'diamond', 'arrow', 'line', 'pen', 'text']
+const COMPATIBLE_TOOLS = ['rectangle', 'ellipse', 'diamond', 'arrow', 'line', 'pen', 'text', 'image']
+const STYLABLE_TYPES = new Set(['rectangle', 'ellipse', 'diamond', 'arrow', 'line', 'pen', 'text', 'image'])
+const isStylableShape = shape => Boolean(shape && STYLABLE_TYPES.has(shape.type))
 const FONT_SIZES = [12, 14, 16, 18, 20, 24, 28, 32, 36, 48]
 const DASH_OPTIONS = [{ value: 'solid', label: 'Solid' }, { value: 'dashed', label: 'Dashed' }, { value: 'dotted', label: 'Dotted' }]
 const WIDTH_OPTIONS = [{ value: 1, label: 'Thin' }, { value: 3, label: 'Medium' }, { value: 6, label: 'Thick' }]
@@ -29,21 +31,42 @@ export default memo(function StylePanel() {
   const [tab, setTab] = useState('style')
   const [panelDismissed, setPanelDismissed] = useState(false)
   const panelRef = useRef(null)
-  const dismissedContextRef = useRef(null)
   const selectionKey = state.selectedShapeIds.join('|')
-  const contextKey = `${state.activeTool}|${selectionKey}`
-  const selected = state.selectedShapeIds.length ? shapes.filter(shape => state.selectedShapeIds.includes(shape.id)) : []
+  const selectedIds = useMemo(() => new Set(state.selectedShapeIds), [state.selectedShapeIds])
+  const selected = useMemo(() => shapes.filter(shape => selectedIds.has(shape.id)), [shapes, selectedIds])
   const selectedShape = selected[0]
   const hasSelection = selected.length > 0
+  const hasStylableSelection = hasSelection && selected.every(isStylableShape)
   const isCompatibleTool = COMPATIBLE_TOOLS.includes(state.activeTool)
-  const showPanel = (hasSelection || isCompatibleTool) && !panelDismissed
-  const dismissPanel = () => { dismissedContextRef.current = contextKey; setPanelDismissed(true) }
-
+  // A selected object takes precedence over the transient dismissed state.
+  // This makes re-selecting an ellipse/Circle or Diamond after clicking empty
+  // canvas deterministic while retaining the existing tool preview behavior.
+  const showPanel = hasStylableSelection || (!hasSelection && isCompatibleTool && !panelDismissed)
+  const dismissPanel = () => { setPanelDismissed(true) }
+  // Keep the panel mounted through its slide-out so the close animation can play,
+  // and drive the enter/exit transition with an `is-open` class rather than an
+  // unmount. Entering slides in from the right; exiting slides back out right.
+  const [mounted, setMounted] = useState(showPanel)
+  const [open, setOpen] = useState(false)
   useEffect(() => {
-    if (dismissedContextRef.current === contextKey) return
-    dismissedContextRef.current = null
+    if (showPanel) {
+      setMounted(true)
+      const raf = requestAnimationFrame(() => setOpen(true))
+      return () => cancelAnimationFrame(raf)
+    }
+    setOpen(false)
+    const timer = setTimeout(() => setMounted(false), 300)
+    return () => clearTimeout(timer)
+  }, [showPanel])
+
+  // Dismissing the panel is a transient "hide until the next selection". Whenever
+  // the selected-shape set changes (including re-selecting the same shape after
+  // deselecting), the panel comes back. Keying on selectionKey — not the
+  // tool+selection string — prevents a stale dismissal from ever blocking a
+  // re-selection of the same object.
+  useEffect(() => {
     setPanelDismissed(false)
-  }, [contextKey])
+  }, [selectionKey])
   useEffect(() => {
     if (!showPanel) return undefined
     const onPointerDown = event => {
@@ -72,7 +95,8 @@ export default memo(function StylePanel() {
   const showFont = isText
   const showLayers = state.selectedShapeIds.length > 0
 
-  useEffect(() => { if (!selectedShape) return; if (selectedShape.type === 'image') { dispatch({ type: 'SET_STYLE', style: { opacity: selectedShape.opacity ?? 1 } }); return } const { stroke, strokeWidth, dash, fill, opacity, cornerRadius, fontSize } = selectedShape; dispatch({ type: 'SET_STYLE', style: { stroke, strokeWidth, dash, fill, opacity, cornerRadius: cornerRadius ?? 8, fontSize: fontSize ?? 20 } }) }, [selectedShape?.id])
+  const selectedStyleKey = selectedShape ? [selectedShape.id, selectedShape.type, selectedShape.stroke, selectedShape.strokeWidth, selectedShape.dash, selectedShape.fill, selectedShape.opacity, selectedShape.cornerRadius, selectedShape.fontSize].join('|') : ''
+  useEffect(() => { if (!selectedShape) return; if (selectedShape.type === 'image') { dispatch({ type: 'SET_STYLE', style: { opacity: selectedShape.opacity ?? 1 } }); return } const { stroke, strokeWidth, dash, fill, opacity, cornerRadius, fontSize } = selectedShape; dispatch({ type: 'SET_STYLE', style: { stroke, strokeWidth, dash, fill, opacity, cornerRadius: cornerRadius ?? 8, fontSize: fontSize ?? 20 } }) }, [selectedStyleKey])
 
   const pendingStyle = useRef(null)
   const timerRef = useRef(null)
@@ -135,9 +159,9 @@ export default memo(function StylePanel() {
   const fontSize = state.activeStyle.fontSize ?? 20
   const fontSizes = FONT_SIZES.includes(fontSize) ? FONT_SIZES : [...FONT_SIZES, fontSize].sort((a, b) => a - b)
 
-  if (!showPanel) return null
+  if (!mounted) return null
 
-  return <aside ref={panelRef} className="style-panel" aria-label="Properties inspector">
+  return <aside ref={panelRef} className={`style-panel${open ? ' is-open' : ''}`} aria-label="Properties inspector">
     <div className="inspector-tabs" role="tablist" aria-label="Inspector sections">
       <button type="button" role="tab" aria-selected={tab === 'style'} className={`inspector-tab${tab === 'style' ? ' is-active' : ''}`} onClick={() => setTab('style')}>Style</button>
       <button type="button" role="tab" aria-selected={tab === 'arrange'} className={`inspector-tab${tab === 'arrange' ? ' is-active' : ''}`} onClick={() => setTab('arrange')}>Arrange</button>
@@ -152,6 +176,9 @@ export default memo(function StylePanel() {
         {showFill && <Section label="Background">
           <div className="swatch-row">
             {BG_SWATCHES.map(color => <button key={color} type="button" className={`swatch${state.activeStyle.fill === color ? ' is-selected' : ''}`} style={{ background: color }} title={color} aria-label={`Fill ${color}`} onClick={() => update({ fill: color })} />)}
+            <button key="transparent" type="button" className={`swatch swatch-transparent${fillTransparent ? ' is-selected' : ''}`} title="Transparent" aria-label="Transparent background" onClick={() => update({ fill: 'transparent' })}>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19L19 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" /></svg>
+            </button>
           </div>
         </Section>}
         {showFill && <Section label="Fill">
