@@ -74,7 +74,7 @@ try {
       const dt = new DataTransfer(); dt.items.add(file)
       const host = document.querySelector('.canvas-host')
       host.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true }))
-    }, { name, type, b64 })
+    }, { name, type, b64: bytesB64 })
     await sleep(400)
   }
   const exportViaMenu = async (label) => {

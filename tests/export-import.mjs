@@ -9,7 +9,7 @@ import puppeteer from 'puppeteer-core'
 import { spawn } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
-import { decodePNG } from '../pnglib.cjs'
+import { decodePNG } from '../scripts/pnglib.cjs'
 
 const CHROME = 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
 const URL = 'http://localhost:5173/'

@@ -856,7 +856,7 @@ html[data-theme='dark'] .style-panel select, html[data-theme='dark'] .clear-fill
 .style-panel {
   top: 94px;
   right: 26px;
-  transform: none;
+  transform: translate(0, 0);
   width: min(280px, calc(100vw - 52px));
   max-height: calc(100vh - 116px);
   padding: 0 8px 8px;
@@ -1230,7 +1230,7 @@ html[data-theme='dark'] .style-panel select { border-color: var(--border); backg
 @media (max-width: 760px) {
   .left-toolbar { top: auto; bottom: max(18px, env(safe-area-inset-bottom)); left: 12px; width: 54px; max-width: none; flex-direction: column; overflow-y: auto; }
   .left-toolbar button { flex: 0 0 42px; }
-  .style-panel { top: auto; right: 12px; bottom: 18px; width: 250px; max-height: calc(100vh - 98px); transform: none; }
+  .style-panel { top: auto; right: 12px; bottom: 18px; width: 250px; max-height: calc(100vh - 98px); }
 }
 
 /* Transparent outer header: surfaces belong to content controls, not the
@@ -1625,7 +1625,7 @@ html[data-theme='dark'] .board-management-menu button.danger::before { backgroun
    reusing the existing modal fade + card entrance animations. */
 .share-modal {
   position: fixed;
-  z-index: 15;
+  z-index: 9999;
   inset: 0;
   display: grid;
   place-items: center;
@@ -3776,14 +3776,13 @@ html[data-theme='dark'] .side-avatar-delete:hover { background: rgba(0, 0, 0, .7
   right: clamp(12px, 2vw, 26px);
   bottom: auto;
   left: auto;
-  transform: none;
   width: min(290px, calc(100vw - 24px));
   max-width: calc(100vw - 24px);
   max-height: min(680px, calc(100dvh - 92px));
   overflow-x: hidden;
   overflow-y: auto;
   box-sizing: border-box;
-  isolation: isolate;
+  will-change: transform, opacity;
 }
 .inspector-tabs {
   position: sticky;
