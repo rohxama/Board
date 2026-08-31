@@ -215,10 +215,10 @@ const ShapesLayer = memo(function ShapesLayer({ shapes, editingId, draggable, vi
   return visibleShapes.map(shape => <Shape key={shape.id} shape={shape} nodeRef={refFor(shape.id)} draggable={draggable} viewScaleRef={viewScaleRef} onEdit={onEdit} />)
 })
 
-export default function CanvasStage({ stageRef, view, setView, onCursorMove, onImageDrop }) {
+export default function CanvasStage({ stageRef, view, setView, onCursorMove, onImageDrop, onUserMessage }) {
   const { state, dispatch } = useAppState()
   const { shapes, commit } = useHistory()
-  if (typeof window !== 'undefined') { window.__app = { state, shapes, view }; window.__stage = stageRef.current; window.__setView = setView }
+  if (typeof window !== 'undefined') { window.__app = { state, shapes, view }; window.__stage = stageRef.current; window.__setView = setView; window.__dispatch = dispatch; window.__commit = commit }
   const { theme } = useTheme()
   const dark = theme === 'dark'
   const hostRef = useRef(); const nodes = useRef({}); const refCallbacks = useRef({}); const transformer = useRef(); const editorRef = useRef()
