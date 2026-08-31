@@ -3,7 +3,7 @@
 // clear, user-friendly message. Covers: invalid uploads, empty text, unsupported
 // imports, empty exports, and repeated clicks.
 import puppeteer from 'puppeteer-core'
-import { spawn } from 'node:child_process'
+import { spawn } from 'child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 
@@ -18,7 +18,6 @@ const record = (name, pass, detail = '') => {
   results.push({ name, pass, detail })
   console.log(`${pass ? 'PASS' : 'FAIL'}  ${name}${detail ? '  — ' + detail : ''}`)
 }
-// A technical/raw error reads like a stack trace; a friendly message is short and human.
 const isFriendly = (m) => {
   if (!m) return false
   if (m.length > 220) return false
@@ -34,9 +33,7 @@ try {
   const page = await browser.newPage()
   await page.setViewport({ width: 1200, height: 800 })
   const pageErrors = []
-  const dialogs = []
   page.on('pageerror', e => { pageErrors.push(e.message); console.log('PAGEERROR:', e.message) })
-  page.on('dialog', async d => { dialogs.push({ type: d.type(), message: d.message() }); try { await d.dismiss() } catch {} })
 
   const installCapture = () => page.evaluate(() => {
     window.__dl = []
@@ -51,7 +48,7 @@ try {
   })
   const waitReady = async () => {
     for (let i = 0; i < 200; i++) {
-      const ok = await page.evaluate(() => !document.querySelector('.splash-screen') && !!window.__benchStage && window.__app?.shapes).catch(() => false)
+      const ok = await page.evaluate(() => !document.querySelector('.splash-screen') && !!window.__stage && window.__app?.shapes).catch(() => false)
       if (ok) break
       await sleep(100)
     }
@@ -63,8 +60,9 @@ try {
     await page.evaluate(() => { try { window.localStorage.clear() } catch {} })
     await page.reload({ waitUntil: 'networkidle0' })
     await waitReady()
-    dialogs.length = 0
+    await page.evaluate(() => { const t = document.querySelector('.app-toast'); if (t) t.remove() })
   }
+  const getToast = async () => page.evaluate(() => { const t = document.querySelector('.app-toast'); return t ? t.textContent : '' })
   const shapes = () => page.evaluate(() => window.__app.shapes.map(s => JSON.parse(JSON.stringify(s))))
   const captureLast = async () => { await sleep(200); return page.evaluate(() => window.__dl[window.__dl.length - 1] || null) }
   const dropFile = async (name, type, bytesB64) => {
@@ -72,8 +70,10 @@ try {
       const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0))
       const file = new File([bytes], name, { type })
       const dt = new DataTransfer(); dt.items.add(file)
+      const event = new DragEvent('drop', { bubbles: true, cancelable: true })
+      Object.defineProperty(event, 'dataTransfer', { value: dt })
       const host = document.querySelector('.canvas-host')
-      host.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true }))
+      host.dispatchEvent(event)
     }, { name, type, b64: bytesB64 })
     await sleep(400)
   }
@@ -88,14 +88,16 @@ try {
   // ---- 1. invalid image upload (wrong type) ----
   await gotoFresh()
   await dropFile('bad.txt', 'text/plain', btoa('just some text'))
-  record('invalid image upload: shows friendly message (not crash)', dialogs.some(d => /PNG, JPG, SVG, or WEBP/.test(d.message)), `dialogs=${JSON.stringify(dialogs.map(d => d.message))}`)
-  record('invalid image upload: message is user-friendly', dialogs.length > 0 && isFriendly(dialogs[dialogs.length - 1].message), dialogs[dialogs.length - 1]?.message || 'none')
+  const toast1 = await getToast()
+  record('invalid image upload: shows friendly message (not crash)', /Image upload failed|Use a PNG, JPG, SVG, or WEBP/.test(toast1), `toast=${toast1.slice(0, 80)}`)
+  record('invalid image upload: message is user-friendly', toast1.length > 0 && isFriendly(toast1), toast1.slice(0, 80))
   record('invalid image upload: no uncaught error', pageErrors.length === 0, pageErrors.join(' | '))
 
   // ---- 2. corrupt image upload (valid ext, garbage bytes) ----
   await gotoFresh()
   await dropFile('broken.png', 'image/png', btoa('not really an image at all, just garbage'))
-  record('corrupt image upload: friendly message', dialogs.some(d => /valid image/i.test(d.message)), `dialogs=${JSON.stringify(dialogs.map(d => d.message))}`)
+  const toast2 = await getToast()
+  record('corrupt image upload: friendly message', /valid image|Image upload failed/.test(toast2), `toast=${toast2.slice(0, 80)}`)
   record('corrupt image upload: no uncaught error', pageErrors.length === 0, pageErrors.join(' | '))
 
   // ---- 3. invalid JSON import (malformed) ----
@@ -104,8 +106,9 @@ try {
   fs.writeFileSync(tmp1, '{ this is not valid json')
   await (await page.$('input[type=file][accept="application/json"]')).uploadFile(tmp1)
   await sleep(500)
-  record('invalid JSON import: friendly message', dialogs.some(d => /not valid JSON/i.test(d.message)), `dialogs=${JSON.stringify(dialogs.map(d => d.message))}`)
-  record('invalid JSON import: message user-friendly', dialogs.length > 0 && isFriendly(dialogs[dialogs.length - 1].message), dialogs[dialogs.length - 1]?.message || 'none')
+  const toast3 = await getToast()
+  record('invalid JSON import: friendly message', /Import Failed|not valid JSON/i.test(toast3), `toast=${toast3.slice(0, 80)}`)
+  record('invalid JSON import: message user-friendly', toast3.length > 0 && isFriendly(toast3), toast3.slice(0, 80))
   record('invalid JSON import: no uncaught error', pageErrors.length === 0, pageErrors.join(' | '))
 
   // ---- 4. unsupported import (valid JSON, wrong shape) ----
@@ -114,7 +117,8 @@ try {
   fs.writeFileSync(tmp2, JSON.stringify({ foo: 1 }))
   await (await page.$('input[type=file][accept="application/json"]')).uploadFile(tmp2)
   await sleep(500)
-  record('unsupported import: friendly message', dialogs.some(d => /Unsupported or oversized/i.test(d.message)), `dialogs=${JSON.stringify(dialogs.map(d => d.message))}`)
+  const toast4 = await getToast()
+  record('unsupported import: friendly message', /Import Failed|Unsupported or oversized/i.test(toast4), `toast=${toast4.slice(0, 80)}`)
   record('unsupported import: no uncaught error', pageErrors.length === 0, pageErrors.join(' | '))
 
   // ---- 5. empty text ----
@@ -126,9 +130,10 @@ try {
   await page.keyboard.press('Escape')
   await sleep(200)
   const afterEmptyText = await shapes()
+  const toast5 = await getToast()
   record('empty text: no crash / no technical error', pageErrors.length === 0, pageErrors.join(' | '))
   record('empty text: no empty text shape created', !afterEmptyText.some(s => s.type === 'text' && (!s.text || !s.text.trim())), `shapes=${afterEmptyText.map(s => s.type).join(',')}`)
-  record('empty text: no dialog/error shown', dialogs.length === 0, `dialogs=${dialogs.length}`)
+  record('empty text: no dialog/error shown', toast5.length === 0, `toast=${toast5.slice(0, 80)}`)
 
   // ---- 6. empty exports (must produce valid files, not crash) ----
   await gotoFresh()
@@ -140,10 +145,10 @@ try {
     pngDetail = `type=${cap.type} bytes=${b.length}`
   }
   record('empty export PNG: valid file produced', okPng, pngDetail)
-  cap = await exportViaMenu('Download SVG')
+  cap = await exportViaMenu('Export SVG')
   let okSvg = !!cap && /<svg/.test(Buffer.from(cap.dataUrl.split(',')[1], 'base64').toString('utf8'))
   record('empty export SVG: valid file produced', okSvg, cap ? `type=${cap.type}` : 'no download')
-  cap = await exportViaMenu('Download JSON')
+  cap = await exportViaMenu('Export JSON')
   let okJson = false
   if (cap) { try { const j = JSON.parse(Buffer.from(cap.dataUrl.split(',')[1], 'base64').toString('utf8')); okJson = j.version === 1 && Array.isArray(j.shapes) } catch {} }
   record('empty export JSON: valid file produced', okJson, cap ? `type=${cap.type}` : 'no download')
@@ -155,11 +160,13 @@ try {
   for (let i = 0; i < 8; i++) { await page.click('button[title="Export board"]').catch(() => {}); await sleep(40); await page.click('button ::-p-text(Download PNG)').catch(() => {}); await sleep(40) }
   await sleep(500)
   record('repeated clicks: no uncaught error', pageErrors.length === 0, pageErrors.join(' | '))
-  record('repeated clicks: app still responsive', await page.evaluate(() => !!(window.__benchStage && window.__app)), '')
+  record('repeated clicks: app still responsive', await page.evaluate(() => !!(window.__stage && window.__app)), '')
 
-  // ---- summary of dialogs ----
-  const unfriendly = dialogs.filter(d => !isFriendly(d.message))
-  record('GOLDEN RULE: every dialog is user-friendly (no stack traces)', unfriendly.length === 0, unfriendly.map(d => d.message).join(' | '))
+  // ---- summary ----
+  const allToasts = []
+  for (const t of [toast1, toast2, toast3, toast4, toast5]) { if (t) allToasts.push(t) }
+  const unfriendly = allToasts.filter(d => !isFriendly(d))
+  record('GOLDEN RULE: every message is user-friendly (no stack traces)', unfriendly.length === 0, unfriendly.join(' | '))
   record('GOLDEN RULE: no uncaught page errors across all invalid actions', pageErrors.length === 0, pageErrors.join(' | '))
 
   const failed = results.filter(r => !r.pass)
