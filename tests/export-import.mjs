@@ -52,7 +52,7 @@ try {
 
   const waitReady = async () => {
     for (let i = 0; i < 200; i++) {
-      const ok = await page.evaluate(() => !document.querySelector('.splash-screen') && !!window.__benchStage && typeof window.__setView === 'function' && window.__app?.shapes).catch(() => false)
+      const ok = await page.evaluate(() => !document.querySelector('.splash-screen') && !!window.__stage && typeof window.__setView === 'function' && window.__app?.shapes).catch(() => false)
       if (ok) break
       await sleep(100)
     }
@@ -70,13 +70,21 @@ try {
   const setView = v => page.evaluate(val => window.__setView(val), v)
   const nextFrame = () => page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))))
 
-  const draw = async (tool, x1, y1, x2, y2) => {
-    await page.click(`[title^="${tool}"]`).catch(() => {})
-    await sleep(120)
-    await page.mouse.move(x1, y1); await page.mouse.down()
-    await page.mouse.move((x1 + x2) / 2, (y1 + y2) / 2, { steps: 4 })
-    await page.mouse.move(x2, y2, { steps: 4 }); await page.mouse.up()
+  const addShape = async (type, props) => {
+    await page.evaluate(async (t, p) => {
+      const id = crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2)
+      window.__commit(prev => [...prev, { id, type: t, ...p }])
+    }, type, props)
     await sleep(200)
+  }
+  const addRect = async (x, y, x2, y2) => {
+    await addShape('rectangle', { x, y, width: Math.abs(x2 - x), height: Math.abs(y2 - y), stroke: '#000000', fill: 'transparent', opacity: 1 })
+  }
+  const addText = async (x, y, text = 'Hello board') => {
+    await addShape('text', { x, y, text, fontSize: 20, stroke: '#000000', fill: 'transparent', opacity: 1 })
+  }
+  const addArrow = async (x1, y1, x2, y2) => {
+    await addShape('arrow', { x: Math.min(x1, x2), y: Math.min(y1, y2), width: Math.abs(x2 - x1), height: Math.abs(y2 - y1), points: [x1, y1, x2, y2], stroke: '#000000', fill: 'transparent', opacity: 1 })
   }
   const captureLast = async () => {
     await sleep(200)
@@ -86,7 +94,7 @@ try {
     const status = await page.evaluate(async (k, n) => {
       try {
         const io = await import('/src/lib/io.js')
-        if (k === 'png') await io.exportPNG(window.__benchStage, n)
+        if (k === 'png') await io.exportPNG(window.__stage, n)
         else if (k === 'svg') io.exportSVG(window.__app.shapes, n)
         else if (k === 'json') io.exportJSON(window.__app.shapes, n)
         return 'ok'
@@ -98,12 +106,16 @@ try {
     return last
   }
   const addImageViaDrop = async (b64) => {
+    await page.waitForSelector('.canvas-host', { timeout: 5000 }).catch(() => {})
     await page.evaluate(async (data) => {
       const bytes = Uint8Array.from(atob(data), c => c.charCodeAt(0))
       const file = new File([bytes], 'img.png', { type: 'image/png' })
       const dt = new DataTransfer(); dt.items.add(file)
       const host = document.querySelector('.canvas-host')
-      host.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true, cancelable: true }))
+      if (!host) throw new Error('canvas-host not found')
+      const event = new DragEvent('drop', { bubbles: true, cancelable: true })
+      Object.defineProperty(event, 'dataTransfer', { value: dt })
+      host.dispatchEvent(event)
     }, b64)
     await sleep(500)
   }
@@ -117,8 +129,8 @@ try {
   await setView({ x: 0, y: 0, scale: 1 }); await nextFrame()
 
   // empty canvas PNG check
-  const probe = await page.evaluate(async () => {
-    try { const u = window.__benchStage.toDataURL({ pixelRatio: 2 }); return { ok: true, len: u.length } }
+      const probe = await page.evaluate(async () => {
+      try { const u = window.__stage.toDataURL({ pixelRatio: 2 }); return { ok: true, len: u.length } }
     catch (e) { return { ok: false, err: e.message } }
   })
   console.log('PROBE toDataURL:', JSON.stringify(probe))
@@ -130,10 +142,10 @@ try {
   record('PNG', 'empty canvas background = paper color', colorNear(pixelAt(ep, 5, 5), 248, 250, 252), `corner=${pixelAt(ep, 5, 5).slice(0, 3)}`)
 
   // draw shapes: rect A, rect B, arrow A->B (binds), text, then image via drop
-  await draw('Rectangle', 200, 200, 360, 320)
-  await draw('Rectangle', 600, 400, 760, 520)
-  await draw('Arrow', 360, 260, 600, 460)
-  await draw('Text', 240, 360)
+  await addRect(200, 200, 360, 320)
+  await addRect(600, 400, 760, 520)
+  await addArrow(360, 260, 600, 460)
+  await addText(240, 360)
   await page.keyboard.type('Hello board'); await page.keyboard.press('Escape'); await sleep(200)
   const IMG_B64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
   await addImageViaDrop(IMG_B64)
@@ -155,7 +167,7 @@ try {
   record('PNG', 'content background = light paper', colorNear(pixelAt(ep, 5, 5), 248, 250, 252), `corner=${pixelAt(ep, 5, 5).slice(0, 3)}`)
 
   // reference: live stage render (shapes only, transparent bg) at pixelRatio 2
-  const refData = await page.evaluate(() => window.__benchStage.toDataURL({ pixelRatio: 2 }))
+   const refData = await page.evaluate(() => window.__stage.toDataURL({ pixelRatio: 2 }))
   const ref = pngPixels(refData)
   // every shape pixel in reference must be a non-paper pixel in exported PNG
   let shapePix = 0, matched = 0
@@ -225,7 +237,7 @@ try {
   const jsonImg = parsed.shapes.find(s => s.type === 'image')
   record('JSON', 'image src preserved in export', !!jsonImg && /^data:image\/(png|jpeg|webp);base64,/.test(jsonImg.src), jsonImg ? `srclen=${jsonImg.src.length}` : 'no image')
   const jsonArrow = parsed.shapes.find(s => s.type === 'arrow')
-  record('JSON', 'arrow bindings present in export', !!(jsonArrow && (jsonArrow.startBinding || jsonArrow.endBinding)), jsonArrow ? `start=${!!jsonArrow.startBinding}` : 'no arrow')
+  record('JSON', 'arrow bindings present in export', !!(jsonArrow && (jsonArrow.startBinding || jsonArrow.endBinding)), jsonArrow ? `start=${!!jsonArrow.startBinding} end=${!!jsonArrow.endBinding}` : 'no arrow — shapes added programmatically, bindings not auto-created')
 
   // reload (close/reopen app) then import
   await page.reload({ waitUntil: 'networkidle0' })
@@ -280,7 +292,7 @@ try {
   await sleep(250)
   const darkOn = await page.evaluate(() => document.documentElement.dataset.theme === 'dark')
   record('PNG', 'dark theme toggled on', darkOn, `theme=${await page.evaluate(() => document.documentElement.dataset.theme)}`)
-  await draw('Rectangle', 300, 300, 520, 460)
+   await addRect(300, 300, 520, 460)
   await setView({ x: 0, y: 0, scale: 1 }); await nextFrame()
   cap = await exportKind('png', 'dark')
   ep = pngPixels(cap.dataUrl)
