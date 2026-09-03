@@ -243,23 +243,6 @@ function Star({ size = 12 }) {
   )
 }
 
-function ArrowSvg() {
-  return (
-    <svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-      <path d="M0 6h16" />
-      <path d="M12 1l5 5-5 5" />
-    </svg>
-  )
-}
-
-function ScribbleSvg() {
-  return (
-    <svg width="28" height="10" viewBox="0 0 28 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-      <path d="M1 5C4 2 7 8 10 5s4-3 7 0 4 5 7 3" />
-    </svg>
-  )
-}
-
 const WORKFLOW_STEPS = [
   {
     num: '01',
@@ -900,91 +883,6 @@ export default function DocumentationPage() {
       </header>
 
       <div className="doc-hero">
-        {/* Decorative floating whiteboard objects */}
-        <div className="doc-hero-canvas" aria-hidden="true">
-          {/* Circle — top left (purple) */}
-          <svg className="hero-shape hero-circle-1" viewBox="0 0 52 52" fill="none">
-            <circle cx="26" cy="26" r="24" stroke="var(--accent-purple)" strokeWidth="2" fill="var(--accent-purple-soft)" />
-          </svg>
-
-          {/* Rounded rectangle — top right (blue) */}
-          <svg className="hero-shape hero-rect-1" viewBox="0 0 64 44" fill="none">
-            <rect x="2" y="2" width="60" height="40" rx="10" stroke="var(--accent-blue)" strokeWidth="2" fill="var(--accent-blue-soft)" />
-          </svg>
-
-          {/* Small filled circle — left mid (coral) */}
-          <svg className="hero-shape hero-dot-1" viewBox="0 0 16 16" fill="none">
-            <circle cx="8" cy="8" r="7" fill="var(--accent-coral)" opacity=".7" />
-          </svg>
-
-          {/* Arrow — right mid (purple) */}
-          <svg className="hero-shape hero-arrow-1" viewBox="0 0 72 24" fill="none" stroke="var(--accent-purple)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 12h56" />
-            <path d="M54 6l12 6-12 6" />
-          </svg>
-
-          {/* Sparkle star — bottom left (coral) */}
-          <svg className="hero-shape hero-sparkle-1" viewBox="0 0 28 28" fill="none">
-            <path d="M14 2v24M2 14h24M5.5 5.5l17 17M22.5 5.5l-17 17" stroke="var(--accent-coral)" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-
-          {/* Scribble line — bottom right (green) */}
-          <svg className="hero-shape hero-scribble-1" viewBox="0 0 80 20" fill="none">
-            <path d="M2 14c8-10 16 4 24-4s16 8 24-2 16 6 28-4" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" opacity=".6" />
-          </svg>
-
-          {/* Sticky note — far right (yellow) */}
-          <svg className="hero-shape hero-sticky-1" viewBox="0 0 48 48" fill="none">
-            <rect x="2" y="2" width="44" height="44" rx="3" fill="var(--accent-yellow-soft)" stroke="var(--accent-yellow)" strokeWidth="1.5" />
-            <path d="M32 2l14 14" stroke="var(--accent-yellow)" strokeWidth="1.5" />
-            <rect x="2" y="36" width="44" height="10" rx="0 0 3 3" fill="var(--accent-yellow-soft)" opacity="0.5" />
-          </svg>
-
-          {/* Small circle — far left (pink) */}
-          <svg className="hero-shape hero-circle-2" viewBox="0 0 36 36" fill="none">
-            <circle cx="18" cy="18" r="16" stroke="var(--accent-pink)" strokeWidth="1.5" strokeDasharray="4 3" fill="var(--accent-pink-soft)" />
-          </svg>
-
-          {/* Tiny rounded rect — mid left (blue) */}
-          <svg className="hero-shape hero-rect-2" viewBox="0 0 40 24" fill="none">
-            <rect x="1" y="1" width="38" height="22" rx="6" stroke="var(--accent-blue)" strokeWidth="1.5" fill="var(--accent-blue-soft)" />
-          </svg>
-
-          {/* Tiny cross/plus — top mid (green) */}
-          <svg className="hero-shape hero-cross-1" viewBox="0 0 20 20" fill="none">
-            <path d="M10 4v12M4 10h12" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-
-          {/* Small triangle — bottom mid (purple) */}
-          <svg className="hero-shape hero-triangle-1" viewBox="0 0 32 30" fill="none">
-            <path d="M16 3l14 24H2z" stroke="var(--accent-purple)" strokeWidth="1.5" fill="var(--accent-purple-soft)" strokeLinejoin="round" />
-          </svg>
-        </div>
-
-        {/* 3D floating canvas tile — right */}
-        <div className="doc-hero-3d doc-hero-3d--right" aria-hidden="true">
-          <div className="doc-3d-tile">
-            <div className="doc-3d-tile-face">
-              <div className="doc-3d-tile-grid" />
-              <div className="doc-3d-tile-shape doc-3d-tile-shape--rect" />
-              <div className="doc-3d-tile-shape doc-3d-tile-shape--circle" />
-              <div className="doc-3d-tile-shape doc-3d-tile-shape--diamond" />
-              <div className="doc-3d-tile-shape doc-3d-tile-shape--line" />
-            </div>
-          </div>
-        </div>
-
-        {/* 3D floating canvas tile — left */}
-        <div className="doc-hero-3d doc-hero-3d--left" aria-hidden="true">
-          <div className="doc-3d-tile" style={{ width: 80, height: 65, animationDelay: '1.5s' }}>
-            <div className="doc-3d-tile-face">
-              <div className="doc-3d-tile-grid" />
-              <div className="doc-3d-tile-shape doc-3d-tile-shape--circle" style={{ top: 10, left: 10, width: 18, height: 18 }} />
-              <div className="doc-3d-tile-shape doc-3d-tile-shape--rect" style={{ bottom: 12, right: 10, width: 24, height: 16 }} />
-            </div>
-          </div>
-        </div>
-
         <span className="doc-hero-label">DOCUMENTATION</span>
         <h1 className="doc-hero-title">Learn Kanvas</h1>
         <p className="doc-hero-sub">Everything you need to know to start creating.</p>
@@ -1123,16 +1021,7 @@ export default function DocumentationPage() {
           />
 
           <section id="tools" className="doc-section">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
-              <h2 className="doc-section-title" style={{ margin: 0, border: 'none', paddingBottom: 0 }}><NavIcon name="cursor" /> Tools</h2>
-              <div className="doc-3d-swatches" aria-hidden="true">
-                <div className="doc-3d-swatch doc-3d-swatch--1" />
-                <div className="doc-3d-swatch doc-3d-swatch--2" />
-                <div className="doc-3d-swatch doc-3d-swatch--3" />
-              </div>
-            </div>
-            <span className="dc dc-c dc-c--sm dc-f1" aria-hidden="true" style={{ top: '-8px', right: '12%' }} />
-            <span className="dc dc-r dc-r--r dc-f2" aria-hidden="true" style={{ top: '4px', right: '4%' }} />
+            <h2 className="doc-section-title"><NavIcon name="cursor" /> Tools</h2>
             <ToolsIllustration />
             <p className="doc-section-intro">Kanvas provides a focused set of tools for creating and editing on the canvas. Each tool is accessible from the left toolbar.</p>
 
@@ -1543,14 +1432,6 @@ export default function DocumentationPage() {
             </div>
           </section>
 
-          <div className="doc-visual-divider" aria-hidden="true">
-            <span className="doc-visual-divider-dot" />
-            <span className="doc-visual-divider-shape" />
-            <span className="doc-visual-divider-cross" />
-            <span className="doc-visual-divider-shape" />
-            <span className="doc-visual-divider-dot" />
-          </div>
-
           <section id="undo-redo" className="doc-section">
             <h2 className="doc-section-title"><NavIcon name="undo" /> Undo & Redo</h2>
             <p className="doc-section-intro">Kanvas keeps a history of your actions so you can easily undo mistakes or redo changes.</p>
@@ -1693,8 +1574,6 @@ export default function DocumentationPage() {
 
           <section id="export" className="doc-section">
             <h2 className="doc-section-title"><NavIcon name="download" /> Export Your Board</h2>
-            <span className="dc dc-c dc-f2" aria-hidden="true" style={{ top: '-6px', right: '8%' }} />
-            <span className="dc dc-a dc-f1" aria-hidden="true" style={{ top: '2px', right: '2%' }}><ArrowSvg /></span>
             <ExportIllustration />
             <FeatureStory
               heading="Share Your Work"
@@ -1807,19 +1686,8 @@ export default function DocumentationPage() {
             </div>
           </section>
 
-          <div className="doc-visual-divider" aria-hidden="true">
-            <span className="doc-visual-divider-dot" />
-            <span className="doc-visual-divider-shape" />
-            <span className="doc-visual-divider-cross" />
-            <span className="doc-visual-divider-shape" />
-            <span className="doc-visual-divider-dot" />
-          </div>
-
           <section id="tips" className="doc-section">
             <h2 className="doc-section-title"><NavIcon name="lightbulb" /> Tips for a Better Experience</h2>
-            <span className="dc dc-g dc-f1" aria-hidden="true" style={{ top: '-4px', right: '5%' }}>
-              <span /><span /><span /><span />
-            </span>
             <TipsIllustration />
             <div className="doc-tips-grid">
               <div className="doc-tip-card doc-tip-card--purple">
@@ -1855,18 +1723,8 @@ export default function DocumentationPage() {
             </div>
           </section>
 
-          <div className="doc-visual-divider" aria-hidden="true">
-            <span className="doc-visual-divider-dot" />
-            <span className="doc-visual-divider-shape" />
-            <span className="doc-visual-divider-cross" />
-            <span className="doc-visual-divider-shape" />
-            <span className="doc-visual-divider-dot" />
-          </div>
-
           <section id="faq" className="doc-section">
             <h2 className="doc-section-title"><NavIcon name="question" /> FAQ</h2>
-            <span className="dc dc-c dc-c--lg dc-c--o dc-f2" aria-hidden="true" style={{ top: '-6px', left: '3%' }} />
-            <span className="dc dc-rr dc-f3" aria-hidden="true" style={{ top: '0', right: '8%' }} />
             <FAQIllustration />
             <div className="doc-faq-list">
               <FAQItem

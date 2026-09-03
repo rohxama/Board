@@ -271,12 +271,6 @@ export function TipsIllustration() {
         {/* Base */}
         <rect x="30" y="56" width="20" height="8" rx="2" fill={A.yellow} opacity="0.3" />
         <rect x="32" y="64" width="16" height="4" rx="2" fill={A.yellow} opacity="0.2" />
-        {/* Rays */}
-        <line x1="40" y1="0" x2="40" y2="-6" stroke={A.yellow} strokeWidth="2" strokeLinecap="round" />
-        <line x1="68" y1="32" x2="74" y2="32" stroke={A.yellow} strokeWidth="2" strokeLinecap="round" />
-        <line x1="12" y1="32" x2="6" y2="32" stroke={A.yellow} strokeWidth="2" strokeLinecap="round" />
-        <line x1="60" y1="12" x2="64" y2="8" stroke={A.yellow} strokeWidth="2" strokeLinecap="round" />
-        <line x1="20" y1="12" x2="16" y2="8" stroke={A.yellow} strokeWidth="2" strokeLinecap="round" />
       </g>
 
       {/* Tip cards */}
@@ -308,17 +302,10 @@ export function FAQIllustration() {
       {/* Background */}
       <rect x="20" y="10" width="360" height="120" rx="12" fill={A.surface} stroke={A.border} strokeWidth="1.5" />
 
-      {/* Question mark — composed of dots */}
+      {/* Question mark — clean geometric */}
       <g transform="translate(60, 24)">
-        <circle cx="30" cy="16" r="8" fill={A.accent} opacity="0.8" />
-        <circle cx="48" cy="12" r="6" fill={A.blue} opacity="0.6" />
-        <circle cx="56" cy="28" r="7" fill={A.orange} opacity="0.6" />
-        <circle cx="44" cy="36" r="5" fill={A.purple} opacity="0.5" />
-        <circle cx="36" cy="48" r="4" fill={A.green} opacity="0.7" />
-        <circle cx="44" cy="60" r="6" fill={A.yellow} opacity="0.6" />
-        <circle cx="44" cy="78" r="5" fill={A.accent} opacity="0.5" />
-        {/* Connecting lines */}
-        <path d="M30 16 Q48 12 56 28 Q44 36 36 48 Q44 60 44 78" stroke={A.muted} strokeWidth="1" strokeDasharray="3 3" fill="none" opacity="0.3" />
+        <path d="M30 10 C30 4, 36 0, 42 0 C48 0, 54 4, 54 10 C54 16, 48 20, 42 24 C42 28, 42 32, 42 36" stroke={A.accent} strokeWidth="3" strokeLinecap="round" fill="none" />
+        <circle cx="42" cy="50" r="4" fill={A.accent} />
       </g>
 
       {/* Accordion mockup */}
