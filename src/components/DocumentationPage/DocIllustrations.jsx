@@ -1,6 +1,6 @@
 /* Lightweight SVG illustrations for the Kanvas documentation.
-   Each illustration is a self-contained SVG that inherits colors
-   from the design system where practical. */
+   Each illustration depicts a realistic canvas composition —
+   the kind of thing a real user would build in Kanvas. */
 
 const A = {
   green: '#2f855a',
@@ -25,38 +25,51 @@ const A = {
 export function GettingStartedIllustration() {
   return (
     <svg viewBox="0 0 400 180" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-illustration" aria-hidden="true">
-      {/* Canvas background */}
-      <rect x="20" y="10" width="360" height="160" rx="12" fill={A.surface} stroke={A.border} strokeWidth="1.5" />
+      <rect x="20" y="10" width="360" height="160" rx="10" fill={A.surface} stroke={A.border} strokeWidth="1.5" />
 
       {/* Dot grid */}
-      {Array.from({ length: 8 }, (_, row) =>
+      {Array.from({ length: 7 }, (_, row) =>
         Array.from({ length: 16 }, (_, col) => (
-          <circle key={`${row}-${col}`} cx={44 + col * 22} cy={34 + row * 18} r="1" fill={A.muted} opacity="0.3" />
+          <circle key={`${row}-${col}`} cx={40 + col * 22} cy={30 + row * 20} r="0.8" fill={A.muted} opacity="0.25" />
         ))
       )}
 
-      {/* Rectangle shape */}
-      <rect x="60" y="40" width="72" height="52" rx="4" fill={A.accentSoft} stroke={A.green} strokeWidth="2" />
+      {/* "My First Board" title — handwritten feel */}
+      <text x="52" y="34" fontSize="13" fontWeight="700" fontFamily="system-ui" fill={A.text}>My First Board</text>
 
-      {/* Circle shape */}
-      <circle cx="220" cy="68" r="32" fill="rgba(69, 133, 209, 0.1)" stroke={A.blue} strokeWidth="2" />
+      {/* Step 1: Start box */}
+      <rect x="40" y="48" width="80" height="36" rx="6" fill="rgba(47,133,90,0.1)" stroke={A.green} strokeWidth="1.5" />
+      <text x="80" y="70" textAnchor="middle" fontSize="9" fontWeight="600" fontFamily="system-ui" fill={A.green}>Start here</text>
 
-      {/* Arrow */}
-      <path d="M160 100 L280 56" stroke={A.orange} strokeWidth="2.5" strokeLinecap="round" />
-      <path d="M272 50 L282 56 L270 62" stroke={A.orange} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Arrow 1 */}
+      <path d="M128 66 L170 66" stroke={A.orange} strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M164 62 L172 66 L164 70" fill="none" stroke={A.orange} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
 
-      {/* Selection handles on rectangle */}
-      <rect x="56" y="36" width="8" height="8" rx="1.5" fill={A.green} />
-      <rect x="128" y="36" width="8" height="8" rx="1.5" fill={A.green} />
-      <rect x="56" y="88" width="8" height="8" rx="1.5" fill={A.green} />
-      <rect x="128" y="88" width="8" height="8" rx="1.5" fill={A.green} />
+      {/* Step 2: Rectangle */}
+      <rect x="180" y="44" width="88" height="44" rx="5" fill="rgba(69,133,209,0.1)" stroke={A.blue} strokeWidth="1.5" />
+      <text x="224" y="64" textAnchor="middle" fontSize="9" fontWeight="600" fontFamily="system-ui" fill={A.blue}>Add shapes</text>
+      <text x="224" y="76" textAnchor="middle" fontSize="8" fontFamily="system-ui" fill={A.muted}>Drag to create</text>
 
-      {/* Cursor */}
-      <path d="M300 120 L308 140 L314 132 L324 136 L300 120Z" fill={A.text} stroke={A.surface} strokeWidth="1.5" />
+      {/* Arrow 2 */}
+      <path d="M276 66 L310 66" stroke={A.orange} strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M304 62 L312 66 L304 70" fill="none" stroke={A.orange} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
 
-      {/* Small text lines */}
-      <rect x="170" y="120" width="80" height="6" rx="3" fill={A.muted} opacity="0.2" />
-      <rect x="170" y="134" width="56" height="6" rx="3" fill={A.muted} opacity="0.15" />
+      {/* Step 3: Circle with text */}
+      <circle cx="346" cy="66" r="26" fill="rgba(212,148,58,0.08)" stroke={A.orange} strokeWidth="1.5" />
+      <text x="346" y="63" textAnchor="middle" fontSize="9" fontWeight="600" fontFamily="system-ui" fill={A.orange}>Double</text>
+      <text x="346" y="74" textAnchor="middle" fontSize="9" fontWeight="600" fontFamily="system-ui" fill={A.orange}>click</text>
+
+      {/* Sticky note at bottom */}
+      <rect x="40" y="100" width="100" height="56" rx="4" fill="#fefce8" stroke="#eab308" strokeWidth="1.2" />
+      <text x="52" y="118" fontSize="8" fontWeight="600" fontFamily="system-ui" fill="#854d0e">Quick tip:</text>
+      <text x="52" y="130" fontSize="8" fontFamily="system-ui" fill="#854d0e">Press V for select</text>
+      <text x="52" y="142" fontSize="8" fontFamily="system-ui" fill="#854d0e">R for rectangle</text>
+
+      {/* Selection handles on the rectangle */}
+      <rect x="176" y="40" width="6" height="6" rx="1" fill={A.blue} />
+      <rect x="264" y="40" width="6" height="6" rx="1" fill={A.blue} />
+      <rect x="176" y="86" width="6" height="6" rx="1" fill={A.blue} />
+      <rect x="264" y="86" width="6" height="6" rx="1" fill={A.blue} />
     </svg>
   )
 }
@@ -65,55 +78,49 @@ export function GettingStartedIllustration() {
 export function ToolsIllustration() {
   return (
     <svg viewBox="0 0 400 160" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-illustration" aria-hidden="true">
-      {/* Tool grid background */}
-      <rect x="20" y="10" width="360" height="140" rx="12" fill={A.surface} stroke={A.border} strokeWidth="1.5" />
+      <rect x="20" y="10" width="360" height="140" rx="10" fill={A.surface} stroke={A.border} strokeWidth="1.5" />
 
-      {/* Tool 1: Cursor/Select */}
-      <g transform="translate(50, 30)">
-        <rect width="68" height="56" rx="8" fill={A.accentSoft} />
-        <path d="M24 18 L32 38 L36 30 L46 34 L24 18Z" fill={A.green} />
-      </g>
+      {/* Canvas area */}
+      <rect x="72" y="20" width="300" height="120" rx="6" fill="rgba(69,133,209,0.03)" stroke={A.border} strokeWidth="0.8" strokeDasharray="4 3" />
 
-      {/* Tool 2: Pen/Pencil */}
-      <g transform="translate(134, 30)">
-        <rect width="68" height="56" rx="8" fill="rgba(69, 133, 209, 0.1)" />
-        <path d="M20 42 L26 22 L42 14 L48 34 L32 42 Z" stroke={A.blue} strokeWidth="2" fill="none" />
-        <path d="M24 20 L28 38" stroke={A.blue} strokeWidth="1.5" strokeLinecap="round" />
-      </g>
+      {/* Toolbar on left */}
+      <rect x="30" y="24" width="32" height="112" rx="6" fill={A.surface} stroke={A.border} strokeWidth="1.2" />
+      {/* Select tool (active) */}
+      <rect x="34" y="28" width="24" height="22" rx="4" fill={A.accentSoft} stroke={A.accent} strokeWidth="1.2" />
+      <path d="M42 34 L46 42 L48 39 L52 41 L42 34Z" fill={A.accent} />
+      {/* Pen tool */}
+      <path d="M42 58 L44 52 L50 50 L52 56 L46 58Z" stroke={A.blue} strokeWidth="1.2" fill="none" />
+      {/* Rectangle tool */}
+      <rect x="38" y="66" width="14" height="10" rx="2" stroke={A.green} strokeWidth="1.2" fill="none" />
+      {/* Circle tool */}
+      <circle cx="46" cy="88" r="6" stroke={A.orange} strokeWidth="1.2" fill="none" />
+      {/* Text tool */}
+      <text x="46" y="108" textAnchor="middle" fontSize="11" fontWeight="700" fontFamily="system-ui" fill={A.purple}>T</text>
 
-      {/* Tool 3: Shape */}
-      <g transform="translate(218, 30)">
-        <rect width="68" height="56" rx="8" fill="rgba(212, 148, 58, 0.1)" />
-        <rect x="16" y="14" width="36" height="28" rx="4" stroke={A.orange} strokeWidth="2" fill="none" />
-      </g>
+      {/* Shapes on canvas — a process flow */}
+      <rect x="96" y="40" width="72" height="32" rx="4" fill="rgba(47,133,90,0.1)" stroke={A.green} strokeWidth="1.5" />
+      <text x="132" y="60" textAnchor="middle" fontSize="8" fontWeight="600" fontFamily="system-ui" fill={A.green}>Research</text>
 
-      {/* Tool 4: Eraser */}
-      <g transform="translate(302, 30)">
-        <rect width="68" height="56" rx="8" fill="rgba(220, 69, 69, 0.08)" />
-        <rect x="18" y="18" width="32" height="20" rx="4" stroke={A.red} strokeWidth="2" fill="none" />
-        <path d="M18 32 L50 32" stroke={A.red} strokeWidth="1.5" strokeDasharray="3 2" />
-      </g>
+      <path d="M176 56 L200 56" stroke={A.muted} strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M196 53 L202 56 L196 59" fill="none" stroke={A.muted} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
 
-      {/* Keyboard shortcuts */}
-      <g transform="translate(50, 100)">
-        <rect width="28" height="22" rx="4" fill={A.surface} stroke={A.border} strokeWidth="1" />
-        <text x="14" y="15" textAnchor="middle" fontSize="10" fontWeight="700" fill={A.muted}>V</text>
-      </g>
-      <g transform="translate(134, 100)">
-        <rect width="28" height="22" rx="4" fill={A.surface} stroke={A.border} strokeWidth="1" />
-        <text x="14" y="15" textAnchor="middle" fontSize="10" fontWeight="700" fill={A.muted}>P</text>
-      </g>
-      <g transform="translate(218, 100)">
-        <rect width="28" height="22" rx="4" fill={A.surface} stroke={A.border} strokeWidth="1" />
-        <text x="14" y="15" textAnchor="middle" fontSize="10" fontWeight="700" fill={A.muted}>R</text>
-      </g>
-      <g transform="translate(302, 100)">
-        <rect width="28" height="22" rx="4" fill={A.surface} stroke={A.border} strokeWidth="1" />
-        <text x="14" y="15" textAnchor="middle" fontSize="10" fontWeight="700" fill={A.muted}>E</text>
-      </g>
+      <rect x="208" y="40" width="72" height="32" rx="4" fill="rgba(69,133,209,0.1)" stroke={A.blue} strokeWidth="1.5" />
+      <text x="244" y="60" textAnchor="middle" fontSize="8" fontWeight="600" fontFamily="system-ui" fill={A.blue}>Design</text>
 
-      {/* Dotted connection line */}
-      <path d="M84 92 L168 92 L252 92 L336 92" stroke={A.muted} strokeWidth="1" strokeDasharray="4 3" opacity="0.4" />
+      <path d="M288 56 L312 56" stroke={A.muted} strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M308 53 L314 56 L308 59" fill="none" stroke={A.muted} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+
+      <rect x="320" y="40" width="48" height="32" rx="4" fill="rgba(212,148,58,0.1)" stroke={A.orange} strokeWidth="1.5" />
+      <text x="344" y="60" textAnchor="middle" fontSize="8" fontWeight="600" fontFamily="system-ui" fill={A.orange}>Build</text>
+
+      {/* Sticky note */}
+      <rect x="100" y="88" width="80" height="40" rx="3" fill="#fefce8" stroke="#eab308" strokeWidth="1" />
+      <text x="110" y="104" fontSize="7" fontFamily="system-ui" fill="#854d0e">Next steps:</text>
+      <text x="110" y="116" fontSize="7" fontFamily="system-ui" fill="#854d0e">- User testing</text>
+
+      {/* Arrow annotation */}
+      <path d="M220 88 L260 76" stroke={A.red} strokeWidth="1.2" strokeLinecap="round" />
+      <text x="228" y="96" fontSize="7" fontFamily="system-ui" fill={A.red}>needs work</text>
     </svg>
   )
 }
@@ -122,40 +129,42 @@ export function ToolsIllustration() {
 export function StylingIllustration() {
   return (
     <svg viewBox="0 0 400 160" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-illustration" aria-hidden="true">
-      {/* Background */}
-      <rect x="20" y="10" width="360" height="140" rx="12" fill={A.surface} stroke={A.border} strokeWidth="1.5" />
+      <rect x="20" y="10" width="360" height="140" rx="10" fill={A.surface} stroke={A.border} strokeWidth="1.5" />
 
-      {/* Color swatches row */}
-      <circle cx="60" cy="44" r="14" fill={A.green} />
-      <circle cx="100" cy="44" r="14" fill={A.blue} />
-      <circle cx="140" cy="44" r="14" fill={A.orange} />
-      <circle cx="180" cy="44" r="14" fill={A.red} />
-      <circle cx="220" cy="44" r="14" fill={A.yellow} />
-      <circle cx="260" cy="44" r="14" fill={A.purple} />
+      {/* Board title */}
+      <text x="40" y="32" fontSize="11" fontWeight="700" fontFamily="system-ui" fill={A.text}>Style options</text>
 
-      {/* Selected swatch indicator */}
-      <circle cx="60" cy="44" r="17" stroke={A.green} strokeWidth="2.5" fill="none" />
+      {/* Rectangle — solid fill */}
+      <rect x="40" y="44" width="64" height="40" rx="4" fill="rgba(47,133,90,0.15)" stroke={A.green} strokeWidth="2" />
+      <text x="72" y="68" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill={A.green}>Solid</text>
 
-      {/* Style panel mockup */}
-      <rect x="300" y="20" width="72" height="120" rx="8" fill={A.surface} stroke={A.border} strokeWidth="1.5" />
-      <rect x="310" y="30" width="52" height="8" rx="4" fill={A.muted} opacity="0.2" />
-      <rect x="310" y="46" width="52" height="24" rx="4" fill={A.accentSoft} />
-      <rect x="310" y="78" width="52" height="8" rx="4" fill={A.muted} opacity="0.2" />
-      <rect x="310" y="94" width="52" height="24" rx="4" fill={A.surface} stroke={A.border} strokeWidth="1" />
+      {/* Rectangle — dashed stroke */}
+      <rect x="120" y="44" width="64" height="40" rx="4" fill="rgba(69,133,209,0.1)" stroke={A.blue} strokeWidth="2" strokeDasharray="6 3" />
+      <text x="152" y="68" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill={A.blue}>Dashed</text>
 
-      {/* Shape with style applied */}
-      <rect x="50" y="80" width="100" height="60" rx="6" fill="rgba(69, 133, 209, 0.15)" stroke={A.blue} strokeWidth="3" strokeDasharray="8 4" />
+      {/* Rectangle — thick border */}
+      <rect x="200" y="44" width="64" height="40" rx="4" fill="rgba(212,148,58,0.08)" stroke={A.orange} strokeWidth="3" />
+      <text x="232" y="68" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill={A.orange}>Thick</text>
 
-      {/* Opacity slider mockup */}
-      <rect x="180" y="90" width="100" height="6" rx="3" fill={A.muted} opacity="0.15" />
-      <rect x="180" y="90" width="60" height="6" rx="3" fill={A.accent} />
-      <circle cx="240" cy="93" r="6" fill={A.surface} stroke={A.accent} strokeWidth="2" />
+      {/* Circle — rounded style */}
+      <circle cx="312" cy="64" r="22" fill="rgba(139,92,246,0.1)" stroke={A.purple} strokeWidth="2" />
+      <text x="312" y="67" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill={A.purple}>Circle</text>
 
-      <rect x="180" y="108" width="60" height="6" rx="3" fill={A.muted} opacity="0.15" />
-      <rect x="180" y="108" width="36" height="6" rx="3" fill={A.orange} />
+      {/* Arrow with color */}
+      <path d="M52 108 L140 108" stroke={A.red} strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M134 104 L142 108 L134 112" fill="none" stroke={A.red} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <text x="96" y="126" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill={A.red}>Colored arrow</text>
 
-      <rect x="180" y="126" width="80" height="6" rx="3" fill={A.muted} opacity="0.15" />
-      <rect x="180" y="126" width="48" height="6" rx="3" fill={A.purple} />
+      {/* Sticky note with annotation */}
+      <rect x="176" y="96" width="96" height="44" rx="3" fill="#fef3c7" stroke="#f59e0b" strokeWidth="1.2" />
+      <text x="186" y="112" fontSize="7" fontWeight="600" fontFamily="system-ui" fill="#92400e">Notes:</text>
+      <text x="186" y="124" fontSize="7" fontFamily="system-ui" fill="#92400e">Use color to group</text>
+      <text x="186" y="134" fontSize="7" fontFamily="system-ui" fill="#92400e">related items</text>
+
+      {/* Label */}
+      <rect x="300" y="100" width="72" height="36" rx="4" fill="rgba(69,133,209,0.08)" stroke={A.blue} strokeWidth="1" />
+      <text x="336" y="116" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill={A.blue}>Label</text>
+      <text x="336" y="128" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill={A.muted}>Group A</text>
     </svg>
   )
 }
@@ -164,47 +173,44 @@ export function StylingIllustration() {
 export function ThemesIllustration() {
   return (
     <svg viewBox="0 0 400 160" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-illustration" aria-hidden="true">
-      {/* Split background — light and dark */}
-      <clipPath id="theme-clip">
-        <rect x="20" y="10" width="180" height="140" rx="12" />
+      {/* Split — light side */}
+      <clipPath id="theme-light">
+        <rect x="20" y="10" width="180" height="140" rx="10" />
       </clipPath>
-      <clipPath id="theme-clip-dark">
-        <rect x="200" y="10" width="180" height="140" rx="12" />
+      <clipPath id="theme-dark">
+        <rect x="200" y="10" width="180" height="140" rx="10" />
       </clipPath>
 
       {/* Light side */}
-      <g clipPath="url(#theme-clip)">
+      <g clipPath="url(#theme-light)">
         <rect x="20" y="10" width="180" height="140" fill="#f7f8fc" stroke={A.border} strokeWidth="1.5" />
-        {/* Sun */}
-        <circle cx="110" cy="56" r="18" fill={A.yellow} opacity="0.9" />
-        <g stroke={A.yellow} strokeWidth="2" strokeLinecap="round">
-          <line x1="110" y1="28" x2="110" y2="22" />
-          <line x1="110" y1="90" x2="110" y2="84" />
-          <line x1="82" y1="56" x2="76" y2="56" />
-          <line x1="138" y1="56" x2="144" y2="56" />
-          <line x1="90" y1="36" x2="86" y2="32" />
-          <line x1="130" y1="76" x2="134" y2="80" />
-          <line x1="90" y1="76" x2="86" y2="80" />
-          <line x1="130" y1="36" x2="134" y2="32" />
-        </g>
-        {/* Light canvas elements */}
-        <rect x="40" y="100" width="40" height="28" rx="3" fill="rgba(47, 133, 90, 0.15)" stroke={A.green} strokeWidth="1.5" />
-        <circle cx="150" cy="114" r="14" fill="rgba(69, 133, 209, 0.12)" stroke={A.blue} strokeWidth="1.5" />
-        <text x="110" y="145" textAnchor="middle" fontSize="10" fontWeight="600" fill={A.muted}>Light</text>
+        {/* Canvas content — light */}
+        <rect x="36" y="28" width="60" height="32" rx="4" fill="rgba(47,133,90,0.1)" stroke={A.green} strokeWidth="1.5" />
+        <text x="66" y="48" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill={A.green}>Task</text>
+        <circle cx="150" cy="44" r="16" fill="rgba(69,133,209,0.1)" stroke={A.blue} strokeWidth="1.5" />
+        <text x="150" y="47" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill={A.blue}>Idea</text>
+        <path d="M100 56 L130 44" stroke={A.muted} strokeWidth="1" strokeLinecap="round" />
+        <path d="M126 41 L132 44 L126 47" fill="none" stroke={A.muted} strokeWidth="1" strokeLinecap="round" />
+        <rect x="36" y="76" width="140" height="28" rx="3" fill="#fefce8" stroke="#eab308" strokeWidth="1" />
+        <text x="46" y="94" fontSize="7" fontFamily="system-ui" fill="#854d0e">Group meeting notes</text>
+        <text x="110" y="142" textAnchor="middle" fontSize="9" fontWeight="600" fontFamily="system-ui" fill={A.muted}>Light</text>
       </g>
 
       {/* Dark side */}
-      <g clipPath="url(#theme-clip-dark)">
+      <g clipPath="url(#theme-dark)">
         <rect x="200" y="10" width="180" height="140" fill="#181b22" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" />
-        {/* Moon */}
-        <path d="M290 42 A20 20 0 1 1 278 72 A16 16 0 0 0 290 42Z" fill="#e2e8f0" />
-        {/* Dark canvas elements */}
-        <rect x="220" y="100" width="40" height="28" rx="3" fill="rgba(82, 189, 107, 0.15)" stroke={A.greenLight} strokeWidth="1.5" />
-        <circle cx="330" cy="114" r="14" fill="rgba(107, 163, 232, 0.12)" stroke={A.blueLight} strokeWidth="1.5" />
-        <text x="290" y="145" textAnchor="middle" fontSize="10" fontWeight="600" fill="rgba(255,255,255,0.5)">Dark</text>
+        {/* Canvas content — dark */}
+        <rect x="216" y="28" width="60" height="32" rx="4" fill="rgba(82,189,107,0.15)" stroke={A.greenLight} strokeWidth="1.5" />
+        <text x="246" y="48" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill={A.greenLight}>Task</text>
+        <circle cx="330" cy="44" r="16" fill="rgba(107,163,232,0.12)" stroke={A.blueLight} strokeWidth="1.5" />
+        <text x="330" y="47" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill={A.blueLight}>Idea</text>
+        <path d="M280 56 L310 44" stroke="rgba(255,255,255,0.3)" strokeWidth="1" strokeLinecap="round" />
+        <path d="M306 41 L312 44 L306 47" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1" strokeLinecap="round" />
+        <rect x="216" y="76" width="140" height="28" rx="3" fill="rgba(234,179,8,0.08)" stroke="rgba(234,179,8,0.4)" strokeWidth="1" />
+        <text x="226" y="94" fontSize="7" fontFamily="system-ui" fill="rgba(234,179,8,0.8)">Group meeting notes</text>
+        <text x="290" y="142" textAnchor="middle" fontSize="9" fontWeight="600" fontFamily="system-ui" fill="rgba(255,255,255,0.5)">Dark</text>
       </g>
 
-      {/* Divider */}
       <line x1="200" y1="18" x2="200" y2="142" stroke={A.border} strokeWidth="1.5" strokeDasharray="4 3" />
     </svg>
   )
@@ -214,43 +220,40 @@ export function ThemesIllustration() {
 export function ExportIllustration() {
   return (
     <svg viewBox="0 0 400 160" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-illustration" aria-hidden="true">
-      {/* Background */}
-      <rect x="20" y="10" width="360" height="140" rx="12" fill={A.surface} stroke={A.border} strokeWidth="1.5" />
+      <rect x="20" y="10" width="360" height="140" rx="10" fill={A.surface} stroke={A.border} strokeWidth="1.5" />
 
-      {/* Canvas representation */}
-      <rect x="40" y="30" width="120" height="80" rx="6" fill={A.accentSoft} stroke={A.green} strokeWidth="1.5" />
-      <rect x="52" y="42" width="40" height="24" rx="3" fill="rgba(69, 133, 209, 0.2)" stroke={A.blue} strokeWidth="1.5" />
-      <circle cx="120" cy="54" r="14" fill="rgba(212, 148, 58, 0.15)" stroke={A.orange} strokeWidth="1.5" />
-      <path d="M60 82 L100 70" stroke={A.purple} strokeWidth="2" strokeLinecap="round" />
+      {/* Canvas with content being exported */}
+      <rect x="36" y="24" width="140" height="108" rx="6" fill="rgba(69,133,209,0.03)" stroke={A.border} strokeWidth="0.8" />
+      {/* Flowchart on canvas */}
+      <rect x="48" y="36" width="56" height="28" rx="4" fill="rgba(47,133,90,0.1)" stroke={A.green} strokeWidth="1.2" />
+      <text x="76" y="54" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill={A.green}>Start</text>
+      <path d="M108 50 L128 50" stroke={A.muted} strokeWidth="1" strokeLinecap="round" />
+      <path d="M124 47 L130 50 L124 53" fill="none" stroke={A.muted} strokeWidth="1" strokeLinecap="round" />
+      <rect x="136" y="36" width="32" height="28" rx="4" fill="rgba(69,133,209,0.1)" stroke={A.blue} strokeWidth="1.2" />
+      <text x="152" y="54" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill={A.blue}>Do</text>
+      <path d="M152 68 L152 82" stroke={A.muted} strokeWidth="1" strokeLinecap="round" />
+      <path d="M149 78 L152 84 L155 78" fill="none" stroke={A.muted} strokeWidth="1" strokeLinecap="round" />
+      <rect x="124" y="88" width="56" height="28" rx="4" fill="rgba(212,148,58,0.1)" stroke={A.orange} strokeWidth="1.2" />
+      <text x="152" y="106" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill={A.orange}>Check</text>
 
-      {/* Export arrow */}
-      <path d="M180 70 L220 70" stroke={A.accent} strokeWidth="2.5" strokeLinecap="round" />
-      <path d="M214 64 L224 70 L214 76" stroke={A.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Arrow to export panel */}
+      <path d="M184 70 L210 70" stroke={A.accent} strokeWidth="2" strokeLinecap="round" />
+      <path d="M206 66 L214 70 L206 74" fill="none" stroke={A.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
 
-      {/* Format cards */}
-      <g transform="translate(240, 24)">
-        <rect width="56" height="36" rx="6" fill={A.surface} stroke={A.border} strokeWidth="1" />
-        <text x="28" y="16" textAnchor="middle" fontSize="9" fontWeight="700" fill={A.muted}>PNG</text>
-        <rect x="12" y="22" width="32" height="4" rx="2" fill={A.green} opacity="0.4" />
-      </g>
-      <g transform="translate(310, 24)">
-        <rect width="56" height="36" rx="6" fill={A.surface} stroke={A.border} strokeWidth="1" />
-        <text x="28" y="16" textAnchor="middle" fontSize="9" fontWeight="700" fill={A.muted}>PDF</text>
-        <rect x="12" y="22" width="32" height="4" rx="2" fill={A.red} opacity="0.4" />
-      </g>
-      <g transform="translate(240, 72)">
-        <rect width="56" height="36" rx="6" fill={A.surface} stroke={A.border} strokeWidth="1" />
-        <text x="28" y="16" textAnchor="middle" fontSize="9" fontWeight="700" fill={A.muted}>SVG</text>
-        <rect x="12" y="22" width="32" height="4" rx="2" fill={A.blue} opacity="0.4" />
-      </g>
-      <g transform="translate(310, 72)">
-        <rect width="56" height="36" rx="6" fill={A.surface} stroke={A.border} strokeWidth="1" />
-        <text x="28" y="16" textAnchor="middle" fontSize="9" fontWeight="700" fill={A.muted}>JSON</text>
-        <rect x="12" y="22" width="32" height="4" rx="2" fill={A.purple} opacity="0.4" />
-      </g>
+      {/* Export dialog */}
+      <rect x="220" y="24" width="148" height="108" rx="8" fill={A.surface} stroke={A.border} strokeWidth="1.5" />
+      <rect x="220" y="24" width="148" height="24" rx="8" fill={A.accentSoft} />
+      <text x="294" y="40" textAnchor="middle" fontSize="9" fontWeight="700" fontFamily="system-ui" fill={A.accent}>Export board</text>
 
-      {/* Download indicator */}
-      <path d="M338 120 L338 130 M333 126 L338 131 L343 126" stroke={A.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Format options */}
+      <rect x="232" y="58" width="60" height="28" rx="5" fill={A.accentSoft} stroke={A.accent} strokeWidth="1.5" />
+      <text x="262" y="76" textAnchor="middle" fontSize="9" fontWeight="700" fontFamily="system-ui" fill={A.accent}>PNG</text>
+      <rect x="300" y="58" width="60" height="28" rx="5" fill={A.surface} stroke={A.border} strokeWidth="1" />
+      <text x="330" y="76" textAnchor="middle" fontSize="9" fontWeight="600" fontFamily="system-ui" fill={A.muted}>PDF</text>
+      <rect x="232" y="94" width="60" height="28" rx="5" fill={A.surface} stroke={A.border} strokeWidth="1" />
+      <text x="262" y="112" textAnchor="middle" fontSize="9" fontWeight="600" fontFamily="system-ui" fill={A.muted}>SVG</text>
+      <rect x="300" y="94" width="60" height="28" rx="5" fill={A.surface} stroke={A.border} strokeWidth="1" />
+      <text x="330" y="112" textAnchor="middle" fontSize="9" fontWeight="600" fontFamily="system-ui" fill={A.muted}>JSON</text>
     </svg>
   )
 }
@@ -259,38 +262,41 @@ export function ExportIllustration() {
 export function TipsIllustration() {
   return (
     <svg viewBox="0 0 400 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-illustration" aria-hidden="true">
-      {/* Background */}
-      <rect x="20" y="10" width="360" height="120" rx="12" fill={A.surface} stroke={A.border} strokeWidth="1.5" />
+      <rect x="20" y="10" width="360" height="120" rx="10" fill={A.surface} stroke={A.border} strokeWidth="1.5" />
 
-      {/* Lightbulb shape — geometric composition */}
-      <g transform="translate(80, 24)">
-        {/* Bulb */}
-        <circle cx="40" cy="32" r="24" fill="rgba(234, 179, 8, 0.12)" stroke={A.yellow} strokeWidth="2" />
-        {/* Filament */}
-        <path d="M32 32 Q40 20 48 32 Q40 44 32 32Z" fill="none" stroke={A.yellow} strokeWidth="1.5" />
-        {/* Base */}
-        <rect x="30" y="56" width="20" height="8" rx="2" fill={A.yellow} opacity="0.3" />
-        <rect x="32" y="64" width="16" height="4" rx="2" fill={A.yellow} opacity="0.2" />
-      </g>
+      {/* Board title */}
+      <text x="40" y="30" fontSize="10" fontWeight="700" fontFamily="system-ui" fill={A.text}>Pro tips</text>
 
-      {/* Tip cards */}
-      <g transform="translate(180, 20)">
-        <rect width="180" height="32" rx="6" fill={A.accentSoft} />
-        <circle cx="20" cy="16" r="6" fill={A.green} opacity="0.6" />
-        <rect x="34" y="12" width="80" height="5" rx="2.5" fill={A.muted} opacity="0.2" />
-        <rect x="34" y="21" width="50" height="4" rx="2" fill={A.muted} opacity="0.12" />
-      </g>
-      <g transform="translate(180, 60)">
-        <rect width="180" height="32" rx="6" fill="rgba(69, 133, 209, 0.08)" />
-        <circle cx="20" cy="16" r="6" fill={A.blue} opacity="0.6" />
-        <rect x="34" y="12" width="70" height="5" rx="2.5" fill={A.muted} opacity="0.2" />
-        <rect x="34" y="21" width="60" height="4" rx="2" fill={A.muted} opacity="0.12" />
-      </g>
-      <g transform="translate(180, 100)">
-        <rect width="180" height="24" rx="6" fill="rgba(212, 148, 58, 0.08)" />
-        <circle cx="20" cy="12" r="5" fill={A.orange} opacity="0.6" />
-        <rect x="34" y="9" width="90" height="4" rx="2" fill={A.muted} opacity="0.2" />
-      </g>
+      {/* Tip 1 — sticky note */}
+      <rect x="36" y="38" width="100" height="52" rx="3" fill="#fefce8" stroke="#eab308" strokeWidth="1.2" />
+      <text x="46" y="54" fontSize="7" fontWeight="700" fontFamily="system-ui" fill="#854d0e">Tip 1</text>
+      <text x="46" y="66" fontSize="7" fontFamily="system-ui" fill="#854d0e">Hold space to pan</text>
+      <text x="46" y="78" fontSize="7" fontFamily="system-ui" fill="#854d0e">around the canvas</text>
+
+      {/* Tip 2 — sticky note */}
+      <rect x="148" y="38" width="100" height="52" rx="3" fill="#ede9fe" stroke="#8b5cf6" strokeWidth="1.2" />
+      <text x="158" y="54" fontSize="7" fontWeight="700" fontFamily="system-ui" fill="#7c3aed">Tip 2</text>
+      <text x="158" y="66" fontSize="7" fontFamily="system-ui" fill="#7c3aed">Ctrl+Z to undo</text>
+      <text x="158" y="78" fontSize="7" fontFamily="system-ui" fill="#7c3aed">any mistake</text>
+
+      {/* Tip 3 — sticky note */}
+      <rect x="260" y="38" width="100" height="52" rx="3" fill="#dcfce7" stroke="#22c55e" strokeWidth="1.2" />
+      <text x="270" y="54" fontSize="7" fontWeight="700" fontFamily="system-ui" fill="#166534">Tip 3</text>
+      <text x="270" y="66" fontSize="7" fontFamily="system-ui" fill="#166534">Double-click to add</text>
+      <text x="270" y="78" fontSize="7" fontFamily="system-ui" fill="#166534">text anywhere</text>
+
+      {/* Arrow connecting tips */}
+      <path d="M140 64 L148 64" stroke={A.muted} strokeWidth="0.8" strokeLinecap="round" strokeDasharray="3 2" />
+      <path d="M250 64 L260 64" stroke={A.muted} strokeWidth="0.8" strokeLinecap="round" strokeDasharray="3 2" />
+
+      {/* Bottom: keyboard shortcut reference */}
+      <rect x="36" y="100" width="328" height="20" rx="4" fill={A.accentSoft} />
+      <text x="50" y="114" fontSize="7" fontWeight="600" fontFamily="system-ui" fill={A.accent}>Shortcuts:</text>
+      <text x="108" y="114" fontSize="7" fontFamily="monospace" fill={A.muted}>V Select</text>
+      <text x="158" y="114" fontSize="7" fontFamily="monospace" fill={A.muted}>R Rectangle</text>
+      <text x="222" y="114" fontSize="7" fontFamily="monospace" fill={A.muted}>O Circle</text>
+      <text x="276" y="114" fontSize="7" fontFamily="monospace" fill={A.muted}>T Text</text>
+      <text x="318" y="114" fontSize="7" fontFamily="monospace" fill={A.muted}>P Pen</text>
     </svg>
   )
 }
@@ -299,33 +305,30 @@ export function TipsIllustration() {
 export function FAQIllustration() {
   return (
     <svg viewBox="0 0 400 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-illustration" aria-hidden="true">
-      {/* Background */}
-      <rect x="20" y="10" width="360" height="120" rx="12" fill={A.surface} stroke={A.border} strokeWidth="1.5" />
+      <rect x="20" y="10" width="360" height="120" rx="10" fill={A.surface} stroke={A.border} strokeWidth="1.5" />
 
-      {/* Question mark — clean geometric */}
-      <g transform="translate(60, 24)">
-        <path d="M30 10 C30 4, 36 0, 42 0 C48 0, 54 4, 54 10 C54 16, 48 20, 42 24 C42 28, 42 32, 42 36" stroke={A.accent} strokeWidth="3" strokeLinecap="round" fill="none" />
-        <circle cx="42" cy="50" r="4" fill={A.accent} />
-      </g>
+      {/* FAQ board layout */}
+      <text x="40" y="30" fontSize="11" fontWeight="700" fontFamily="system-ui" fill={A.text}>Frequently asked</text>
 
-      {/* Accordion mockup */}
-      <g transform="translate(160, 20)">
-        {/* Item 1 — open */}
-        <rect width="210" height="36" rx="8" fill={A.accentSoft} stroke={A.accent} strokeWidth="1.5" />
-        <rect x="14" y="12" width="120" height="5" rx="2.5" fill={A.muted} opacity="0.25" />
-        <text x="190" y="22" textAnchor="middle" fontSize="14" fill={A.accent}>−</text>
-        <rect x="14" y="24" width="160" height="4" rx="2" fill={A.muted} opacity="0.12" />
+      {/* Q1 card — open */}
+      <rect x="36" y="38" width="160" height="44" rx="6" fill={A.accentSoft} stroke={A.accent} strokeWidth="1.5" />
+      <text x="48" y="56" fontSize="8" fontWeight="700" fontFamily="system-ui" fill={A.accent}>Q: Is Kanvas free?</text>
+      <text x="48" y="70" fontSize="7" fontFamily="system-ui" fill={A.muted}>A: Yes, fully free to use.</text>
 
-        {/* Item 2 — closed */}
-        <rect y="44" width="210" height="32" rx="8" fill={A.surface} stroke={A.border} strokeWidth="1" />
-        <rect x="14" y="56" width="100" height="5" rx="2.5" fill={A.muted} opacity="0.2" />
-        <text x="190" y="64" textAnchor="middle" fontSize="14" fill={A.muted}>+</text>
+      {/* Q2 card — closed */}
+      <rect x="36" y="90" width="160" height="28" rx="6" fill={A.surface} stroke={A.border} strokeWidth="1" />
+      <text x="48" y="108" fontSize="8" fontWeight="600" fontFamily="system-ui" fill={A.muted}>Q: Can I export my boards?</text>
 
-        {/* Item 3 — closed */}
-        <rect y="82" width="210" height="32" rx="8" fill={A.surface} stroke={A.border} strokeWidth="1" />
-        <rect x="14" y="94" width="130" height="5" rx="2.5" fill={A.muted} opacity="0.2" />
-        <text x="190" y="102" textAnchor="middle" fontSize="14" fill={A.muted}>+</text>
-      </g>
+      {/* Q3 card — closed */}
+      <rect x="208" y="38" width="160" height="28" rx="6" fill={A.surface} stroke={A.border} strokeWidth="1" />
+      <text x="220" y="56" fontSize="8" fontWeight="600" fontFamily="system-ui" fill={A.muted}>Q: Does it work offline?</text>
+
+      {/* Q4 card — closed */}
+      <rect x="208" y="74" width="160" height="28" rx="6" fill={A.surface} stroke={A.border} strokeWidth="1" />
+      <text x="220" y="92" fontSize="8" fontWeight="600" fontFamily="system-ui" fill={A.muted}>Q: How do I share boards?</text>
+
+      {/* Q5 card — closed */}
+      <rect x="208" y="110" width="160" height="12" rx="6" fill={A.surface} stroke={A.border} strokeWidth="1" />
     </svg>
   )
 }

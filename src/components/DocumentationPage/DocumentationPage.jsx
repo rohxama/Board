@@ -2031,32 +2031,46 @@ export default function DocumentationPage() {
 
       <footer className="doc-footer">
         <div className="doc-footer-canvas" aria-hidden="true">
-          {/* Small Kanvas-inspired composition */}
           <svg viewBox="0 0 320 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-footer-svg">
-            {/* Mini canvas board */}
-            <rect x="8" y="12" width="72" height="52" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" strokeWidth="1.5" />
-            <rect x="16" y="20" width="24" height="16" rx="3" fill="rgba(69,133,209,0.12)" stroke="var(--accent-blue)" strokeWidth="1.2" />
-            <circle cx="56" cy="32" r="10" fill="rgba(212,148,58,0.1)" stroke="var(--accent-coral)" strokeWidth="1.2" />
-            <path d="M18 52 L42 44" stroke="var(--accent-purple)" strokeWidth="1.5" strokeLinecap="round" />
-            <path d="M38 41 L44 44 L39 48" fill="none" stroke="var(--accent-purple)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+            {/* Mini canvas board with realistic content */}
+            <rect x="8" y="8" width="76" height="64" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" strokeWidth="1.5" />
+            <rect x="16" y="16" width="28" height="16" rx="3" fill="rgba(69,133,209,0.12)" stroke="var(--accent-blue)" strokeWidth="1.2" />
+            <text x="30" y="27" textAnchor="middle" fontSize="6" fontWeight="600" fontFamily="system-ui" fill="var(--accent-blue)">Plan</text>
+            <path d="M48 24 L58 24" stroke="var(--muted)" strokeWidth="0.8" strokeLinecap="round" />
+            <path d="M55 22 L59 24 L55 26" fill="none" stroke="var(--muted)" strokeWidth="0.8" strokeLinecap="round" />
+            <circle cx="70" cy="24" r="8" fill="rgba(212,148,58,0.1)" stroke="var(--accent-coral)" strokeWidth="1.2" />
+            <text x="70" y="27" textAnchor="middle" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="var(--accent-coral)">Do</text>
+            <rect x="16" y="44" width="36" height="18" rx="2" fill="rgba(234,179,8,0.08)" stroke="var(--accent-yellow, #eab308)" strokeWidth="0.8" />
+            <text x="22" y="55" fontSize="5" fontFamily="system-ui" fill="var(--accent-yellow, #854d0e)">Notes</text>
+            <rect x="58" y="44" width="20" height="18" rx="3" fill="rgba(139,92,246,0.1)" stroke="var(--accent-purple)" strokeWidth="1" />
+            <text x="68" y="56" textAnchor="middle" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="var(--accent-purple)">Ship</text>
 
-            {/* Arrow from board to text area */}
-            <path d="M88 38 L118 38" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="3 3" />
-            <path d="M114 34 L120 38 L114 42" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            {/* Arrow to second board */}
+            <path d="M92 40 L112 40" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="3 3" />
+            <path d="M108 37 L114 40 L108 43" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
 
-            {/* Sparkle */}
-            <path d="M140 16 L142 22 L148 24 L142 26 L140 32 L138 26 L132 24 L138 22Z" fill="var(--accent)" opacity="0.4" />
-
-            {/* Scribble line */}
-            <path d="M160 56 C172 48, 184 60, 196 52 C208 44, 220 56, 232 48" stroke="var(--accent)" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.3" />
+            {/* Second mini board */}
+            <rect x="120" y="8" width="68" height="64" rx="6" fill="var(--surface-solid)" stroke="var(--border)" strokeWidth="1.5" />
+            <rect x="128" y="16" width="52" height="14" rx="3" fill="rgba(47,133,90,0.1)" stroke="var(--accent)" strokeWidth="1" />
+            <text x="154" y="26" textAnchor="middle" fontSize="6" fontWeight="600" fontFamily="system-ui" fill="var(--accent)">Project board</text>
+            <rect x="128" y="36" width="22" height="12" rx="2" fill="rgba(69,133,209,0.08)" stroke="var(--accent-blue)" strokeWidth="0.8" />
+            <rect x="154" y="36" width="22" height="12" rx="2" fill="rgba(82,189,107,0.08)" stroke="var(--accent)" strokeWidth="0.8" />
+            <rect x="128" y="54" width="48" height="12" rx="2" fill="rgba(234,179,8,0.06)" stroke="var(--accent-yellow, #eab308)" strokeWidth="0.6" />
+            <text x="134" y="63" fontSize="5" fontFamily="system-ui" fill="var(--accent-yellow, #854d0e)">Sprint notes</text>
 
             {/* Small shapes cluster */}
-            <rect x="250" y="18" width="18" height="14" rx="3" fill="rgba(69,133,209,0.1)" stroke="var(--accent-blue)" strokeWidth="1" />
-            <circle cx="282" cy="28" r="8" fill="rgba(82,189,107,0.1)" stroke="var(--accent)" strokeWidth="1" />
-            <path d="M302 20 L310 28 L302 36 L294 28Z" fill="none" stroke="var(--accent-purple)" strokeWidth="1" />
-
-            {/* Dotted path */}
-            <path d="M232 48 L250 30" stroke="var(--muted)" strokeWidth="0.8" strokeDasharray="2 3" opacity="0.3" />
+            <rect x="204" y="16" width="22" height="14" rx="3" fill="rgba(69,133,209,0.1)" stroke="var(--accent-blue)" strokeWidth="1" />
+            <circle cx="244" cy="24" r="8" fill="rgba(82,189,107,0.1)" stroke="var(--accent)" strokeWidth="1" />
+            <rect x="264" y="16" width="18" height="14" rx="3" fill="rgba(139,92,246,0.08)" stroke="var(--accent-purple)" strokeWidth="1" />
+            {/* Connecting arrows */}
+            <path d="M230 24 L234 24" stroke="var(--muted)" strokeWidth="0.8" strokeLinecap="round" />
+            <path d="M254 24 L262 24" stroke="var(--muted)" strokeWidth="0.8" strokeLinecap="round" />
+            {/* Bottom row */}
+            <rect x="204" y="40" width="36" height="24" rx="3" fill="rgba(234,179,8,0.06)" stroke="var(--accent-yellow, #eab308)" strokeWidth="0.8" />
+            <text x="212" y="52" fontSize="5" fontFamily="system-ui" fill="var(--accent-yellow, #854d0e)">Idea</text>
+            <rect x="248" y="40" width="34" height="24" rx="3" fill="rgba(220,69,69,0.06)" stroke="var(--accent-coral)" strokeWidth="0.8" />
+            <text x="256" y="52" fontSize="5" fontFamily="system-ui" fill="var(--accent-coral)">Review</text>
+            <path d="M242 52 L246 52" stroke="var(--muted)" strokeWidth="0.6" strokeLinecap="round" />
           </svg>
         </div>
 
