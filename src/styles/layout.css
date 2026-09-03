@@ -152,6 +152,10 @@
   margin: 0 3px;
   background: #e2e8f0;
 }
+/* Base style-panel: positioned below the header (top: 85px) to avoid overlap.
+   Uses `translate` (not `transform`) for the slide-in animation so it
+   coexists cleanly with any later transform rules. Hidden by default
+   (opacity: 0, offset right) and revealed by the .is-open class. */
 .style-panel {
   position: fixed;
   z-index: 5;
@@ -166,6 +170,7 @@
   translate: 32px 0;
   transition: translate 0.24s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.24s ease-out;
 }
+/* Open state: slide panel in from the right and fade in. */
 .style-panel.is-open {
   opacity: 1;
   translate: 0 0;
@@ -851,6 +856,9 @@ html[data-theme='dark'] .style-panel select, html[data-theme='dark'] .clear-fill
 .left-toolbar .tool-divider { width: 100%; height: 1px; margin: 4px 0; background: var(--border); }
 .left-toolbar .toolbar-collapse-btn { margin-top: auto; }
 
+/* Theme-aware panel styles: background, border, and shadow adapt to the
+   current light/dark theme via CSS custom properties. These rules override
+   the base palette values set above. */
 .style-panel {
   top: 94px;
   right: 26px;
@@ -950,6 +958,9 @@ html[data-theme='dark'] .modal-fresh:hover { background: var(--surface); color: 
   .left-toolbar button { flex: 0 0 36px; width: 36px; justify-content: center; padding: 0; }
   .left-toolbar .tool-label { display: none; }
   .left-toolbar .tool-divider { flex: 0 0 1px; width: 1px; height: 24px; margin: 0 3px; }
+  /* Mobile: anchor panel to bottom of viewport above the bottom toolbar.
+     Uses translate (not transform) for the slide-in animation to avoid
+     conflicting with the centering translateX(50%) applied when open. */
   .style-panel { top: auto; right: 50%; bottom: 78px; width: min(330px, calc(100vw - 28px)); max-height: calc(100vh - 176px); }
   .style-panel.is-open { translate: translateX(50%) 0; }
 }
@@ -1057,7 +1068,11 @@ html[data-theme='dark'] .modal-fresh:hover { background: var(--surface); color: 
 
 /* Properties panel — matches the reference design exactly: white card,
    Style/Arrange tabs with blue underline, uppercase section headers, and
-   label-left / control-right rows. */
+   label-left / control-right rows.
+   NOTE: top is intentionally omitted here; the final desktop rule
+   (line ~3195) sets top: max(85px, ...) to keep the panel below the
+   header. Earlier attempts used top: 50% + translateY(-50%) which
+   caused the panel to vertically center and collide with the header. */
 .style-panel {
   right: 26px;
   width: 250px;
@@ -1221,6 +1236,9 @@ html[data-theme='dark'] .style-panel select { border-color: var(--border); backg
 @media (max-width: 760px) {
   .left-toolbar { top: auto; bottom: max(18px, env(safe-area-inset-bottom)); left: 12px; width: 54px; max-width: none; flex-direction: column; overflow-y: auto; }
   .left-toolbar button { flex: 0 0 42px; }
+  /* Mobile override: re-anchor panel to bottom-right corner with tighter
+     margins. This rule appears after the centering rule and takes precedence
+     in the cascade, ensuring the panel sits near the bottom toolbar. */
   .style-panel { top: auto; right: 12px; bottom: 18px; width: 250px; max-height: calc(100vh - 98px); }
 }
 
@@ -3191,7 +3209,10 @@ html[data-theme='dark'] .side-avatar-delete:hover { background: rgba(0, 0, 0, .7
 }
 
 /* Floating settings overlay: keep the existing inspector controls and theme, but
-   ensure every settings view sits above the workspace and remains viewport-safe. */
+   ensure every settings view sits above the workspace and remains viewport-safe.
+   This is the final desktop cascade for .style-panel — it sets the definitive
+   top position below the header (85px) and constrains max-height so the panel
+   never overlaps the top toolbar (z-index: 90). */
 .style-panel {
   position: fixed;
   z-index: 70;
@@ -3224,6 +3245,9 @@ html[data-theme='dark'] .side-avatar-delete:hover { background: rgba(0, 0, 0, .7
 .top-toolbar { z-index: 90; }
 .top-toolbar .overflow-menu-wrap { z-index: 110; }
 .top-toolbar .account-menu { z-index: 1000; }
+/* Mobile (≤760px): override panel top to auto so it anchors to bottom
+   instead of overlapping the header. The bottom: 18px places it just
+   above the bottom toolbar. */
 @media (max-width: 760px) {
   .style-panel {
     top: auto;
@@ -3239,6 +3263,7 @@ html[data-theme='dark'] .side-avatar-delete:hover { background: rgba(0, 0, 0, .7
     transform: none;
   }
 }
+/* Very small mobile (≤380px): same bottom-anchored positioning. */
 @media (max-width: 380px) {
   .style-panel {
     top: auto;

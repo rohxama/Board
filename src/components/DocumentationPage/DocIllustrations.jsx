@@ -366,62 +366,77 @@ export function TipsIllustration() {
   )
 }
 
-/* ─── FAQ: realistic help-center board ──────────────────────────── */
+/* ─── FAQ: realistic help-center board ────────────────────────────
+   Depicts a Kanvas board organized as a help-center knowledge base.
+   Three color-coded category columns (Getting Started / Features /
+   Troubleshooting) each contain sticky notes with Q&A pairs. A dashed
+   connection arrow links related items across columns. One note shows
+   the selection state (dashed border + corner handles). A bottom row
+   of compact "popular questions" tags rounds out the layout. */
 export function FAQIllustration() {
   return (
     <svg viewBox="0 0 400 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-illustration" aria-hidden="true">
+      {/* Board background with rounded corners */}
       <rect x="20" y="10" width="360" height="120" rx="10" fill={A.surface} stroke={A.border} strokeWidth="1" />
 
       {/* Board title */}
       <text x="40" y="30" fontSize="11" fontWeight="700" fontFamily="system-ui" fill={A.text}>Help Center Board</text>
 
-      {/* Category: Getting Started */}
+      {/* ── Category: Getting Started (green) ── */}
+      {/* Category header pill */}
       <rect x="36" y="38" width="100" height="10" rx="2" fill="rgba(47,133,90,0.1)" />
       <text x="42" y="47" fontSize="5" fontWeight="700" fontFamily="system-ui" fill={A.green} letterSpacing="0.06em">GETTING STARTED</text>
 
+      {/* Sticky note: pricing question */}
       <rect x="36" y="52" width="44" height="28" rx="2" fill="#dcfce7" stroke="#22c55e" strokeWidth="0.8" />
       <text x="42" y="62" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#166534">Is Kanvas free?</text>
       <text x="42" y="72" fontSize="5" fontFamily="system-ui" fill="#166534">Yes, fully free</text>
 
+      {/* Sticky note: signup question (slight rotation for realism) */}
       <rect x="84" y="52" width="44" height="28" rx="2" fill="#dcfce7" stroke="#22c55e" strokeWidth="0.8" transform="rotate(0.5 106 66)" />
       <text x="90" y="62" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#166534">How to sign up?</text>
       <text x="90" y="72" fontSize="5" fontFamily="system-ui" fill="#166534">Email or Google</text>
 
-      {/* Category: Features */}
+      {/* ── Category: Features (blue/purple) ── */}
       <rect x="156" y="38" width="100" height="10" rx="2" fill="rgba(69,133,209,0.1)" />
       <text x="162" y="47" fontSize="5" fontWeight="700" fontFamily="system-ui" fill={A.blue} letterSpacing="0.06em">FEATURES</text>
 
+      {/* Sticky note: export capabilities */}
       <rect x="156" y="52" width="44" height="28" rx="2" fill="#ede9fe" stroke="#8b5cf6" strokeWidth="0.8" />
       <text x="162" y="62" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#7c3aed">Export formats?</text>
       <text x="162" y="72" fontSize="5" fontFamily="system-ui" fill="#7c3aed">PNG, SVG, PDF</text>
 
+      {/* Sticky note: offline support (slight negative rotation) */}
       <rect x="204" y="52" width="44" height="28" rx="2" fill="#ede9fe" stroke="#8b5cf6" strokeWidth="0.8" transform="rotate(-0.4 226 66)" />
       <text x="210" y="62" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#7c3aed">Offline mode?</text>
       <text x="210" y="72" fontSize="5" fontFamily="system-ui" fill="#7c3aed">Yes, local first</text>
 
-      {/* Category: Troubleshooting */}
+      {/* ── Category: Troubleshooting (amber/red) ── */}
       <rect x="276" y="38" width="96" height="10" rx="2" fill="rgba(220,69,69,0.1)" />
       <text x="282" y="47" fontSize="5" fontWeight="700" fontFamily="system-ui" fill={A.red} letterSpacing="0.06em">TROUBLESHOOTING</text>
 
+      {/* Sticky note: common issue */}
       <rect x="276" y="52" width="90" height="28" rx="2" fill="#fef3c7" stroke="#f59e0b" strokeWidth="0.8" />
       <text x="282" y="62" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#92400e">Board won't load?</text>
       <text x="282" y="72" fontSize="5" fontFamily="system-ui" fill="#92400e">Clear cache + retry</text>
 
-      {/* Connection line between related items */}
+      {/* ── Connection arrow: links "signup" note to "features" column ── */}
       <path d="M132 66 L156 66" stroke={A.muted} strokeWidth="0.6" strokeDasharray="2 1.5" strokeLinecap="round" />
       <path d="M152 64 L158 66 L152 68" fill="none" stroke={A.muted} strokeWidth="0.6" strokeLinecap="round" />
 
-      {/* Selection state on a note */}
+      {/* ── Selection state: dashed border + 4 corner handles ── */}
+      {/* The selected note is the "Export formats?" card in the Features column */}
       <rect x="152" y="48" width="52" height="36" rx="4" fill="none" stroke={A.accent} strokeWidth="1.5" strokeDasharray="4 2" />
       <rect x="148" y="44" width="4" height="4" rx="1" fill={A.accent} />
       <rect x="204" y="44" width="4" height="4" rx="1" fill={A.accent} />
       <rect x="148" y="80" width="4" height="4" rx="1" fill={A.accent} />
       <rect x="204" y="80" width="4" height="4" rx="1" fill={A.accent} />
 
-      {/* Bottom row: popular questions */}
+      {/* ── Bottom row: popular questions as compact tags ── */}
       <rect x="36" y="90" width="336" height="10" rx="2" fill="rgba(139,92,246,0.08)" />
       <text x="42" y="99" fontSize="5" fontWeight="700" fontFamily="system-ui" fill={A.purple} letterSpacing="0.06em">POPULAR QUESTIONS</text>
 
+      {/* Individual question tags */}
       <rect x="36" y="104" width="52" height="20" rx="2" fill={A.surface} stroke={A.border} strokeWidth="0.6" />
       <text x="42" y="116" fontSize="4.5" fontFamily="system-ui" fill={A.text}>Share boards?</text>
 
