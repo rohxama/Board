@@ -243,15 +243,15 @@ const WORKFLOW_STEPS = [
     color: '#10b981',
     illustration: (
       <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
-        <rect x="8" y="8" width="48" height="48" rx="6" fill="rgba(16,185,129,0.06)" stroke="#10b981" strokeWidth="1.5" />
-        <rect x="14" y="14" width="24" height="16" rx="3" fill="rgba(16,185,129,0.12)" stroke="#10b981" strokeWidth="1.5" />
-        <text x="26" y="25" textAnchor="middle" fontSize="6" fontWeight="600" fontFamily="system-ui" fill="#10b981">Idea</text>
-        <path d="M42 22 L50 22" stroke="#10b981" strokeWidth="1" strokeLinecap="round" />
-        <path d="M48 20 L52 22 L48 24" fill="none" stroke="#10b981" strokeWidth="1" strokeLinecap="round" />
-        <rect x="14" y="38" width="18" height="12" rx="2" fill="rgba(234,179,8,0.1)" stroke="#eab308" strokeWidth="0.8" />
+        <rect x="8" y="8" width="48" height="48" rx="4" fill="rgba(16,185,129,0.04)" stroke="#10b981" strokeWidth="0.8" />
+        <rect x="14" y="14" width="24" height="16" rx="2" fill="rgba(16,185,129,0.08)" stroke="#10b981" strokeWidth="0.8" />
+        <text x="26" y="25" textAnchor="middle" fontSize="5" fontWeight="500" fontFamily="system-ui" fill="#10b981">Idea</text>
+        <path d="M42 22 L50 22" stroke="#10b981" strokeWidth="0.6" strokeLinecap="round" />
+        <path d="M48 20 L52 22 L48 24" fill="none" stroke="#10b981" strokeWidth="0.6" strokeLinecap="round" />
+        <rect x="14" y="38" width="18" height="12" rx="1" fill="rgba(234,179,8,0.06)" stroke="#eab308" strokeWidth="0.6" />
         <text x="23" y="46" textAnchor="middle" fontSize="4" fontFamily="system-ui" fill="#854d0e">Notes</text>
-        <circle cx="48" cy="44" r="6" fill="rgba(59,130,246,0.1)" stroke="#3b82f6" strokeWidth="1" />
-        <text x="48" y="46" textAnchor="middle" fontSize="4" fontWeight="600" fontFamily="system-ui" fill="#3b82f6">Plan</text>
+        <circle cx="48" cy="44" r="6" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" strokeWidth="0.6" />
+        <text x="48" y="46" textAnchor="middle" fontSize="4" fontWeight="500" fontFamily="system-ui" fill="#3b82f6">Plan</text>
       </svg>
     ),
   },
@@ -262,14 +262,14 @@ const WORKFLOW_STEPS = [
     color: '#3b82f6',
     illustration: (
       <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
-        <rect x="6" y="12" width="14" height="40" rx="3" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" strokeWidth="1" />
-        <rect x="8" y="14" width="10" height="8" rx="2" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" strokeWidth="1" />
-        <path d="M11 28 L13 32 L15 29" fill="none" stroke="#3b82f6" strokeWidth="0.8" strokeLinecap="round" />
-        <rect x="8" y="36" width="10" height="8" rx="1" fill="none" stroke="#3b82f6" strokeWidth="0.8" />
-        <circle cx="13" cy="50" r="3" fill="none" stroke="#3b82f6" strokeWidth="0.8" />
-        <rect x="26" y="16" width="20" height="14" rx="2" fill="rgba(59,130,246,0.1)" stroke="#3b82f6" strokeWidth="1.2" />
-        <circle cx="52" cy="23" r="8" fill="rgba(59,130,246,0.08)" stroke="#3b82f6" strokeWidth="1.2" />
-        <path d="M30 44 L44 44 L44 52 L30 52Z" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" strokeWidth="1" />
+        <rect x="6" y="12" width="14" height="40" rx="2" fill="rgba(59,130,246,0.04)" stroke="#3b82f6" strokeWidth="0.8" />
+        <rect x="8" y="14" width="10" height="8" rx="1.5" fill="rgba(59,130,246,0.1)" stroke="#3b82f6" strokeWidth="0.6" />
+        <path d="M11 28 L13 32 L15 29" fill="none" stroke="#3b82f6" strokeWidth="0.5" strokeLinecap="round" />
+        <rect x="8" y="36" width="10" height="8" rx="1" fill="none" stroke="#3b82f6" strokeWidth="0.5" />
+        <circle cx="13" cy="50" r="3" fill="none" stroke="#3b82f6" strokeWidth="0.5" />
+        <rect x="26" y="16" width="20" height="14" rx="1.5" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" strokeWidth="0.8" />
+        <circle cx="52" cy="23" r="8" fill="rgba(59,130,246,0.05)" stroke="#3b82f6" strokeWidth="0.8" />
+        <path d="M30 44 L44 44 L44 52 L30 52Z" fill="rgba(59,130,246,0.04)" stroke="#3b82f6" strokeWidth="0.6" />
       </svg>
     ),
   },
@@ -280,13 +280,13 @@ const WORKFLOW_STEPS = [
     color: '#8b5cf6',
     illustration: (
       <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
-        <rect x="10" y="28" width="22" height="14" rx="2" stroke="#8b5cf6" strokeWidth="1.5" fill="rgba(139,92,246,0.08)" />
-        <circle cx="46" cy="35" r="10" stroke="#8b5cf6" strokeWidth="1.5" fill="rgba(139,92,246,0.08)" />
-        <path d="M36 35 L38 35" stroke="#8b5cf6" strokeWidth="1" strokeLinecap="round" />
-        <path d="M14 16 L30 16 L30 24 L14 24Z" fill="rgba(139,92,246,0.06)" stroke="#8b5cf6" strokeWidth="0.8" />
-        <text x="22" y="21" textAnchor="middle" fontSize="5" fontFamily="system-ui" fill="#8b5cf6">Label</text>
-        <path d="M22 46 L22 52" stroke="#8b5cf6" strokeWidth="1" strokeLinecap="round" />
-        <path d="M20 50 L22 54 L24 50" fill="none" stroke="#8b5cf6" strokeWidth="0.8" strokeLinecap="round" />
+        <rect x="10" y="28" width="22" height="14" rx="1.5" stroke="#8b5cf6" strokeWidth="0.8" fill="rgba(139,92,246,0.05)" />
+        <circle cx="46" cy="35" r="10" stroke="#8b5cf6" strokeWidth="0.8" fill="rgba(139,92,246,0.05)" />
+        <path d="M36 35 L38 35" stroke="#8b5cf6" strokeWidth="0.6" strokeLinecap="round" />
+        <path d="M14 16 L30 16 L30 24 L14 24Z" fill="rgba(139,92,246,0.04)" stroke="#8b5cf6" strokeWidth="0.5" />
+        <text x="22" y="21" textAnchor="middle" fontSize="4" fontFamily="system-ui" fill="#8b5cf6">Label</text>
+        <path d="M22 46 L22 52" stroke="#8b5cf6" strokeWidth="0.6" strokeLinecap="round" />
+        <path d="M20 50 L22 54 L24 50" fill="none" stroke="#8b5cf6" strokeWidth="0.5" strokeLinecap="round" />
       </svg>
     ),
   },
@@ -297,12 +297,12 @@ const WORKFLOW_STEPS = [
     color: '#f97066',
     illustration: (
       <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
-        <rect x="10" y="14" width="22" height="16" rx="3" stroke="#f97066" strokeWidth="2" fill="rgba(249,112,102,0.12)" />
-        <rect x="36" y="14" width="22" height="16" rx="3" stroke="#f97066" strokeWidth="2" strokeDasharray="4 3" fill="rgba(249,112,102,0.06)" />
-        <circle cx="18" cy="46" r="6" fill="rgba(249,112,102,0.15)" stroke="#f97066" strokeWidth="1.5" />
-        <circle cx="36" cy="46" r="6" fill="rgba(249,112,102,0.25)" stroke="#f97066" strokeWidth="1.5" />
-        <circle cx="52" cy="46" r="6" fill="rgba(249,112,102,0.4)" stroke="#f97066" strokeWidth="1.5" />
-        <path d="M14 36h14" stroke="#f97066" strokeWidth="1.5" strokeLinecap="round" />
+        <rect x="10" y="14" width="22" height="16" rx="2" stroke="#f97066" strokeWidth="1" fill="rgba(249,112,102,0.08)" />
+        <rect x="36" y="14" width="22" height="16" rx="2" stroke="#f97066" strokeWidth="1" strokeDasharray="4 3" fill="rgba(249,112,102,0.04)" />
+        <circle cx="18" cy="46" r="6" fill="rgba(249,112,102,0.08)" stroke="#f97066" strokeWidth="0.8" />
+        <circle cx="36" cy="46" r="6" fill="rgba(249,112,102,0.12)" stroke="#f97066" strokeWidth="0.8" />
+        <circle cx="52" cy="46" r="6" fill="rgba(249,112,102,0.18)" stroke="#f97066" strokeWidth="0.8" />
+        <path d="M14 36h14" stroke="#f97066" strokeWidth="0.8" strokeLinecap="round" />
       </svg>
     ),
   },
@@ -313,12 +313,12 @@ const WORKFLOW_STEPS = [
     color: '#f59e0b',
     illustration: (
       <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
-        <rect x="6" y="8" width="18" height="12" rx="2" stroke="#f59e0b" strokeWidth="1.5" fill="rgba(245,158,11,0.08)" />
-        <rect x="40" y="8" width="18" height="12" rx="2" stroke="#f59e0b" strokeWidth="1.5" fill="rgba(245,158,11,0.08)" />
-        <rect x="22" y="30" width="20" height="12" rx="2" stroke="#f59e0b" strokeWidth="1.5" fill="rgba(245,158,11,0.08)" />
-        <rect x="6" y="46" width="16" height="10" rx="2" stroke="#f59e0b" strokeWidth="1.5" fill="rgba(245,158,11,0.08)" />
-        <rect x="42" y="46" width="16" height="10" rx="2" stroke="#f59e0b" strokeWidth="1.5" fill="rgba(245,158,11,0.08)" />
-        <path d="M15 20v4l17 8M49 20v4L32 30" stroke="#f59e0b" strokeWidth="1" strokeLinecap="round" strokeDasharray="3 3" />
+        <rect x="6" y="8" width="18" height="12" rx="1.5" stroke="#f59e0b" strokeWidth="0.8" fill="rgba(245,158,11,0.05)" />
+        <rect x="40" y="8" width="18" height="12" rx="1.5" stroke="#f59e0b" strokeWidth="0.8" fill="rgba(245,158,11,0.05)" />
+        <rect x="22" y="30" width="20" height="12" rx="1.5" stroke="#f59e0b" strokeWidth="0.8" fill="rgba(245,158,11,0.05)" />
+        <rect x="6" y="46" width="16" height="10" rx="1.5" stroke="#f59e0b" strokeWidth="0.8" fill="rgba(245,158,11,0.05)" />
+        <rect x="42" y="46" width="16" height="10" rx="1.5" stroke="#f59e0b" strokeWidth="0.8" fill="rgba(245,158,11,0.05)" />
+        <path d="M15 20v4l17 8M49 20v4L32 30" stroke="#f59e0b" strokeWidth="0.6" strokeLinecap="round" strokeDasharray="3 3" />
       </svg>
     ),
   },
@@ -329,16 +329,16 @@ const WORKFLOW_STEPS = [
     color: '#ec4899',
     illustration: (
       <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
-        <rect x="8" y="8" width="28" height="48" rx="4" stroke="#ec4899" strokeWidth="1.5" fill="rgba(236,72,153,0.06)" />
-        <rect x="12" y="14" width="20" height="10" rx="2" fill="rgba(236,72,153,0.1)" stroke="#ec4899" strokeWidth="0.8" />
-        <rect x="12" y="28" width="20" height="6" rx="2" fill="rgba(236,72,153,0.06)" />
-        <rect x="12" y="38" width="14" height="6" rx="2" fill="rgba(236,72,153,0.06)" />
-        <path d="M44 24 L52 24" stroke="#ec4899" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M49 21 L54 24 L49 27" fill="none" stroke="#ec4899" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        <rect x="44" y="32" width="14" height="10" rx="3" fill="rgba(236,72,153,0.1)" stroke="#ec4899" strokeWidth="1" />
-        <text x="51" y="40" textAnchor="middle" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#ec4899">PNG</text>
-        <rect x="44" y="46" width="14" height="10" rx="3" fill="rgba(236,72,153,0.06)" stroke="#ec4899" strokeWidth="0.8" />
-        <text x="51" y="54" textAnchor="middle" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#ec4899">PDF</text>
+        <rect x="8" y="8" width="28" height="48" rx="3" stroke="#ec4899" strokeWidth="0.8" fill="rgba(236,72,153,0.04)" />
+        <rect x="12" y="14" width="20" height="10" rx="1.5" fill="rgba(236,72,153,0.06)" stroke="#ec4899" strokeWidth="0.6" />
+        <rect x="12" y="28" width="20" height="5" rx="1" fill="rgba(236,72,153,0.04)" />
+        <rect x="12" y="38" width="14" height="5" rx="1" fill="rgba(236,72,153,0.04)" />
+        <path d="M44 24 L52 24" stroke="#ec4899" strokeWidth="0.8" strokeLinecap="round" />
+        <path d="M49 21 L54 24 L49 27" fill="none" stroke="#ec4899" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round" />
+        <rect x="44" y="32" width="14" height="10" rx="2" fill="rgba(236,72,153,0.06)" stroke="#ec4899" strokeWidth="0.6" />
+        <text x="51" y="40" textAnchor="middle" fontSize="4" fontWeight="500" fontFamily="system-ui" fill="#ec4899">PNG</text>
+        <rect x="44" y="46" width="14" height="10" rx="2" fill="rgba(236,72,153,0.04)" stroke="#ec4899" strokeWidth="0.5" />
+        <text x="51" y="54" textAnchor="middle" fontSize="4" fontWeight="500" fontFamily="system-ui" fill="#ec4899">PDF</text>
       </svg>
     ),
   },
