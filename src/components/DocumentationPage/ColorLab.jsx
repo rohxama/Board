@@ -98,6 +98,12 @@ export function FillDemo() {
         <text x="40" y="0" textAnchor="middle" fontSize="8" fontWeight="500" fill={C.muted}>Red Fill</text>
         <rect x="4" y="8" width="72" height="52" rx="4" fill="rgba(239,68,68,0.1)" stroke={C.red} strokeWidth="1" />
         <text x="40" y="78" textAnchor="middle" fontSize="8" fill={C.muted}>#ef4444</text>
+        {/* Selection state on Red Fill rect */}
+        <rect x="0" y="4" width="80" height="60" rx="6" fill="none" stroke={C.accent} strokeWidth="1.5" strokeDasharray="4 2" />
+        <rect x="-4" y="0" width="5" height="5" rx="1" fill={C.accent} />
+        <rect x="75" y="0" width="5" height="5" rx="1" fill={C.accent} />
+        <rect x="-4" y="60" width="5" height="5" rx="1" fill={C.accent} />
+        <rect x="75" y="60" width="5" height="5" rx="1" fill={C.accent} />
       </g>
 
       <path d="M230 60 L250 60" stroke={C.accent} strokeWidth="1" strokeLinecap="round" />

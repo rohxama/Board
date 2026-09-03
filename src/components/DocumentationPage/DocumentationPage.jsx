@@ -246,6 +246,12 @@ const WORKFLOW_STEPS = [
         <rect x="8" y="8" width="48" height="48" rx="4" fill="rgba(16,185,129,0.04)" stroke="#10b981" strokeWidth="0.8" />
         <rect x="14" y="14" width="24" height="16" rx="2" fill="rgba(16,185,129,0.08)" stroke="#10b981" strokeWidth="0.8" />
         <text x="26" y="25" textAnchor="middle" fontSize="5" fontWeight="500" fontFamily="system-ui" fill="#10b981">Idea</text>
+        {/* Selection state on Idea rect */}
+        <rect x="10" y="10" width="32" height="24" rx="3" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeDasharray="3 2" />
+        <rect x="6" y="6" width="4" height="4" rx="1" fill="var(--accent)" />
+        <rect x="42" y="6" width="4" height="4" rx="1" fill="var(--accent)" />
+        <rect x="6" y="32" width="4" height="4" rx="1" fill="var(--accent)" />
+        <rect x="42" y="32" width="4" height="4" rx="1" fill="var(--accent)" />
         <path d="M42 22 L50 22" stroke="#10b981" strokeWidth="0.6" strokeLinecap="round" />
         <path d="M48 20 L52 22 L48 24" fill="none" stroke="#10b981" strokeWidth="0.6" strokeLinecap="round" />
         <rect x="14" y="38" width="18" height="12" rx="1" fill="rgba(234,179,8,0.06)" stroke="#eab308" strokeWidth="0.6" />
@@ -300,6 +306,12 @@ const WORKFLOW_STEPS = [
         <rect x="10" y="14" width="22" height="16" rx="2" stroke="#f97066" strokeWidth="1" fill="rgba(249,112,102,0.08)" />
         <rect x="36" y="14" width="22" height="16" rx="2" stroke="#f97066" strokeWidth="1" strokeDasharray="4 3" fill="rgba(249,112,102,0.04)" />
         <circle cx="18" cy="46" r="6" fill="rgba(249,112,102,0.08)" stroke="#f97066" strokeWidth="0.8" />
+        {/* Selection state on center circle */}
+        <circle cx="36" cy="46" r="10" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeDasharray="3 2" />
+        <rect x="30" y="40" width="4" height="4" rx="1" fill="var(--accent)" />
+        <rect x="38" y="40" width="4" height="4" rx="1" fill="var(--accent)" />
+        <rect x="30" y="48" width="4" height="4" rx="1" fill="var(--accent)" />
+        <rect x="38" y="48" width="4" height="4" rx="1" fill="var(--accent)" />
         <circle cx="36" cy="46" r="6" fill="rgba(249,112,102,0.12)" stroke="#f97066" strokeWidth="0.8" />
         <circle cx="52" cy="46" r="6" fill="rgba(249,112,102,0.18)" stroke="#f97066" strokeWidth="0.8" />
         <path d="M14 36h14" stroke="#f97066" strokeWidth="0.8" strokeLinecap="round" />
