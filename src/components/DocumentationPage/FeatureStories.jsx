@@ -131,13 +131,14 @@ function StylingStoryDiagram() {
       {/* Step 2: Apply color */}
       <g>
         <rect x="152" y="20" width="100" height="84" rx="8" fill={A.surface} stroke={A.border} strokeWidth="1.5" />
-        <rect x="172" y="36" width="56" height="32" rx="3" fill="rgba(69,133,209,0.15)" stroke={A.blue} strokeWidth="2" />
+        <rect x="172" y="36" width="56" height="32" rx="3" fill="rgba(47,133,90,0.15)" stroke={A.green} strokeWidth="2" />
         <circle cx="200" cy="84" r="10" fill="rgba(212,148,58,0.12)" stroke={A.orange} strokeWidth="2" />
-        {/* Color palette hint */}
-        <circle cx="176" cy="30" r="4" fill={A.blue} />
-        <circle cx="188" cy="30" r="4" fill={A.green} />
-        <circle cx="200" cy="30" r="4" fill={A.orange} />
-        <circle cx="212" cy="30" r="4" fill={A.purple} />
+        {/* Style panel */}
+        <rect x="236" y="28" width="8" height="40" rx="2" fill={A.surface} stroke={A.border} strokeWidth="0.8" />
+        <rect x="238" y="32" width="4" height="4" rx="1" fill={A.green} />
+        <rect x="238" y="40" width="4" height="4" rx="1" fill={A.blue} />
+        <rect x="238" y="48" width="4" height="4" rx="1" fill={A.orange} />
+        <rect x="238" y="56" width="4" height="4" rx="1" fill={A.purple} />
         <text x="202" y="124" textAnchor="middle" fontSize="8" fontWeight="600" fontFamily="system-ui" fill={A.muted}>Add color</text>
       </g>
 

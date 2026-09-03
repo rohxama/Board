@@ -2303,7 +2303,7 @@ html[data-theme='dark'] .doc-section--accent-pink   { border-bottom-color: var(-
   .doc-theme-demo-canvas,
   .doc-theme-demo-rect,
   .doc-theme-demo-circle,
-  .doc-theme-demo-triangle,
+  .doc-theme-demo-note,
   .doc-theme-demo-tool,
   .doc-theme-demo-dot,
   .doc-theme-demo-toolbar,
@@ -2569,19 +2569,17 @@ html[data-theme='dark'] .doc-styling-swatch--none {
 }
 .light .doc-theme-demo-circle { background: #dcfce7; border: 2px solid #22c55e; }
 .dark .doc-theme-demo-circle { background: rgba(34,197,94,0.12); border: 2px solid #4ade80; }
-.doc-theme-demo-triangle {
+.doc-theme-demo-note {
   position: absolute;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 24px solid transparent;
-  border-right: 24px solid transparent;
-  transition: border-bottom-color 0.4s ease;
+  bottom: 24px;
+  left: 30px;
+  width: 60px;
+  height: 36px;
+  border-radius: 3px;
+  transition: background-color 0.4s ease, border-color 0.4s ease;
 }
-.light .doc-theme-demo-triangle { border-bottom: 40px solid #fde68a; }
-.dark .doc-theme-demo-triangle { border-bottom: 40px solid rgba(250,204,21,0.25); }
+.light .doc-theme-demo-note { background: #fefce8; border: 1.5px solid #eab308; }
+.dark .doc-theme-demo-note { background: rgba(234,179,8,0.08); border: 1.5px solid rgba(234,179,8,0.4); }
 .doc-theme-demo-toolbar {
   position: absolute;
   top: 10px;
@@ -2703,32 +2701,19 @@ html[data-theme='dark'] .doc-styling-swatch--none {
   background: rgba(139,92,246,0.12);
   border: 2px solid #8b5cf6;
 }
-.doc-zoom-demo-shape--diamond {
-  width: 36px;
-  height: 36px;
-  background: rgba(249,112,102,0.12);
-  border: 2px solid #f97066;
-  transform: rotate(45deg);
+.doc-zoom-demo-shape--note {
+  width: 52px;
+  height: 32px;
+  background: rgba(234,179,8,0.08);
+  border: 1.5px solid #eab308;
+  border-radius: 3px;
+}
+.doc-zoom-demo-shape--label {
+  width: 44px;
+  height: 20px;
+  background: rgba(139,92,246,0.1);
+  border: 1.5px solid #8b5cf6;
   border-radius: 4px;
-}
-.doc-zoom-demo-shape--arrow {
-  width: 48px;
-  height: 3px;
-  background: #3b82f6;
-  border-radius: 2px;
-  position: relative;
-}
-.doc-zoom-demo-shape--arrow::after {
-  content: '';
-  position: absolute;
-  right: -2px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 0;
-  height: 0;
-  border-left: 10px solid #3b82f6;
-  border-top: 6px solid transparent;
-  border-bottom: 6px solid transparent;
 }
 .doc-zoom-demo-controls {
   display: flex;

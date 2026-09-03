@@ -128,9 +128,9 @@ function NavIcon({ name }) {
     lock: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.85" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>,
     flip: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.85" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h3" /><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3" /><path d="m7 12 5-5 5 5" /><path d="M12 17V7" /></svg>,
     layers: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.85" strokeLinecap="round" strokeLinejoin="round"><path d="m12 2 8 4.5-8 4.5-8-4.5L12 2Z" /><path d="m2 15 8 4.5 8-4.5" /><path d="m2 10 8 4.5 8-4.5" /></svg>,
-    question: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.85" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><path d="M12 17h.01" /></svg>,
-    rocket: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.85" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09Z" /><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2Z" /><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" /><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" /></svg>,
-    lightbulb: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.85" strokeLinecap="round" strokeLinejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" /><path d="M9 18h6" /><path d="M10 22h4" /></svg>,
+    info: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.85" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>,
+    play: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.85" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg>,
+    zap: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.85" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>,
   }
   return <span className="doc-nav-icon">{icons[name] || null}</span>
 }
@@ -160,7 +160,7 @@ function ToolCard({ icon, name, shortcut, description, howToUse, tips, visual, c
         )}
         {tips && (
           <div className="doc-tool-tip">
-            <NavIcon name="lightbulb" />
+            <NavIcon name="zap" />
             <span>{tips}</span>
           </div>
         )}
@@ -235,14 +235,6 @@ function useHeadingToc(contentRef) {
   return headings
 }
 
-function Star({ size = 12 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2l2.4 7.2H22l-6 4.8 2.4 7.2L12 16.8l-6.4 4.4 2.4-7.2-6-4.8h7.6z" />
-    </svg>
-  )
-}
-
 const WORKFLOW_STEPS = [
   {
     num: '01',
@@ -251,11 +243,15 @@ const WORKFLOW_STEPS = [
     color: '#10b981',
     illustration: (
       <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
-        <circle cx="32" cy="24" r="14" stroke="#10b981" strokeWidth="2" fill="rgba(16,185,129,0.08)" />
-        <path d="M26 22c0-3.3 2.7-6 6-6s6 2.7 6 6-2.7 6-6 6" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" />
-        <circle cx="32" cy="22" r="2" fill="#10b981" />
-        <path d="M28 38h8M26 42h12" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M32 4v4M20 8l2 3.5M44 8l-2 3.5" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" />
+        <rect x="8" y="8" width="48" height="48" rx="6" fill="rgba(16,185,129,0.06)" stroke="#10b981" strokeWidth="1.5" />
+        <rect x="14" y="14" width="24" height="16" rx="3" fill="rgba(16,185,129,0.12)" stroke="#10b981" strokeWidth="1.5" />
+        <text x="26" y="25" textAnchor="middle" fontSize="6" fontWeight="600" fontFamily="system-ui" fill="#10b981">Idea</text>
+        <path d="M42 22 L50 22" stroke="#10b981" strokeWidth="1" strokeLinecap="round" />
+        <path d="M48 20 L52 22 L48 24" fill="none" stroke="#10b981" strokeWidth="1" strokeLinecap="round" />
+        <rect x="14" y="38" width="18" height="12" rx="2" fill="rgba(234,179,8,0.1)" stroke="#eab308" strokeWidth="0.8" />
+        <text x="23" y="46" textAnchor="middle" fontSize="4" fontFamily="system-ui" fill="#854d0e">Notes</text>
+        <circle cx="48" cy="44" r="6" fill="rgba(59,130,246,0.1)" stroke="#3b82f6" strokeWidth="1" />
+        <text x="48" y="46" textAnchor="middle" fontSize="4" fontWeight="600" fontFamily="system-ui" fill="#3b82f6">Plan</text>
       </svg>
     ),
   },
@@ -266,11 +262,14 @@ const WORKFLOW_STEPS = [
     color: '#3b82f6',
     illustration: (
       <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
-        <rect x="8" y="12" width="16" height="12" rx="2" stroke="#3b82f6" strokeWidth="1.5" fill="rgba(59,130,246,0.08)" />
-        <circle cx="44" cy="18" r="7" stroke="#3b82f6" strokeWidth="1.5" fill="rgba(59,130,246,0.08)" />
-        <rect x="30" y="36" width="10" height="10" rx="1" stroke="#3b82f6" strokeWidth="1.5" fill="rgba(59,130,246,0.08)" transform="rotate(45 35 41)" />
-        <path d="M12 44l8-8 4 4 8-10" stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        <circle cx="32" cy="32" r="2" fill="#3b82f6" opacity="0.4" />
+        <rect x="6" y="12" width="14" height="40" rx="3" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" strokeWidth="1" />
+        <rect x="8" y="14" width="10" height="8" rx="2" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" strokeWidth="1" />
+        <path d="M11 28 L13 32 L15 29" fill="none" stroke="#3b82f6" strokeWidth="0.8" strokeLinecap="round" />
+        <rect x="8" y="36" width="10" height="8" rx="1" fill="none" stroke="#3b82f6" strokeWidth="0.8" />
+        <circle cx="13" cy="50" r="3" fill="none" stroke="#3b82f6" strokeWidth="0.8" />
+        <rect x="26" y="16" width="20" height="14" rx="2" fill="rgba(59,130,246,0.1)" stroke="#3b82f6" strokeWidth="1.2" />
+        <circle cx="52" cy="23" r="8" fill="rgba(59,130,246,0.08)" stroke="#3b82f6" strokeWidth="1.2" />
+        <path d="M30 44 L44 44 L44 52 L30 52Z" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" strokeWidth="1" />
       </svg>
     ),
   },
@@ -281,11 +280,13 @@ const WORKFLOW_STEPS = [
     color: '#8b5cf6',
     illustration: (
       <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
-        <path d="M12 52L48 12" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" />
-        <path d="M48 12l-6 2 2-6" stroke="#8b5cf6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        <rect x="10" y="30" width="20" height="14" rx="2" stroke="#8b5cf6" strokeWidth="1.5" fill="rgba(139,92,246,0.08)" />
-        <circle cx="42" cy="40" r="8" stroke="#8b5cf6" strokeWidth="1.5" fill="rgba(139,92,246,0.08)" />
-        <path d="M16 18c2-4 6-2 8 0s6 4 8 0" stroke="#8b5cf6" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="3 3" />
+        <rect x="10" y="28" width="22" height="14" rx="2" stroke="#8b5cf6" strokeWidth="1.5" fill="rgba(139,92,246,0.08)" />
+        <circle cx="46" cy="35" r="10" stroke="#8b5cf6" strokeWidth="1.5" fill="rgba(139,92,246,0.08)" />
+        <path d="M36 35 L38 35" stroke="#8b5cf6" strokeWidth="1" strokeLinecap="round" />
+        <path d="M14 16 L30 16 L30 24 L14 24Z" fill="rgba(139,92,246,0.06)" stroke="#8b5cf6" strokeWidth="0.8" />
+        <text x="22" y="21" textAnchor="middle" fontSize="5" fontFamily="system-ui" fill="#8b5cf6">Label</text>
+        <path d="M22 46 L22 52" stroke="#8b5cf6" strokeWidth="1" strokeLinecap="round" />
+        <path d="M20 50 L22 54 L24 50" fill="none" stroke="#8b5cf6" strokeWidth="0.8" strokeLinecap="round" />
       </svg>
     ),
   },
@@ -297,10 +298,10 @@ const WORKFLOW_STEPS = [
     illustration: (
       <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
         <rect x="10" y="14" width="22" height="16" rx="3" stroke="#f97066" strokeWidth="2" fill="rgba(249,112,102,0.12)" />
-        <rect x="32" y="14" width="22" height="16" rx="3" stroke="#f97066" strokeWidth="2" strokeDasharray="4 3" fill="rgba(249,112,102,0.06)" />
-        <circle cx="18" cy="46" r="6" fill="#f97066" opacity="0.25" />
-        <circle cx="32" cy="46" r="6" fill="#f97066" opacity="0.5" />
-        <circle cx="46" cy="46" r="6" fill="#f97066" opacity="0.8" />
+        <rect x="36" y="14" width="22" height="16" rx="3" stroke="#f97066" strokeWidth="2" strokeDasharray="4 3" fill="rgba(249,112,102,0.06)" />
+        <circle cx="18" cy="46" r="6" fill="rgba(249,112,102,0.15)" stroke="#f97066" strokeWidth="1.5" />
+        <circle cx="36" cy="46" r="6" fill="rgba(249,112,102,0.25)" stroke="#f97066" strokeWidth="1.5" />
+        <circle cx="52" cy="46" r="6" fill="rgba(249,112,102,0.4)" stroke="#f97066" strokeWidth="1.5" />
         <path d="M14 36h14" stroke="#f97066" strokeWidth="1.5" strokeLinecap="round" />
       </svg>
     ),
@@ -314,11 +315,10 @@ const WORKFLOW_STEPS = [
       <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
         <rect x="6" y="8" width="18" height="12" rx="2" stroke="#f59e0b" strokeWidth="1.5" fill="rgba(245,158,11,0.08)" />
         <rect x="40" y="8" width="18" height="12" rx="2" stroke="#f59e0b" strokeWidth="1.5" fill="rgba(245,158,11,0.08)" />
-        <rect x="22" y="32" width="20" height="12" rx="2" stroke="#f59e0b" strokeWidth="1.5" fill="rgba(245,158,11,0.08)" />
-        <rect x="6" y="48" width="16" height="10" rx="2" stroke="#f59e0b" strokeWidth="1.5" fill="rgba(245,158,11,0.08)" />
-        <rect x="42" y="48" width="16" height="10" rx="2" stroke="#f59e0b" strokeWidth="1.5" fill="rgba(245,158,11,0.08)" />
-        <path d="M15 20v4l17 8M49 20v4L32 32" stroke="#f59e0b" strokeWidth="1" strokeLinecap="round" strokeDasharray="3 3" />
-        <path d="M32 44v4M14 58h16M50 58H34" stroke="#f59e0b" strokeWidth="1" strokeLinecap="round" strokeDasharray="3 3" />
+        <rect x="22" y="30" width="20" height="12" rx="2" stroke="#f59e0b" strokeWidth="1.5" fill="rgba(245,158,11,0.08)" />
+        <rect x="6" y="46" width="16" height="10" rx="2" stroke="#f59e0b" strokeWidth="1.5" fill="rgba(245,158,11,0.08)" />
+        <rect x="42" y="46" width="16" height="10" rx="2" stroke="#f59e0b" strokeWidth="1.5" fill="rgba(245,158,11,0.08)" />
+        <path d="M15 20v4l17 8M49 20v4L32 30" stroke="#f59e0b" strokeWidth="1" strokeLinecap="round" strokeDasharray="3 3" />
       </svg>
     ),
   },
@@ -329,11 +329,16 @@ const WORKFLOW_STEPS = [
     color: '#ec4899',
     illustration: (
       <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
-        <rect x="12" y="8" width="40" height="48" rx="4" stroke="#ec4899" strokeWidth="1.5" fill="rgba(236,72,153,0.06)" />
-        <path d="M20 20h24M20 28h24M20 36h16" stroke="#ec4899" strokeWidth="1.5" strokeLinecap="round" />
-        <circle cx="48" cy="48" r="10" fill="rgba(236,72,153,0.12)" stroke="#ec4899" strokeWidth="1.5" />
-        <path d="M48 42v12M42 48h12" stroke="#ec4899" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M44 42l4-4 4 4" stroke="#ec4899" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <rect x="8" y="8" width="28" height="48" rx="4" stroke="#ec4899" strokeWidth="1.5" fill="rgba(236,72,153,0.06)" />
+        <rect x="12" y="14" width="20" height="10" rx="2" fill="rgba(236,72,153,0.1)" stroke="#ec4899" strokeWidth="0.8" />
+        <rect x="12" y="28" width="20" height="6" rx="2" fill="rgba(236,72,153,0.06)" />
+        <rect x="12" y="38" width="14" height="6" rx="2" fill="rgba(236,72,153,0.06)" />
+        <path d="M44 24 L52 24" stroke="#ec4899" strokeWidth="1.5" strokeLinecap="round" />
+        <path d="M49 21 L54 24 L49 27" fill="none" stroke="#ec4899" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <rect x="44" y="32" width="14" height="10" rx="3" fill="rgba(236,72,153,0.1)" stroke="#ec4899" strokeWidth="1" />
+        <text x="51" y="40" textAnchor="middle" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#ec4899">PNG</text>
+        <rect x="44" y="46" width="14" height="10" rx="3" fill="rgba(236,72,153,0.06)" stroke="#ec4899" strokeWidth="0.8" />
+        <text x="51" y="54" textAnchor="middle" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#ec4899">PDF</text>
       </svg>
     ),
   },
@@ -364,7 +369,7 @@ function WorkflowSection() {
   return (
     <section className="doc-section doc-workflow-section" id="workflow">
       <h2 className="doc-section-title">
-        <NavIcon name="rocket" /> From Idea to Canvas
+        <NavIcon name="play" /> From Idea to Canvas
       </h2>
       <p className="doc-section-intro">
         Every creation follows a journey. Here is how ideas become something real in Kanvas.
@@ -587,7 +592,7 @@ function ThemeToggleDemo() {
         <div className="doc-theme-demo-shapes" aria-hidden="true">
           <div className="doc-theme-demo-rect" />
           <div className="doc-theme-demo-circle" />
-          <div className="doc-theme-demo-triangle" />
+          <div className="doc-theme-demo-note" />
         </div>
         <div className="doc-theme-demo-toolbar" aria-hidden="true">
           <span className="doc-theme-demo-tool doc-theme-demo-tool--active" />
@@ -678,8 +683,8 @@ function ZoomDemo() {
         >
           <div className="doc-zoom-demo-shape doc-zoom-demo-shape--rect" />
           <div className="doc-zoom-demo-shape doc-zoom-demo-shape--circle" />
-          <div className="doc-zoom-demo-shape doc-zoom-demo-shape--diamond" />
-          <div className="doc-zoom-demo-shape doc-zoom-demo-shape--arrow" />
+          <div className="doc-zoom-demo-shape doc-zoom-demo-shape--note" />
+          <div className="doc-zoom-demo-shape doc-zoom-demo-shape--label" />
         </div>
       </div>
       <div className="doc-zoom-demo-controls">
@@ -989,7 +994,7 @@ export default function DocumentationPage() {
         <main className="doc-content" id="doc-main-content" ref={contentRef}>
 
           <section id="getting-started" className="doc-section">
-            <h2 className="doc-section-title"><NavIcon name="rocket" /> Getting Started</h2>
+            <h2 className="doc-section-title"><NavIcon name="play" /> Getting Started</h2>
             <GettingStartedIllustration />
             <FeatureStory
               heading="From Idea to Board"
@@ -1687,7 +1692,7 @@ export default function DocumentationPage() {
           </section>
 
           <section id="tips" className="doc-section">
-            <h2 className="doc-section-title"><NavIcon name="lightbulb" /> Tips for a Better Experience</h2>
+            <h2 className="doc-section-title"><NavIcon name="zap" /> Tips for a Better Experience</h2>
             <TipsIllustration />
             <div className="doc-tips-grid">
               <div className="doc-tip-card doc-tip-card--purple">
@@ -1724,7 +1729,7 @@ export default function DocumentationPage() {
           </section>
 
           <section id="faq" className="doc-section">
-            <h2 className="doc-section-title"><NavIcon name="question" /> FAQ</h2>
+            <h2 className="doc-section-title"><NavIcon name="info" /> FAQ</h2>
             <FAQIllustration />
             <div className="doc-faq-list">
               <FAQItem
@@ -1761,7 +1766,7 @@ export default function DocumentationPage() {
           </section>
 
           <section className="doc-section doc-showcase">
-            <h2 className="doc-section-title"><NavIcon name="lightbulb" /> Play with Kanvas</h2>
+            <h2 className="doc-section-title"><NavIcon name="zap" /> Play with Kanvas</h2>
             <p className="doc-showcase-intro">See what you can create. These compositions were made using Kanvas tools — shapes, lines, text, and colors on an infinite canvas.</p>
 
             <div className="doc-showcase-grid">
@@ -1790,8 +1795,6 @@ export default function DocumentationPage() {
                     <circle cx="400" cy="210" r="4" fill="#ec4899" />
                     <text x="345" y="270" textAnchor="middle" fill="#be185d" fontSize="10" fontWeight="600" fontFamily="system-ui">Growth</text>
                     <line x1="190" y1="100" x2="260" y2="160" stroke="var(--text-muted)" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.4" />
-                    <circle cx="220" cy="300" r="14" fill="#ede9fe" stroke="#8b5cf6" strokeWidth="1.5" />
-                    <text x="220" y="304" textAnchor="middle" fill="#7c3aed" fontSize="9" fontWeight="700" fontFamily="system-ui">+</text>
                   </svg>
                 </div>
                 <div className="doc-showcase-label">
@@ -1868,11 +1871,11 @@ export default function DocumentationPage() {
                     <rect x="30" y="110" width="70" height="22" rx="4" fill="#3b82f6" stroke="#1d4ed8" strokeWidth="1" />
                     <text x="65" y="124" textAnchor="middle" fill="#fff" fontSize="8" fontWeight="600" fontFamily="system-ui">Get started</text>
                     <rect x="210" y="58" width="170" height="84" rx="6" fill="var(--surface-solid)" stroke="var(--border)" strokeWidth="1" />
-                    <circle cx="250" cy="88" r="20" fill="#fef3c7" stroke="#f59e0b" strokeWidth="1.5" />
-                    <path d="M242 88 L250 80 L258 88" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-                    <line x1="250" y1="88" x2="250" y2="100" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" />
-                    <rect x="280" y="78" width="80" height="6" rx="2" fill="var(--border)" />
-                    <rect x="280" y="90" width="60" height="6" rx="2" fill="var(--surface-muted)" />
+                    <rect x="226" y="72" width="48" height="36" rx="4" fill="var(--surface-muted)" stroke="var(--border)" strokeWidth="0.8" />
+                    <rect x="234" y="80" width="32" height="4" rx="2" fill="var(--border)" />
+                    <rect x="234" y="88" width="24" height="4" rx="2" fill="var(--surface-muted)" />
+                    <rect x="286" y="78" width="80" height="6" rx="2" fill="var(--border)" />
+                    <rect x="286" y="90" width="60" height="6" rx="2" fill="var(--surface-muted)" />
                   </svg>
                 </div>
                 <div className="doc-showcase-label">
