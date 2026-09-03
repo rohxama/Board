@@ -10,6 +10,8 @@ import PreviousBoardModal from './components/PreviousBoardModal/PreviousBoardMod
 import NotFoundPage from './components/NotFoundPage/NotFoundPage'
 import ThankYouPage from './components/ThankYouPage/ThankYouPage'
 import WaitlistPage from './components/WaitlistPage/WaitlistPage'
+import DocumentationPage from './components/DocumentationPage/DocumentationPage'
+import './components/DocumentationPage/DocumentationPage.css'
 import CookieConsent from './components/CookieConsent/CookieConsent'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { usePreviousBoard } from './hooks/useVisitorStatus'
@@ -303,7 +305,7 @@ export default function App() {
   useEffect(() => {
     const titles = {
       board: 'Kanvas — Think. Draw. Create.',
-      docs: '404 — Page Not Found',
+      docs: 'Documentation — Kanvas',
       notfound: '404 — Page Not Found',
       thankyou: 'Thank You',
       waitlist: 'Waitlist',
@@ -338,7 +340,7 @@ export default function App() {
       )}
       {showSplash && <SplashScreen canHide={splash === 'fading'} onHidden={() => setSplash('done')} />}
       {route === 'notfound' && <NotFoundPage />}
-      {route === 'docs' && <NotFoundPage message="The Documentation page is not available yet." />}
+      {route === 'docs' && <DocumentationPage />}
       {route === 'thankyou' && <ThankYouPage />}
       {route === 'waitlist' && <WaitlistPage />}
     </ThemeProvider>
