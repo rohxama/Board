@@ -23,48 +23,76 @@ const A = {
   accentSoft: 'var(--accent-soft)',
 }
 
-/* ─── Getting Started ───────────────────────────────────────────── */
+/* ─── Getting Started: product planning board ──────────────────── */
 export function GettingStartedIllustration() {
   return (
     <svg viewBox="0 0 400 180" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-illustration" aria-hidden="true">
       <rect x="20" y="10" width="360" height="160" rx="10" fill={A.surface} stroke={A.border} strokeWidth="1" />
 
-      {/* Dot grid */}
-      {Array.from({ length: 7 }, (_, row) =>
-        Array.from({ length: 16 }, (_, col) => (
-          <circle key={`${row}-${col}`} cx={40 + col * 22} cy={30 + row * 20} r="0.6" fill={A.muted} opacity="0.2" />
-        ))
-      )}
+      {/* Board title */}
+      <text x="40" y="30" fontSize="11" fontWeight="700" fontFamily="system-ui" fill={A.text}>Q3 Product Roadmap</text>
 
-      {/* A realistic process flow */}
-      <text x="52" y="34" fontSize="11" fontWeight="600" fontFamily="system-ui" fill={A.text}>Project Kickoff</text>
+      {/* Swimlane: Now */}
+      <rect x="36" y="40" width="100" height="12" rx="2" fill="rgba(47,133,90,0.1)" />
+      <text x="42" y="49" fontSize="6" fontWeight="700" fontFamily="system-ui" fill={A.green} letterSpacing="0.06em">NOW</text>
 
-      <rect x="40" y="48" width="72" height="32" rx="4" fill="rgba(47,133,90,0.08)" stroke={A.green} strokeWidth="1" />
-      <text x="76" y="68" textAnchor="middle" fontSize="8" fontWeight="500" fontFamily="system-ui" fill={A.green}>Research</text>
+      {/* Sticky notes in Now lane */}
+      <rect x="36" y="56" width="44" height="32" rx="2" fill="#fefce8" stroke="#eab308" strokeWidth="0.8" />
+      <text x="42" y="68" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#854d0e">Auth flow</text>
+      <text x="42" y="78" fontSize="5" fontFamily="system-ui" fill="#854d0e">OAuth + JWT</text>
 
-      <path d="M120 64 L152 64" stroke={A.muted} strokeWidth="1" strokeLinecap="round" />
-      <path d="M148 61 L154 64 L148 67" fill="none" stroke={A.muted} strokeWidth="1" strokeLinecap="round" />
+      <rect x="84" y="56" width="44" height="32" rx="2" fill="#ede9fe" stroke="#8b5cf6" strokeWidth="0.8" />
+      <text x="90" y="68" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#7c3aed">API v2</text>
+      <text x="90" y="78" fontSize="5" fontFamily="system-ui" fill="#7c3aed">REST → GQL</text>
 
-      <rect x="160" y="48" width="72" height="32" rx="4" fill="rgba(69,133,209,0.08)" stroke={A.blue} strokeWidth="1" />
-      <text x="196" y="68" textAnchor="middle" fontSize="8" fontWeight="500" fontFamily="system-ui" fill={A.blue}>Design</text>
+      {/* Swimlane: Next */}
+      <rect x="36" y="96" width="100" height="12" rx="2" fill="rgba(69,133,209,0.1)" />
+      <text x="42" y="105" fontSize="6" fontWeight="700" fontFamily="system-ui" fill={A.blue} letterSpacing="0.06em">NEXT</text>
 
-      <path d="M240 64 L272 64" stroke={A.muted} strokeWidth="1" strokeLinecap="round" />
-      <path d="M268 61 L274 64 L268 67" fill="none" stroke={A.muted} strokeWidth="1" strokeLinecap="round" />
+      <rect x="36" y="112" width="44" height="32" rx="2" fill="#dcfce7" stroke="#22c55e" strokeWidth="0.8" />
+      <text x="42" y="124" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#166534">Dashboard</text>
+      <text x="42" y="134" fontSize="5" fontFamily="system-ui" fill="#166534">v2 redesign</text>
 
-      <rect x="280" y="48" width="72" height="32" rx="4" fill="rgba(212,148,58,0.08)" stroke={A.orange} strokeWidth="1" />
-      <text x="316" y="68" textAnchor="middle" fontSize="8" fontWeight="500" fontFamily="system-ui" fill={A.orange}>Build</text>
+      <rect x="84" y="112" width="44" height="32" rx="2" fill="#fef3c7" stroke="#f59e0b" strokeWidth="0.8" />
+      <text x="90" y="124" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#92400e">Mobile</text>
+      <text x="90" y="134" fontSize="5" fontFamily="system-ui" fill="#92400e">PWA support</text>
 
-      {/* Sticky note */}
-      <rect x="40" y="96" width="100" height="52" rx="2" fill="#fefce8" stroke="#eab308" strokeWidth="1" />
-      <text x="52" y="112" fontSize="7" fontWeight="600" fontFamily="system-ui" fill="#854d0e">Next steps:</text>
-      <text x="52" y="124" fontSize="7" fontFamily="system-ui" fill="#854d0e">- User testing</text>
-      <text x="52" y="136" fontSize="7" fontFamily="system-ui" fill="#854d0e">- Deploy v1</text>
+      {/* Right side: connected flow */}
+      <rect x="160" y="44" width="56" height="28" rx="3" fill="rgba(47,133,90,0.08)" stroke={A.green} strokeWidth="1" />
+      <text x="188" y="62" textAnchor="middle" fontSize="6" fontWeight="500" fontFamily="system-ui" fill={A.green}>Research</text>
 
-      {/* Selection handles on the Design box */}
-      <rect x="156" y="44" width="5" height="5" rx="1" fill={A.blue} />
-      <rect x="228" y="44" width="5" height="5" rx="1" fill={A.blue} />
-      <rect x="156" y="78" width="5" height="5" rx="1" fill={A.blue} />
-      <rect x="228" y="78" width="5" height="5" rx="1" fill={A.blue} />
+      <path d="M220 58 L238 58" stroke={A.muted} strokeWidth="0.8" strokeLinecap="round" />
+      <path d="M234 55 L240 58 L234 61" fill="none" stroke={A.muted} strokeWidth="0.8" strokeLinecap="round" />
+
+      <rect x="244" y="44" width="56" height="28" rx="3" fill="rgba(69,133,209,0.08)" stroke={A.blue} strokeWidth="1" />
+      <text x="272" y="62" textAnchor="middle" fontSize="6" fontWeight="500" fontFamily="system-ui" fill={A.blue}>Design</text>
+
+      {/* Selection state on Design */}
+      <rect x="240" y="40" width="64" height="36" rx="4" fill="none" stroke={A.accent} strokeWidth="1.5" strokeDasharray="4 2" />
+      <rect x="236" y="36" width="4" height="4" rx="1" fill={A.accent} />
+      <rect x="300" y="36" width="4" height="4" rx="1" fill={A.accent} />
+      <rect x="236" y="72" width="4" height="4" rx="1" fill={A.accent} />
+      <rect x="300" y="72" width="4" height="4" rx="1" fill={A.accent} />
+
+      <path d="M304 58 L322 58" stroke={A.muted} strokeWidth="0.8" strokeLinecap="round" />
+      <path d="M318 55 L324 58 L318 61" fill="none" stroke={A.muted} strokeWidth="0.8" strokeLinecap="round" />
+
+      <rect x="328" y="44" width="40" height="28" rx="3" fill="rgba(212,148,58,0.06)" stroke={A.orange} strokeWidth="1" />
+      <text x="348" y="62" textAnchor="middle" fontSize="6" fontWeight="500" fontFamily="system-ui" fill={A.orange}>Build</text>
+
+      {/* Annotation arrow + note */}
+      <path d="M200 100 L260 80" stroke={A.red} strokeWidth="0.8" strokeLinecap="round" strokeDasharray="3 2" />
+      <rect x="200" y="100" width="60" height="24" rx="2" fill="#fef3c7" stroke="#f59e0b" strokeWidth="0.6" />
+      <text x="206" y="110" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#92400e">Blocker:</text>
+      <text x="206" y="118" fontSize="5" fontFamily="system-ui" fill="#92400e">Auth API Keys</text>
+
+      {/* Priority diamond */}
+      <path d="M348 96 L358 106 L348 116 L338 106 Z" fill="rgba(220,69,69,0.08)" stroke={A.red} strokeWidth="0.8" />
+      <text x="348" y="108" textAnchor="middle" fontSize="5" fontWeight="600" fontFamily="system-ui" fill={A.red}>P0</text>
+
+      {/* Status indicator */}
+      <circle cx="370" cy="106" r="6" fill="rgba(47,133,90,0.1)" stroke={A.green} strokeWidth="0.8" />
+      <text x="370" y="108" textAnchor="middle" fontSize="5" fontWeight="600" fontFamily="system-ui" fill={A.green}>OK</text>
     </svg>
   )
 }
@@ -117,48 +145,66 @@ export function ToolsIllustration() {
   )
 }
 
-/* ─── Styling ────────────────────────────────────────────────────── */
+/* ─── Styling: dashboard mockup board ──────────────────────────── */
 export function StylingIllustration() {
   return (
     <svg viewBox="0 0 400 160" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-illustration" aria-hidden="true">
       <rect x="20" y="10" width="360" height="140" rx="10" fill={A.surface} stroke={A.border} strokeWidth="1" />
 
-      <text x="40" y="32" fontSize="10" fontWeight="600" fontFamily="system-ui" fill={A.text}>Style options</text>
+      <text x="40" y="30" fontSize="10" fontWeight="700" fontFamily="system-ui" fill={A.text}>Dashboard Mockup</text>
 
-      {/* Rectangles showing different styles */}
-      <rect x="40" y="42" width="64" height="36" rx="3" fill="rgba(47,133,90,0.08)" stroke={A.green} strokeWidth="1" />
-      <text x="72" y="64" textAnchor="middle" fontSize="7" fontWeight="500" fontFamily="system-ui" fill={A.green}>Solid</text>
-      {/* Selection state on Solid rect */}
-      <rect x="36" y="38" width="72" height="44" rx="4" fill="none" stroke={A.accent} strokeWidth="1.5" strokeDasharray="4 2" />
-      <rect x="32" y="34" width="5" height="5" rx="1" fill={A.accent} />
-      <rect x="104" y="34" width="5" height="5" rx="1" fill={A.accent} />
-      <rect x="32" y="78" width="5" height="5" rx="1" fill={A.accent} />
-      <rect x="104" y="78" width="5" height="5" rx="1" fill={A.accent} />
+      {/* Chart area — bar chart */}
+      <rect x="36" y="40" width="120" height="80" rx="4" fill="rgba(69,133,209,0.03)" stroke={A.border} strokeWidth="0.6" />
+      <rect x="46" y="72" width="14" height="36" rx="2" fill="rgba(47,133,90,0.2)" stroke={A.green} strokeWidth="0.8" />
+      <rect x="66" y="56" width="14" height="52" rx="2" fill="rgba(47,133,90,0.3)" stroke={A.green} strokeWidth="0.8" />
+      <rect x="86" y="64" width="14" height="44" rx="2" fill="rgba(47,133,90,0.2)" stroke={A.green} strokeWidth="0.8" />
+      <rect x="106" y="48" width="14" height="60" rx="2" fill="rgba(47,133,90,0.4)" stroke={A.green} strokeWidth="0.8" />
+      <rect x="126" y="60" width="14" height="48" rx="2" fill="rgba(47,133,90,0.25)" stroke={A.green} strokeWidth="0.8" />
+      <text x="96" y="134" textAnchor="middle" fontSize="5" fontFamily="system-ui" fill={A.muted}>Revenue by Month</text>
 
-      <rect x="120" y="42" width="64" height="36" rx="3" fill="rgba(69,133,209,0.06)" stroke={A.blue} strokeWidth="1" strokeDasharray="6 3" />
-      <text x="152" y="64" textAnchor="middle" fontSize="7" fontWeight="500" fontFamily="system-ui" fill={A.blue}>Dashed</text>
+      {/* Selection state on the chart */}
+      <rect x="32" y="36" width="128" height="88" rx="5" fill="none" stroke={A.accent} strokeWidth="1.5" strokeDasharray="4 2" />
+      <rect x="28" y="32" width="4" height="4" rx="1" fill={A.accent} />
+      <rect x="156" y="32" width="4" height="4" rx="1" fill={A.accent} />
+      <rect x="28" y="120" width="4" height="4" rx="1" fill={A.accent} />
+      <rect x="156" y="120" width="4" height="4" rx="1" fill={A.accent} />
 
-      <rect x="200" y="42" width="64" height="36" rx="3" fill="rgba(212,148,58,0.05)" stroke={A.orange} strokeWidth="2" />
-      <text x="232" y="64" textAnchor="middle" fontSize="7" fontWeight="500" fontFamily="system-ui" fill={A.orange}>Thick</text>
+      {/* Stat cards */}
+      <rect x="172" y="40" width="72" height="36" rx="4" fill="rgba(69,133,209,0.06)" stroke={A.blue} strokeWidth="0.8" />
+      <text x="180" y="54" fontSize="5" fontWeight="600" fontFamily="system-ui" fill={A.blue}>Revenue</text>
+      <text x="180" y="66" fontSize="9" fontWeight="700" fontFamily="system-ui" fill={A.text}>$48.2k</text>
 
-      <circle cx="312" cy="60" r="20" fill="rgba(139,92,246,0.06)" stroke={A.purple} strokeWidth="1" />
-      <text x="312" y="63" textAnchor="middle" fontSize="7" fontWeight="500" fontFamily="system-ui" fill={A.purple}>Circle</text>
+      <rect x="252" y="40" width="72" height="36" rx="4" fill="rgba(47,133,90,0.06)" stroke={A.green} strokeWidth="0.8" />
+      <text x="260" y="54" fontSize="5" fontWeight="600" fontFamily="system-ui" fill={A.green}>Users</text>
+      <text x="260" y="66" fontSize="9" fontWeight="700" fontFamily="system-ui" fill={A.text}>1,247</text>
 
-      {/* Colored arrow */}
-      <path d="M52 100 L140 100" stroke={A.red} strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M134 96 L142 100 L134 104" fill="none" stroke={A.red} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      <text x="96" y="116" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill={A.muted}>Colored arrow</text>
+      <rect x="332" y="40" width="40" height="36" rx="4" fill="rgba(239,69,69,0.06)" stroke={A.red} strokeWidth="0.8" />
+      <text x="340" y="54" fontSize="5" fontWeight="600" fontFamily="system-ui" fill={A.red}>Churn</text>
+      <text x="340" y="66" fontSize="9" fontWeight="700" fontFamily="system-ui" fill={A.text}>2.1%</text>
 
-      {/* Sticky note */}
-      <rect x="176" y="88" width="96" height="44" rx="2" fill="#fef3c7" stroke="#f59e0b" strokeWidth="0.8" />
-      <text x="186" y="104" fontSize="7" fontWeight="500" fontFamily="system-ui" fill="#92400e">Notes:</text>
-      <text x="186" y="116" fontSize="7" fontFamily="system-ui" fill="#92400e">Use color to group</text>
-      <text x="186" y="126" fontSize="7" fontFamily="system-ui" fill="#92400e">related items</text>
+      {/* Pie chart */}
+      <circle cx="208" cy="106" r="22" fill="none" stroke={A.blue} strokeWidth="8" strokeDasharray="22 117" />
+      <circle cx="208" cy="106" r="22" fill="none" stroke={A.green} strokeWidth="8" strokeDasharray="35 104" strokeDashoffset="-22" />
+      <circle cx="208" cy="106" r="22" fill="none" stroke={A.orange} strokeWidth="8" strokeDasharray="18 121" strokeDashoffset="-57" />
+      <circle cx="208" cy="106" r="14" fill={A.surface} />
 
-      {/* Label card */}
-      <rect x="300" y="92" width="72" height="36" rx="3" fill="rgba(69,133,209,0.06)" stroke={A.blue} strokeWidth="0.8" />
-      <text x="336" y="108" textAnchor="middle" fontSize="7" fontWeight="500" fontFamily="system-ui" fill={A.blue}>Label</text>
-      <text x="336" y="120" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill={A.muted}>Group A</text>
+      {/* Legend */}
+      <rect x="240" y="90" width="6" height="6" rx="1" fill={A.blue} />
+      <text x="250" y="96" fontSize="5" fontFamily="system-ui" fill={A.muted}>Direct 42%</text>
+      <rect x="240" y="100" width="6" height="6" rx="1" fill={A.green} />
+      <text x="250" y="106" fontSize="5" fontFamily="system-ui" fill={A.muted}>Organic 33%</text>
+      <rect x="240" y="110" width="6" height="6" rx="1" fill={A.orange} />
+      <text x="250" y="116" fontSize="5" fontFamily="system-ui" fill={A.muted}>Referral 25%</text>
+
+      {/* Annotation */}
+      <path d="M330 86 L350 96" stroke={A.red} strokeWidth="0.6" strokeLinecap="round" strokeDasharray="2 2" />
+      <rect x="310" y="86" width="52" height="18" rx="2" fill="#fef3c7" stroke="#f59e0b" strokeWidth="0.5" />
+      <text x="316" y="96" fontSize="5" fontWeight="500" fontFamily="system-ui" fill="#92400e">Check this</text>
+      <text x="316" y="102" fontSize="5" fontFamily="system-ui" fill="#92400e">with finance</text>
+
+      {/* Trend line */}
+      <path d="M280 108 L292 100 L304 106 L316 94 L328 98" stroke={A.purple} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="328" cy="98" r="2.5" fill={A.purple} />
     </svg>
   )
 }
@@ -253,68 +299,146 @@ export function ExportIllustration() {
   )
 }
 
-/* ─── Tips ───────────────────────────────────────────────────────── */
+/* ─── Tips: scattered sticky notes board ───────────────────────── */
 export function TipsIllustration() {
   return (
     <svg viewBox="0 0 400 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-illustration" aria-hidden="true">
       <rect x="20" y="10" width="360" height="120" rx="10" fill={A.surface} stroke={A.border} strokeWidth="1" />
 
-      <text x="40" y="30" fontSize="10" fontWeight="600" fontFamily="system-ui" fill={A.text}>Pro tips</text>
+      <text x="40" y="28" fontSize="10" fontWeight="700" fontFamily="system-ui" fill={A.text}>Sprint Retrospective</text>
 
-      {/* Tip 1 */}
-      <rect x="36" y="38" width="100" height="48" rx="2" fill="#fefce8" stroke="#eab308" strokeWidth="0.8" />
-      <text x="46" y="54" fontSize="7" fontWeight="600" fontFamily="system-ui" fill="#854d0e">Tip 1</text>
-      <text x="46" y="66" fontSize="7" fontFamily="system-ui" fill="#854d0e">Hold space to pan</text>
-      <text x="46" y="78" fontSize="7" fontFamily="system-ui" fill="#854d0e">around the canvas</text>
+      {/* Went well column */}
+      <rect x="36" y="36" width="100" height="10" rx="2" fill="rgba(47,133,90,0.12)" />
+      <text x="42" y="44" fontSize="5" fontWeight="700" fontFamily="system-ui" fill={A.green} letterSpacing="0.06em">WENT WELL</text>
 
-      {/* Tip 2 */}
-      <rect x="148" y="38" width="100" height="48" rx="2" fill="#ede9fe" stroke="#8b5cf6" strokeWidth="0.8" />
-      <text x="158" y="54" fontSize="7" fontWeight="600" fontFamily="system-ui" fill="#7c3aed">Tip 2</text>
-      <text x="158" y="66" fontSize="7" fontFamily="system-ui" fill="#7c3aed">Ctrl+Z to undo</text>
-      <text x="158" y="78" fontSize="7" fontFamily="system-ui" fill="#7c3aed">any mistake</text>
+      <rect x="36" y="50" width="44" height="28" rx="2" fill="#fefce8" stroke="#eab308" strokeWidth="0.8" transform="rotate(-1.5 58 64)" />
+      <text x="42" y="60" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#854d0e">Shipped on</text>
+      <text x="42" y="68" fontSize="5" fontFamily="system-ui" fill="#854d0e">time!</text>
 
-      {/* Tip 3 */}
-      <rect x="260" y="38" width="100" height="48" rx="2" fill="#dcfce7" stroke="#22c55e" strokeWidth="0.8" />
-      <text x="270" y="54" fontSize="7" fontWeight="600" fontFamily="system-ui" fill="#166534">Tip 3</text>
-      <text x="270" y="66" fontSize="7" fontFamily="system-ui" fill="#166534">Double-click to add</text>
-      <text x="270" y="78" fontSize="7" fontFamily="system-ui" fill="#166534">text anywhere</text>
+      <rect x="84" y="52" width="44" height="28" rx="2" fill="#dcfce7" stroke="#22c55e" strokeWidth="0.8" transform="rotate(1 106 66)" />
+      <text x="90" y="62" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#166534">Great code</text>
+      <text x="90" y="70" fontSize="5" fontFamily="system-ui" fill="#166534">reviews</text>
 
-      {/* Bottom shortcuts bar */}
-      <rect x="36" y="96" width="328" height="20" rx="3" fill={A.accentSoft} />
-      <text x="50" y="110" fontSize="7" fontWeight="500" fontFamily="system-ui" fill={A.accent}>Shortcuts:</text>
-      <text x="108" y="110" fontSize="7" fontFamily="monospace" fill={A.muted}>V Select</text>
-      <text x="158" y="110" fontSize="7" fontFamily="monospace" fill={A.muted}>R Rectangle</text>
-      <text x="222" y="110" fontSize="7" fontFamily="monospace" fill={A.muted}>O Circle</text>
-      <text x="276" y="110" fontSize="7" fontFamily="monospace" fill={A.muted}>T Text</text>
-      <text x="318" y="110" fontSize="7" fontFamily="monospace" fill={A.muted}>P Pen</text>
+      <rect x="36" y="82" width="44" height="28" rx="2" fill="#ede9fe" stroke="#8b5cf6" strokeWidth="0.8" transform="rotate(0.5 58 96)" />
+      <text x="42" y="92" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#7c3aed">Zero P0</text>
+      <text x="42" y="100" fontSize="5" fontFamily="system-ui" fill="#7c3aed">bugs</text>
+
+      <rect x="84" y="84" width="44" height="28" rx="2" fill="#fef3c7" stroke="#f59e0b" strokeWidth="0.8" transform="rotate(-0.8 106 98)" />
+      <text x="90" y="94" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#92400e">Team sync</text>
+      <text x="90" y="102" fontSize="5" fontFamily="system-ui" fill="#92400e">daily</text>
+
+      {/* To improve column */}
+      <rect x="156" y="36" width="100" height="10" rx="2" fill="rgba(220,69,69,0.1)" />
+      <text x="162" y="44" fontSize="5" fontWeight="700" fontFamily="system-ui" fill={A.red} letterSpacing="0.06em">TO IMPROVE</text>
+
+      <rect x="156" y="50" width="44" height="28" rx="2" fill="#fef3c7" stroke="#f59e0b" strokeWidth="0.8" transform="rotate(1.2 178 64)" />
+      <text x="162" y="60" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#92400e">Slow CI</text>
+      <text x="162" y="68" fontSize="5" fontFamily="system-ui" fill="#92400e">pipeline</text>
+
+      <rect x="204" y="52" width="44" height="28" rx="2" fill="#fee2e2" stroke="#dc4545" strokeWidth="0.8" transform="rotate(-0.5 226 66)" />
+      <text x="210" y="62" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#991b1b">Scope creep</text>
+      <text x="210" y="70" fontSize="5" fontFamily="system-ui" fill="#991b1b">on auth</text>
+
+      <rect x="156" y="82" width="44" height="28" rx="2" fill="#ede9fe" stroke="#8b5cf6" strokeWidth="0.8" transform="rotate(0.8 178 96)" />
+      <text x="162" y="92" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#7c3aed">Missing</text>
+      <text x="162" y="100" fontSize="5" fontFamily="system-ui" fill="#7c3aed">test docs</text>
+
+      <rect x="204" y="84" width="44" height="28" rx="2" fill="#fefce8" stroke="#eab308" strokeWidth="0.8" transform="rotate(-1 226 98)" />
+      <text x="210" y="94" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#854d0e">Late standup</text>
+      <text x="210" y="102" fontSize="5" fontFamily="system-ui" fill="#854d0e">meetings</text>
+
+      {/* Action items */}
+      <rect x="276" y="36" width="96" height="10" rx="2" fill="rgba(69,133,209,0.12)" />
+      <text x="282" y="44" fontSize="5" fontWeight="700" fontFamily="system-ui" fill={A.blue} letterSpacing="0.06em">ACTION ITEMS</text>
+
+      <rect x="276" y="50" width="90" height="24" rx="3" fill={A.surface} stroke={A.border} strokeWidth="0.8" />
+      <circle cx="286" cy="62" r="4" fill="rgba(47,133,90,0.1)" stroke={A.green} strokeWidth="0.6" />
+      <text x="294" y="64" fontSize="5" fontFamily="system-ui" fill={A.text}>Optimize CI cache</text>
+
+      <rect x="276" y="78" width="90" height="24" rx="3" fill={A.surface} stroke={A.border} strokeWidth="0.8" />
+      <circle cx="286" cy="90" r="4" fill="rgba(220,69,69,0.1)" stroke={A.red} strokeWidth="0.6" />
+      <text x="294" y="92" fontSize="5" fontFamily="system-ui" fill={A.text}>Add PR size guide</text>
+
+      {/* Arrow connecting items */}
+      <path d="M270 64 L276 64" stroke={A.accent} strokeWidth="0.8" strokeLinecap="round" />
+      <path d="M274 62 L278 64 L274 66" fill="none" stroke={A.accent} strokeWidth="0.8" strokeLinecap="round" />
     </svg>
   )
 }
 
-/* ─── FAQ ────────────────────────────────────────────────────────── */
+/* ─── FAQ: realistic help-center board ──────────────────────────── */
 export function FAQIllustration() {
   return (
     <svg viewBox="0 0 400 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-illustration" aria-hidden="true">
       <rect x="20" y="10" width="360" height="120" rx="10" fill={A.surface} stroke={A.border} strokeWidth="1" />
 
-      <text x="40" y="30" fontSize="10" fontWeight="600" fontFamily="system-ui" fill={A.text}>Frequently asked</text>
+      {/* Board title */}
+      <text x="40" y="30" fontSize="11" fontWeight="700" fontFamily="system-ui" fill={A.text}>Help Center Board</text>
 
-      {/* Q1 — open */}
-      <rect x="36" y="38" width="160" height="40" rx="4" fill={A.accentSoft} stroke={A.accent} strokeWidth="1" />
-      <text x="48" y="54" fontSize="7" fontWeight="600" fontFamily="system-ui" fill={A.accent}>Q: Is Kanvas free?</text>
-      <text x="48" y="68" fontSize="7" fontFamily="system-ui" fill={A.muted}>A: Yes, fully free to use.</text>
+      {/* Category: Getting Started */}
+      <rect x="36" y="38" width="100" height="10" rx="2" fill="rgba(47,133,90,0.1)" />
+      <text x="42" y="47" fontSize="5" fontWeight="700" fontFamily="system-ui" fill={A.green} letterSpacing="0.06em">GETTING STARTED</text>
 
-      {/* Q2 — closed */}
-      <rect x="36" y="86" width="160" height="24" rx="4" fill={A.surface} stroke={A.border} strokeWidth="0.8" />
-      <text x="48" y="102" fontSize="7" fontWeight="500" fontFamily="system-ui" fill={A.muted}>Q: Can I export my boards?</text>
+      <rect x="36" y="52" width="44" height="28" rx="2" fill="#dcfce7" stroke="#22c55e" strokeWidth="0.8" />
+      <text x="42" y="62" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#166534">Is Kanvas free?</text>
+      <text x="42" y="72" fontSize="5" fontFamily="system-ui" fill="#166534">Yes, fully free</text>
 
-      {/* Q3 — closed */}
-      <rect x="208" y="38" width="160" height="24" rx="4" fill={A.surface} stroke={A.border} strokeWidth="0.8" />
-      <text x="220" y="54" fontSize="7" fontWeight="500" fontFamily="system-ui" fill={A.muted}>Q: Does it work offline?</text>
+      <rect x="84" y="52" width="44" height="28" rx="2" fill="#dcfce7" stroke="#22c55e" strokeWidth="0.8" transform="rotate(0.5 106 66)" />
+      <text x="90" y="62" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#166534">How to sign up?</text>
+      <text x="90" y="72" fontSize="5" fontFamily="system-ui" fill="#166534">Email or Google</text>
 
-      {/* Q4 — closed */}
-      <rect x="208" y="70" width="160" height="24" rx="4" fill={A.surface} stroke={A.border} strokeWidth="0.8" />
-      <text x="220" y="86" fontSize="7" fontWeight="500" fontFamily="system-ui" fill={A.muted}>Q: How do I share boards?</text>
+      {/* Category: Features */}
+      <rect x="156" y="38" width="100" height="10" rx="2" fill="rgba(69,133,209,0.1)" />
+      <text x="162" y="47" fontSize="5" fontWeight="700" fontFamily="system-ui" fill={A.blue} letterSpacing="0.06em">FEATURES</text>
+
+      <rect x="156" y="52" width="44" height="28" rx="2" fill="#ede9fe" stroke="#8b5cf6" strokeWidth="0.8" />
+      <text x="162" y="62" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#7c3aed">Export formats?</text>
+      <text x="162" y="72" fontSize="5" fontFamily="system-ui" fill="#7c3aed">PNG, SVG, PDF</text>
+
+      <rect x="204" y="52" width="44" height="28" rx="2" fill="#ede9fe" stroke="#8b5cf6" strokeWidth="0.8" transform="rotate(-0.4 226 66)" />
+      <text x="210" y="62" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#7c3aed">Offline mode?</text>
+      <text x="210" y="72" fontSize="5" fontFamily="system-ui" fill="#7c3aed">Yes, local first</text>
+
+      {/* Category: Troubleshooting */}
+      <rect x="276" y="38" width="96" height="10" rx="2" fill="rgba(220,69,69,0.1)" />
+      <text x="282" y="47" fontSize="5" fontWeight="700" fontFamily="system-ui" fill={A.red} letterSpacing="0.06em">TROUBLESHOOTING</text>
+
+      <rect x="276" y="52" width="90" height="28" rx="2" fill="#fef3c7" stroke="#f59e0b" strokeWidth="0.8" />
+      <text x="282" y="62" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#92400e">Board won't load?</text>
+      <text x="282" y="72" fontSize="5" fontFamily="system-ui" fill="#92400e">Clear cache + retry</text>
+
+      {/* Connection line between related items */}
+      <path d="M132 66 L156 66" stroke={A.muted} strokeWidth="0.6" strokeDasharray="2 1.5" strokeLinecap="round" />
+      <path d="M152 64 L158 66 L152 68" fill="none" stroke={A.muted} strokeWidth="0.6" strokeLinecap="round" />
+
+      {/* Selection state on a note */}
+      <rect x="152" y="48" width="52" height="36" rx="4" fill="none" stroke={A.accent} strokeWidth="1.5" strokeDasharray="4 2" />
+      <rect x="148" y="44" width="4" height="4" rx="1" fill={A.accent} />
+      <rect x="204" y="44" width="4" height="4" rx="1" fill={A.accent} />
+      <rect x="148" y="80" width="4" height="4" rx="1" fill={A.accent} />
+      <rect x="204" y="80" width="4" height="4" rx="1" fill={A.accent} />
+
+      {/* Bottom row: popular questions */}
+      <rect x="36" y="90" width="336" height="10" rx="2" fill="rgba(139,92,246,0.08)" />
+      <text x="42" y="99" fontSize="5" fontWeight="700" fontFamily="system-ui" fill={A.purple} letterSpacing="0.06em">POPULAR QUESTIONS</text>
+
+      <rect x="36" y="104" width="52" height="20" rx="2" fill={A.surface} stroke={A.border} strokeWidth="0.6" />
+      <text x="42" y="116" fontSize="4.5" fontFamily="system-ui" fill={A.text}>Share boards?</text>
+
+      <rect x="92" y="104" width="52" height="20" rx="2" fill={A.surface} stroke={A.border} strokeWidth="0.6" />
+      <text x="98" y="116" fontSize="4.5" fontFamily="system-ui" fill={A.text}>Team sizes?</text>
+
+      <rect x="148" y="104" width="52" height="20" rx="2" fill={A.surface} stroke={A.border} strokeWidth="0.6" />
+      <text x="154" y="116" fontSize="4.5" fontFamily="system-ui" fill={A.text}>Keyboard shortcuts</text>
+
+      <rect x="204" y="104" width="52" height="20" rx="2" fill={A.surface} stroke={A.border} strokeWidth="0.6" />
+      <text x="210" y="116" fontSize="4.5" fontFamily="system-ui" fill={A.text}>Image limits?</text>
+
+      <rect x="260" y="104" width="52" height="20" rx="2" fill={A.surface} stroke={A.border} strokeWidth="0.6" />
+      <text x="266" y="116" fontSize="4.5" fontFamily="system-ui" fill={A.text}>Dark mode?</text>
+
+      <rect x="316" y="104" width="56" height="20" rx="2" fill={A.surface} stroke={A.border} strokeWidth="0.6" />
+      <text x="322" y="116" fontSize="4.5" fontFamily="system-ui" fill={A.text}>Mobile support?</text>
     </svg>
   )
 }

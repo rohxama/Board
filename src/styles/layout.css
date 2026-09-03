@@ -156,11 +156,9 @@
   position: fixed;
   z-index: 5;
   right: clamp(18px, 3vw, 54px);
-  top: 85px;
   top: max(85px, env(safe-area-inset-top));
   width: min(286px, calc(100vw - 36px));
   max-height: calc(100vh - 116px);
-  overflow: auto;
   padding: 8px;
   border-radius: 20px;
   color: #334155;
@@ -856,7 +854,6 @@ html[data-theme='dark'] .style-panel select, html[data-theme='dark'] .clear-fill
 .style-panel {
   top: 94px;
   right: 26px;
-  transform: translate(0, 0);
   width: min(280px, calc(100vw - 52px));
   max-height: calc(100vh - 116px);
   padding: 0 8px 8px;
@@ -953,7 +950,8 @@ html[data-theme='dark'] .modal-fresh:hover { background: var(--surface); color: 
   .left-toolbar button { flex: 0 0 36px; width: 36px; justify-content: center; padding: 0; }
   .left-toolbar .tool-label { display: none; }
   .left-toolbar .tool-divider { flex: 0 0 1px; width: 1px; height: 24px; margin: 0 3px; }
-  .style-panel { top: auto; right: 50%; bottom: 78px; transform: translateX(50%); width: min(330px, calc(100vw - 28px)); max-height: calc(100vh - 176px); }
+  .style-panel { top: auto; right: 50%; bottom: 78px; width: min(330px, calc(100vw - 28px)); max-height: calc(100vh - 176px); }
+  .style-panel.is-open { translate: translateX(50%) 0; }
 }
 
 /* Supplied white-header reference pass. The existing actions remain wired in
@@ -1061,9 +1059,7 @@ html[data-theme='dark'] .modal-fresh:hover { background: var(--surface); color: 
    Style/Arrange tabs with blue underline, uppercase section headers, and
    label-left / control-right rows. */
 .style-panel {
-  top: 50%;
   right: 26px;
-  transform: translateY(-50%);
   width: 250px;
   max-height: calc(100vh - 120px);
   overflow-y: auto;
@@ -3230,7 +3226,8 @@ html[data-theme='dark'] .side-avatar-delete:hover { background: rgba(0, 0, 0, .7
 .top-toolbar .account-menu { z-index: 1000; }
 @media (max-width: 760px) {
   .style-panel {
-    top: max(85px, env(safe-area-inset-top));
+    top: auto;
+    bottom: 18px;
   }
   .side-panel {
     top: max(62px, env(safe-area-inset-top));
@@ -3244,7 +3241,8 @@ html[data-theme='dark'] .side-avatar-delete:hover { background: rgba(0, 0, 0, .7
 }
 @media (max-width: 380px) {
   .style-panel {
-    top: max(85px, env(safe-area-inset-top));
+    top: auto;
+    bottom: 18px;
   }
   .side-panel {
     top: max(58px, env(safe-area-inset-top));
