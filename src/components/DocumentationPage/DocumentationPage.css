@@ -11,6 +11,8 @@
   min-height: 100dvh;
   overflow-x: hidden;
   overflow-y: auto;
+  scroll-behavior: smooth;
+  scroll-padding-top: 72px;
   background-color: var(--canvas);
   background-image: radial-gradient(circle, var(--dot) 1px, transparent 1.2px);
   background-size: 22px 22px;
@@ -3901,6 +3903,9 @@ html[data-theme='dark'] .doc-workflow-step:hover {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .doc-page {
+    scroll-behavior: auto;
+  }
   .doc-back-to-top {
     transition: none !important;
     transform: none !important;
