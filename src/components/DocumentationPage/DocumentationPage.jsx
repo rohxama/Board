@@ -1754,6 +1754,173 @@ export default function DocumentationPage() {
             </div>
           </section>
 
+          <section id="images" className="doc-section">
+            <h2 className="doc-section-title"><NavIcon name="image" /> Images</h2>
+
+            <div className="doc-editorial doc-editorial--reversed">
+              <div className="doc-editorial-visual">
+                <div className="doc-images-showcase">
+                  <div className="doc-images-canvas">
+                    <svg viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }} aria-hidden="true">
+                      {/* Canvas dot grid */}
+                      {[0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640].map(x => (
+                        [0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420].map(y => (
+                          <circle key={`${x}-${y}`} cx={x} cy={y} r="0.6" fill="var(--dot)" />
+                        ))
+                      )).flat()}
+
+                      {/* ── Large hero image (selected) ── */}
+                      <rect x="40" y="30" width="340" height="200" rx="10" fill="rgba(59,130,246,0.03)" stroke="#e5e7eb" strokeWidth="1.2" />
+                      {/* Image content — landscape with mountains */}
+                      <rect x="40" y="30" width="340" height="200" rx="10" fill="url(#imgGrad1)" clipPath="url(#imgClip1)" />
+                      <defs>
+                        <linearGradient id="imgGrad1" x1="40" y1="30" x2="380" y2="230" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stopColor="#93c5fd" />
+                          <stop offset="40%" stopColor="#60a5fa" />
+                          <stop offset="100%" stopColor="#3b82f6" />
+                        </linearGradient>
+                        <clipPath id="imgClip1"><rect x="40" y="30" width="340" height="200" rx="10" /></clipPath>
+                      </defs>
+                      {/* Sky gradient overlay */}
+                      <rect x="40" y="30" width="340" height="120" rx="10" fill="rgba(147,197,253,0.3)" clipPath="url(#imgClip1)" />
+                      {/* Mountains */}
+                      <path d="M40 180 L120 100 L180 140 L260 80 L340 130 L380 160 L380 230 L40 230 Z" fill="rgba(30,64,175,0.25)" clipPath="url(#imgClip1)" />
+                      <path d="M40 200 L140 140 L220 170 L300 120 L380 170 L380 230 L40 230 Z" fill="rgba(30,64,175,0.35)" clipPath="url(#imgClip1)" />
+                      {/* Sun */}
+                      <circle cx="300" cy="70" r="20" fill="rgba(253,224,71,0.5)" clipPath="url(#imgClip1)" />
+                      {/* Cloud */}
+                      <ellipse cx="120" cy="60" rx="30" ry="10" fill="rgba(255,255,255,0.4)" clipPath="url(#imgClip1)" />
+                      <ellipse cx="140" cy="55" rx="20" ry="8" fill="rgba(255,255,255,0.3)" clipPath="url(#imgClip1)" />
+                      {/* Image label */}
+                      <rect x="52" y="200" width="80" height="20" rx="4" fill="rgba(0,0,0,0.5)" />
+                      <text x="62" y="214" fontSize="8" fontWeight="500" fontFamily="system-ui" fill="white">hero-banner.png</text>
+                      {/* Selection handles */}
+                      <rect x="36" y="26" width="7" height="7" rx="2" fill="#3b82f6" />
+                      <rect x="376" y="26" width="7" height="7" rx="2" fill="#3b82f6" />
+                      <rect x="36" y="226" width="7" height="7" rx="2" fill="#3b82f6" />
+                      <rect x="376" y="226" width="7" height="7" rx="2" fill="#3b82f6" />
+                      <rect x="36" y="26" width="347" height="207" rx="12" fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="4 2" />
+                      {/* Size badge */}
+                      <rect x="310" y="210" width="60" height="16" rx="4" fill="rgba(59,130,246,0.9)" />
+                      <text x="340" y="221" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill="white">1200×800</text>
+
+                      {/* ── Small image: avatar ── */}
+                      <rect x="420" y="30" width="80" height="80" rx="40" fill="rgba(139,92,246,0.1)" stroke="#e5e7eb" strokeWidth="1.2" />
+                      <circle cx="460" cy="70" r="40" fill="url(#imgGrad2)" />
+                      <defs>
+                        <linearGradient id="imgGrad2" x1="420" y1="30" x2="500" y2="110" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stopColor="#c4b5fd" />
+                          <stop offset="100%" stopColor="#8b5cf6" />
+                        </linearGradient>
+                      </defs>
+                      <text x="460" y="74" textAnchor="middle" fontSize="18" fontWeight="700" fontFamily="system-ui" fill="white">JD</text>
+                      <rect x="420" y="100" width="80" height="14" rx="3" fill="rgba(0,0,0,0.5)" />
+                      <text x="460" y="110" textAnchor="middle" fontSize="7" fontWeight="500" fontFamily="system-ui" fill="white">avatar.jpg</text>
+
+                      {/* ── Small image: product screenshot ── */}
+                      <rect x="520" y="30" width="100" height="80" rx="6" fill="rgba(34,197,94,0.03)" stroke="#e5e7eb" strokeWidth="1.2" />
+                      <rect x="520" y="30" width="100" height="80" rx="6" fill="url(#imgGrad3)" />
+                      <defs>
+                        <linearGradient id="imgGrad3" x1="520" y1="30" x2="620" y2="110" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stopColor="#86efac" />
+                          <stop offset="100%" stopColor="#22c55e" />
+                        </linearGradient>
+                      </defs>
+                      {/* Mini UI elements inside */}
+                      <rect x="530" y="40" width="60" height="6" rx="2" fill="rgba(255,255,255,0.4)" />
+                      <rect x="530" y="52" width="40" height="4" rx="1" fill="rgba(255,255,255,0.25)" />
+                      <rect x="530" y="60" width="50" height="4" rx="1" fill="rgba(255,255,255,0.2)" />
+                      <rect x="530" y="72" width="30" height="12" rx="3" fill="rgba(255,255,255,0.35)" />
+                      <rect x="520" y="100" width="100" height="14" rx="3" fill="rgba(0,0,0,0.5)" />
+                      <text x="570" y="110" textAnchor="middle" fontSize="7" fontWeight="500" fontFamily="system-ui" fill="white">dashboard.png</text>
+
+                      {/* ── Middle: Image grid layout ── */}
+                      <text x="40" y="260" fontSize="12" fontWeight="700" fontFamily="system-ui" fill="var(--text)">Gallery View</text>
+                      <path d="M40 268 C60 266, 130 267, 150 268" stroke="#d1d5db" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+
+                      {/* Grid of 4 images */}
+                      <rect x="40" y="280" width="110" height="80" rx="6" fill="url(#imgGrad4)" />
+                      <defs>
+                        <linearGradient id="imgGrad4" x1="40" y1="280" x2="150" y2="360" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stopColor="#fda4af" />
+                          <stop offset="100%" stopColor="#e11d48" />
+                        </linearGradient>
+                      </defs>
+                      <rect x="50" y="290" width="50" height="4" rx="1" fill="rgba(255,255,255,0.3)" />
+                      <rect x="50" y="300" width="35" height="3" rx="1" fill="rgba(255,255,255,0.2)" />
+
+                      <rect x="160" y="280" width="110" height="80" rx="6" fill="url(#imgGrad5)" />
+                      <defs>
+                        <linearGradient id="imgGrad5" x1="160" y1="280" x2="270" y2="360" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stopColor="#fcd34d" />
+                          <stop offset="100%" stopColor="#f59e0b" />
+                        </linearGradient>
+                      </defs>
+                      <circle cx="215" cy="310" r="15" fill="rgba(255,255,255,0.25)" />
+                      <rect x="170" y="340" width="60" height="4" rx="1" fill="rgba(255,255,255,0.25)" />
+
+                      <rect x="280" y="280" width="110" height="80" rx="6" fill="url(#imgGrad6)" />
+                      <defs>
+                        <linearGradient id="imgGrad6" x1="280" y1="280" x2="390" y2="360" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stopColor="#67e8f9" />
+                          <stop offset="100%" stopColor="#06b6d4" />
+                        </linearGradient>
+                      </defs>
+                      <path d="M290 340 L320 310 L350 330 L380 300 L390 340 L390 360 L290 360 Z" fill="rgba(255,255,255,0.2)" />
+
+                      <rect x="400" y="280" width="110" height="80" rx="6" fill="url(#imgGrad7)" />
+                      <defs>
+                        <linearGradient id="imgGrad7" x1="400" y1="280" x2="510" y2="360" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stopColor="#a5b4fc" />
+                          <stop offset="100%" stopColor="#6366f1" />
+                        </linearGradient>
+                      </defs>
+                      <rect x="410" y="290" width="80" height="50" rx="4" fill="rgba(255,255,255,0.15)" />
+                      <rect x="420" y="300" width="40" height="4" rx="1" fill="rgba(255,255,255,0.3)" />
+                      <rect x="420" y="310" width="55" height="3" rx="1" fill="rgba(255,255,255,0.2)" />
+                      <rect x="420" y="320" width="30" height="10" rx="2" fill="rgba(255,255,255,0.3)" />
+
+                      {/* Grid labels */}
+                      <text x="95" y="376" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill="#9ca3af">marketing-v2.jpg</text>
+                      <text x="215" y="376" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill="#9ca3af">product-shot.jpg</text>
+                      <text x="335" y="376" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill="#9ca3af">landscape.jpg</text>
+                      <text x="455" y="376" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill="#9ca3af">ui-mockup.png</text>
+
+                      {/* ── Right: Drag-and-drop hint ── */}
+                      <rect x="540" y="260" width="90" height="90" rx="8" fill="rgba(59,130,246,0.04)" stroke="#3b82f6" strokeWidth="1.2" strokeDasharray="5 3" />
+                      <text x="585" y="296" textAnchor="middle" fontSize="8" fontWeight="600" fontFamily="system-ui" fill="#3b82f6">Drop here</text>
+                      <text x="585" y="310" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill="#93c5fd">to upload</text>
+                      {/* Plus icon */}
+                      <path d="M585 330 L585 342" stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" />
+                      <path d="M579 336 L591 336" stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" />
+
+                      {/* Cursor hovering over drop zone */}
+                      <path d="M562 348 L562 364 L568 359 L574 368 L577 366 L571 357 L577 353Z" fill="var(--text)" />
+                      {/* Drag ghost */}
+                      <rect x="558" y="344" width="30" height="22" rx="3" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" strokeWidth="1" strokeDasharray="3 2" opacity="0.6" />
+                    </svg>
+                  </div>
+                  <div className="doc-images-label">
+                    <span className="doc-images-label-text">Drag images onto the canvas — resize, crop, and arrange with selection handles</span>
+                  </div>
+                </div>
+              </div>
+              <div className="doc-editorial-text">
+                <span className="doc-editorial-label">Media</span>
+                <h3 className="doc-editorial-heading">Place images anywhere on the canvas</h3>
+                <ul className="doc-editorial-list">
+                  <li><strong>Drag and drop</strong> — drop PNG, JPEG, SVG, or WebP files directly onto the canvas</li>
+                  <li><strong>Click the image tool</strong> — press <kbd>9</kbd> or use the toolbar to upload from file picker</li>
+                  <li><strong>Resize</strong> — drag corner handles to scale, hold <kbd>Shift</kbd> to lock proportions</li>
+                  <li><strong>Crop</strong> — double-click an image to enter crop mode, drag edges to trim</li>
+                  <li><strong>Layer</strong> — images sit behind text and shapes by default, right-click to reorder</li>
+                  <li><strong>Replace</strong> — select an image and drop a new file to swap it in place</li>
+                  <li><strong>Export</strong> — images are included in PNG, SVG, and PDF exports at full resolution</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
           <SectionBreak
             description="Move freely across your infinite canvas — zoom in for detail, pan to explore."
             illustration={<ZoomBreakIllustration />}
