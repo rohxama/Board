@@ -1048,7 +1048,7 @@ export default function DocumentationPage() {
 
         <main className="doc-content" id="doc-main-content" ref={contentRef}>
 
-          <section id="getting-started" className="doc-section">
+          <section id="getting-started" className="doc-section" data-reveal>
             <h2 className="doc-section-title"><NavIcon name="play" /> Getting Started</h2>
 
             <div className="doc-editorial">
@@ -1079,7 +1079,7 @@ export default function DocumentationPage() {
             accent="green"
           />
 
-          <section id="tools" className="doc-section">
+          <section id="tools" className="doc-section" data-reveal>
             <h2 className="doc-section-title"><NavIcon name="cursor" /> Tools</h2>
 
             {/* Realistic product showcase — full Kanvas board */}
@@ -1342,7 +1342,7 @@ export default function DocumentationPage() {
             </div>
           </section>
 
-          <section id="drawing" className="doc-section">
+          <section id="drawing" className="doc-section" data-reveal>
             <h2 className="doc-section-title"><NavIcon name="pen" /> Drawing</h2>
 
             <div className="doc-editorial">
@@ -1494,7 +1494,7 @@ export default function DocumentationPage() {
             accent="blue"
           />
 
-          <section id="zoom" className="doc-section">
+          <section id="zoom" className="doc-section" data-reveal>
             <h2 className="doc-section-title"><NavIcon name="zoom" /> Zoom & Canvas Navigation</h2>
 
             <div className="doc-editorial doc-editorial--reversed">
@@ -1516,7 +1516,7 @@ export default function DocumentationPage() {
             </div>
           </section>
 
-          <section id="undo-redo" className="doc-section">
+          <section id="undo-redo" className="doc-section" data-reveal>
             <h2 className="doc-section-title"><NavIcon name="undo" /> Undo & Redo</h2>
 
             <div className="doc-editorial doc-editorial--reversed">
@@ -1570,7 +1570,7 @@ export default function DocumentationPage() {
             accent="purple"
           />
 
-          <section id="styling" className="doc-section">
+          <section id="styling" className="doc-section" data-reveal>
             <h2 className="doc-section-title"><NavIcon name="palette" /> Color & Styling</h2>
 
             <div className="doc-editorial">
@@ -1648,7 +1648,7 @@ export default function DocumentationPage() {
             </div>
           </section>
 
-          <section id="themes" className="doc-section">
+          <section id="themes" className="doc-section" data-reveal>
             <h2 className="doc-section-title"><NavIcon name="sun" /> Light & Dark Mode</h2>
 
             <div className="doc-editorial doc-editorial--reversed">
@@ -1678,7 +1678,7 @@ export default function DocumentationPage() {
             accent="coral"
           />
 
-          <section id="export" className="doc-section">
+          <section id="export" className="doc-section" data-reveal>
             <h2 className="doc-section-title"><NavIcon name="download" /> Export Your Board</h2>
 
             <div className="doc-editorial">
@@ -1775,7 +1775,7 @@ export default function DocumentationPage() {
             accent="coral"
           />
 
-          <section id="shortcuts" className="doc-section">
+          <section id="shortcuts" className="doc-section" data-reveal>
             <h2 className="doc-section-title"><NavIcon name="code" /> Keyboard Shortcuts</h2>
             <p className="doc-section-intro">Speed up your workflow with keyboard shortcuts. Shortcuts are disabled while editing text.</p>
 
@@ -1826,7 +1826,7 @@ export default function DocumentationPage() {
             </div>
           </section>
 
-          <section id="tips" className="doc-section">
+          <section id="tips" className="doc-section" data-reveal>
             <h2 className="doc-section-title"><NavIcon name="zap" /> Tips for a Better Experience</h2>
 
             <div className="doc-editorial doc-editorial--reversed">
@@ -1848,7 +1848,7 @@ export default function DocumentationPage() {
             </div>
           </section>
 
-          <section id="faq" className="doc-section">
+          <section id="faq" className="doc-section" data-reveal>
             <h2 className="doc-section-title"><NavIcon name="info" /> FAQ</h2>
 
             <div className="doc-editorial">

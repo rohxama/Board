@@ -3844,6 +3844,36 @@ html[data-theme='dark'] .doc-workflow-step:hover {
   transform: translateY(0) scale(1);
 }
 
+/* Section breaks: smoother, wider reveal */
+.doc-section-break[data-reveal] {
+  transform: translateY(24px);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.doc-section-break[data-reveal].doc-revealed .doc-section-break-line {
+  animation: docLineGrow 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+}
+@keyframes docLineGrow {
+  from { transform: scaleX(0); transform-origin: left; }
+  to   { transform: scaleX(1); transform-origin: left; }
+}
+
+/* Content sections: gentle fade, less movement */
+.doc-section[data-reveal] {
+  transform: translateY(18px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.doc-section[data-reveal].doc-revealed .doc-section-title {
+  animation: docRevealUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
+}
+.doc-section[data-reveal].doc-revealed .doc-section-intro {
+  animation: docRevealUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+}
+.doc-section[data-reveal].doc-revealed .doc-section-subtitle {
+  animation: docRevealUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
 /* Stagger children inside revealed showcases */
 .doc-revealed .doc-tool-showcase-toolbar {
   animation: docRevealUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
@@ -3951,6 +3981,14 @@ html[data-theme='dark'] .doc-workflow-step:hover {
   }
   .doc-parallax-grid {
     animation: none !important;
+    transform: none !important;
+  }
+  .doc-section-break[data-reveal].doc-revealed .doc-section-break-line,
+  .doc-section[data-reveal].doc-revealed .doc-section-title,
+  .doc-section[data-reveal].doc-revealed .doc-section-intro,
+  .doc-section[data-reveal].doc-revealed .doc-section-subtitle {
+    animation: none !important;
+    opacity: 1 !important;
     transform: none !important;
   }
 }

@@ -27,7 +27,7 @@ const A = {
 function SectionBreak({ label, heading, description, illustration, accent = 'green' }) {
   const accentVar = `var(--accent-${accent})`
   return (
-    <div className={`doc-section-break doc-section-break--${accent}`} role="presentation">
+    <div className={`doc-section-break doc-section-break--${accent}`} role="presentation" data-reveal>
       <div className="doc-section-break-content">
         <span className="doc-section-break-label" style={{ color: accentVar }}>{label}</span>
         <h2 className="doc-section-break-heading">{heading}</h2>

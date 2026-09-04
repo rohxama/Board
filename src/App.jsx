@@ -12,6 +12,7 @@ import ThankYouPage from './components/ThankYouPage/ThankYouPage'
 import WaitlistPage from './components/WaitlistPage/WaitlistPage'
 import DocumentationPage from './components/DocumentationPage/DocumentationPage'
 import './components/DocumentationPage/DocumentationPage.css'
+import LandingPage from './components/LandingPage/LandingPage'
 import CookieConsent from './components/CookieConsent/CookieConsent'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { usePreviousBoard } from './hooks/useVisitorStatus'
@@ -25,11 +26,13 @@ import { clampScale, zoomAtPoint } from './lib/viewport'
 
 const resolveRoute = () => {
   const hash = window.location.hash
+  if (hash === '#/board') return 'board'
   if (hash === '#/docs') return 'docs'
   if (hash === '#/thank-you') return 'thankyou'
   if (hash === '#/waitlist') return 'waitlist'
+  if (hash === '#/' || hash === '') return 'landing'
   if (hash.startsWith('#/')) return 'notfound'
-  return 'board'
+  return 'landing'
 }
 
 const SPLASH_MIN_MS = 5000
@@ -304,6 +307,7 @@ export default function App() {
   }, [])
   useEffect(() => {
     const titles = {
+      landing: 'Kanvas — Your ideas deserve a canvas.',
       board: 'Kanvas — Think. Draw. Create.',
       docs: 'Documentation — Kanvas',
       notfound: '404 — Page Not Found',
@@ -317,6 +321,7 @@ export default function App() {
   const showSplash = route === 'board' && splash !== 'done'
   return (
     <ThemeProvider>
+      {route === 'landing' && <LandingPage />}
       {showBoard && (
         <>
           <BoardExperience
