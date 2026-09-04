@@ -22,10 +22,8 @@ import {
 } from './ColorLab'
 import {
   FeatureStory,
-  GettingStartedDiagram,
   StylingStoryDiagram,
   ExportStoryDiagram,
-  NavigationStoryDiagram,
 } from './FeatureStories'
 import {
   SectionBreak,
@@ -1031,7 +1029,6 @@ export default function DocumentationPage() {
               <div className="doc-editorial-text">
                 <span className="doc-editorial-label">Quick start</span>
                 <h3 className="doc-editorial-heading" id="how-to-start">How to start creating</h3>
-                <p className="doc-editorial-desc">Go from idea to first shape in under a minute.</p>
                 <ol className="doc-editorial-list">
                   <li><strong>Open</strong> Kanvas in your browser</li>
                   <li><strong>Choose</strong> a tool from the left toolbar</li>
@@ -1039,16 +1036,8 @@ export default function DocumentationPage() {
                   <li><strong>Switch back</strong> to Select to move and edit</li>
                   <li><strong>Use</strong> the Style panel to customize colors and strokes</li>
                 </ol>
-                <p className="doc-editorial-note">The canvas is infinite — zoom and pan to explore as much space as you need.</p>
               </div>
             </div>
-
-            <FeatureStory
-              heading="From Idea to Board"
-              description="Create your first board in four simple steps."
-              diagram={<GettingStartedDiagram />}
-              steps={['Open Kanvas in your browser', 'Choose a tool from the toolbar', 'Click and drag to create shapes', 'Select, move, and style your work']}
-            />
           </section>
 
           <WorkflowSection />
@@ -1071,22 +1060,20 @@ export default function DocumentationPage() {
               <div className="doc-editorial-text">
                 <span className="doc-editorial-label">Toolbar</span>
                 <h3 className="doc-editorial-heading">Every tool, one click away</h3>
-                <p className="doc-editorial-desc">Kanvas provides a focused set of tools for creating and editing on the canvas. Each tool is accessible from the left toolbar.</p>
                 <ul className="doc-editorial-list">
-                  <li><strong>Select (V)</strong> — select, move, resize, and rotate shapes</li>
-                  <li><strong>Pan (H)</strong> — navigate the infinite canvas without editing</li>
-                  <li><strong>Rectangle (R)</strong> — draw rectangles with fill, stroke, and rounded corners</li>
-                  <li><strong>Ellipse (O)</strong> — draw ellipses and circles</li>
-                  <li><strong>Diamond (D)</strong> — draw diamond shapes</li>
-                  <li><strong>Arrow (A)</strong> — connect shapes with snappable arrows</li>
-                  <li><strong>Line (L)</strong> — draw straight lines at any angle</li>
-                  <li><strong>Pencil (P)</strong> — freehand drawing for organic sketches</li>
-                  <li><strong>Text (T)</strong> — add labels, notes, and headings</li>
+                  <li><strong>Select (V)</strong> — select, move, resize, rotate</li>
+                  <li><strong>Pan (H)</strong> — navigate the infinite canvas</li>
+                  <li><strong>Rectangle (R)</strong> — fill, stroke, rounded corners</li>
+                  <li><strong>Ellipse (O)</strong> — circles and ellipses</li>
+                  <li><strong>Diamond (D)</strong> — diamond shapes</li>
+                  <li><strong>Arrow (A)</strong> — connect shapes, snap to edges</li>
+                  <li><strong>Line (L)</strong> — straight lines at any angle</li>
+                  <li><strong>Pencil (P)</strong> — freehand sketching</li>
+                  <li><strong>Text (T)</strong> — labels, notes, headings</li>
                   <li><strong>Eraser (E)</strong> — click to remove any shape</li>
                   <li><strong>Laser (K)</strong> — temporary pointer for presentations</li>
-                  <li><strong>Image (9)</strong> — upload PNG, JPEG, SVG, or WebP files</li>
+                  <li><strong>Image (9)</strong> — upload PNG, JPEG, SVG, WebP</li>
                 </ul>
-                <p className="doc-editorial-note">Hold Space at any time to temporarily switch to Pan mode.</p>
               </div>
             </div>
           </section>
@@ -1109,25 +1096,16 @@ export default function DocumentationPage() {
               <div className="doc-editorial-text">
                 <span className="doc-editorial-label">Navigation</span>
                 <h3 className="doc-editorial-heading">Navigate the canvas</h3>
-                <p className="doc-editorial-desc">Move freely across your infinite canvas with zoom and pan controls. The canvas has no boundaries — explore freely.</p>
                 <ul className="doc-editorial-list">
-                  <li><strong>Zoom in</strong> — scroll wheel, press <kbd>Ctrl</kbd>+<kbd>+</kbd>, or click +</li>
-                  <li><strong>Zoom out</strong> — scroll wheel, press <kbd>Ctrl</kbd>+<kbd>-</kbd>, or click −</li>
-                  <li><strong>Reset to 100%</strong> — click the percentage display or press <kbd>Ctrl</kbd>+<kbd>0</kbd></li>
-                  <li><strong>Zoom to fit</strong> — press <kbd>Shift</kbd>+<kbd>1</kbd> to frame all content</li>
-                  <li><strong>Pan</strong> — hold <kbd>Space</kbd> and drag, or use two-finger trackpad drag</li>
-                  <li><strong>Fullscreen</strong> — click the fullscreen button for an immersive view</li>
+                  <li><strong>Zoom in</strong> — scroll wheel, <kbd>Ctrl</kbd>+<kbd>+</kbd>, or click +</li>
+                  <li><strong>Zoom out</strong> — scroll wheel, <kbd>Ctrl</kbd>+<kbd>-</kbd>, or click −</li>
+                  <li><strong>Reset</strong> — click percentage or <kbd>Ctrl</kbd>+<kbd>0</kbd></li>
+                  <li><strong>Zoom to fit</strong> — <kbd>Shift</kbd>+<kbd>1</kbd> frames all content</li>
+                  <li><strong>Pan</strong> — hold <kbd>Space</kbd> and drag</li>
+                  <li><strong>Fullscreen</strong> — click the fullscreen button</li>
                 </ul>
-                <p className="doc-editorial-note">Presets: 25% · 50% · 75% · 100% · 150% — click the percentage to open the menu.</p>
               </div>
             </div>
-
-            <FeatureStory
-              heading="Navigate the Canvas"
-              description="Move freely across your infinite canvas with zoom and pan."
-              diagram={<NavigationStoryDiagram />}
-              steps={['Scroll to zoom in and out', 'Hold Space and drag to pan', 'Press Shift+1 to zoom to fit', 'Explore without boundaries']}
-            />
           </section>
 
           <section id="undo-redo" className="doc-section">
@@ -1166,12 +1144,11 @@ export default function DocumentationPage() {
               <div className="doc-editorial-text">
                 <span className="doc-editorial-label">History</span>
                 <h3 className="doc-editorial-heading">Never worry about mistakes</h3>
-                <p className="doc-editorial-desc">Kanvas keeps a history of your actions so you can easily undo mistakes or redo changes.</p>
                 <ul className="doc-editorial-list">
-                  <li><strong>Undo</strong> — reverses the last action. Press <kbd>Ctrl</kbd>+<kbd>Z</kbd></li>
-                  <li><strong>Redo</strong> — re-applies an undone action. Press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></li>
+                  <li><strong>Undo</strong> — <kbd>Ctrl</kbd>+<kbd>Z</kbd></li>
+                  <li><strong>Redo</strong> — <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></li>
                   <li><strong>200 steps</strong> — generous history per session</li>
-                  <li><strong>Session-based</strong> — history is preserved while the tab stays open</li>
+                  <li><strong>Session-based</strong> — preserved while the tab is open</li>
                 </ul>
               </div>
             </div>
@@ -1195,16 +1172,14 @@ export default function DocumentationPage() {
               <div className="doc-editorial-text">
                 <span className="doc-editorial-label">Styling</span>
                 <h3 className="doc-editorial-heading">Shape every detail</h3>
-                <p className="doc-editorial-desc">Kanvas gives you precise control over every shape on the canvas. Choose colors, adjust strokes, add fills, and fine-tune opacity to make your boards visually distinct.</p>
                 <ul className="doc-editorial-list">
-                  <li><strong>6 stroke colors</strong> — pick from a curated palette via the Style panel</li>
-                  <li><strong>5 fill colors</strong> — add solid backgrounds to rectangles, ellipses, and diamonds</li>
-                  <li><strong>3 stroke widths</strong> — thin, medium, or thick outlines</li>
-                  <li><strong>3 stroke styles</strong> — solid, dashed, or dotted lines</li>
-                  <li><strong>Opacity slider</strong> — from fully transparent to fully opaque</li>
-                  <li><strong>Corner radius</strong> — sharp or rounded rectangle corners</li>
+                  <li><strong>6 stroke colors</strong> — curated palette via the Style panel</li>
+                  <li><strong>5 fill colors</strong> — solid backgrounds for shapes</li>
+                  <li><strong>3 stroke widths</strong> — thin, medium, or thick</li>
+                  <li><strong>3 stroke styles</strong> — solid, dashed, or dotted</li>
+                  <li><strong>Opacity slider</strong> — transparent to opaque</li>
+                  <li><strong>Corner radius</strong> — sharp or rounded</li>
                 </ul>
-                <p className="doc-editorial-note">Select any shape to reveal its properties in the Style panel.</p>
               </div>
             </div>
 
@@ -1275,15 +1250,12 @@ export default function DocumentationPage() {
               <div className="doc-editorial-text">
                 <span className="doc-editorial-label">Themes</span>
                 <h3 className="doc-editorial-heading">One toggle, every surface</h3>
-                <p className="doc-editorial-desc">Switch between light and dark themes from the Appearance panel. The same board content adapts instantly — no manual restyle needed.</p>
                 <ul className="doc-editorial-list">
-                  <li><strong>Canvas background</strong> — white in light mode, dark gray in dark mode</li>
-                  <li><strong>Shape colors</strong> — automatically adjusted for readability on each theme</li>
-                  <li><strong>All UI elements</strong> — toolbars, panels, and menus follow the theme</li>
-                  <li><strong>Persistent preference</strong> — your choice is saved across sessions</li>
-                  <li><strong>Dot grid</strong> — adapts contrast to stay subtle on both backgrounds</li>
+                  <li><strong>Canvas background</strong> — white or dark gray</li>
+                  <li><strong>Shape colors</strong> — auto-adjusted for readability</li>
+                  <li><strong>All UI elements</strong> — toolbars, panels, menus</li>
+                  <li><strong>Persistent</strong> — saved across sessions</li>
                 </ul>
-                <p className="doc-editorial-note">Try the interactive toggle below to see the effect.</p>
               </div>
             </div>
 
@@ -1308,16 +1280,14 @@ export default function DocumentationPage() {
               <div className="doc-editorial-text">
                 <span className="doc-editorial-label">Export</span>
                 <h3 className="doc-editorial-heading">From canvas to file</h3>
-                <p className="doc-editorial-desc">Save your work in multiple formats. Click the Export Board button in the top toolbar to see all options.</p>
                 <ul className="doc-editorial-list">
-                  <li><strong>PNG / JPG</strong> — high-resolution images for sharing and presentations</li>
-                  <li><strong>PDF</strong> — printable document with the board rendered as an image</li>
-                  <li><strong>SVG</strong> — vector format that scales to any size without quality loss</li>
-                  <li><strong>JSON</strong> — save all shape data; import later to resume editing</li>
-                  <li><strong>Copy Image</strong> — paste the board directly into other apps</li>
-                  <li><strong>Print</strong> — open the system print dialog with the board</li>
+                  <li><strong>PNG / JPG</strong> — high-res images for sharing</li>
+                  <li><strong>PDF</strong> — printable document</li>
+                  <li><strong>SVG</strong> — vector, scales to any size</li>
+                  <li><strong>JSON</strong> — save data, import later</li>
+                  <li><strong>Copy Image</strong> — paste into other apps</li>
+                  <li><strong>Print</strong> — system print dialog</li>
                 </ul>
-                <p className="doc-editorial-note">JSON import validates file size (max 25 MB) and shape count (max 10,000 shapes).</p>
               </div>
             </div>
 
@@ -1458,14 +1428,13 @@ export default function DocumentationPage() {
               <div className="doc-editorial-text">
                 <span className="doc-editorial-label">Tips</span>
                 <h3 className="doc-editorial-heading">Work smarter on the canvas</h3>
-                <p className="doc-editorial-desc">A few habits that make Kanvas faster and more productive.</p>
                 <ul className="doc-editorial-list">
-                  <li><strong>Stay in Select mode</strong> — it's the most-used tool; switch back after drawing</li>
-                  <li><strong>Zoom for detail</strong> — scroll wheel is the fastest way to focus on small areas</li>
-                  <li><strong>Space + drag to pan</strong> — navigate large boards without switching tools</li>
-                  <li><strong>Export your work</strong> — save as JSON to resume editing later</li>
-                  <li><strong>Try different styles</strong> — stroke colors, widths, and fills make boards scannable</li>
-                  <li><strong>Use undo freely</strong> — Ctrl+Z supports up to 200 steps per session</li>
+                  <li><strong>Stay in Select mode</strong> — switch back after drawing</li>
+                  <li><strong>Scroll to zoom</strong> — fastest way to focus on detail</li>
+                  <li><strong>Space + drag</strong> — pan without switching tools</li>
+                  <li><strong>Export as JSON</strong> — resume editing later</li>
+                  <li><strong>Try different styles</strong> — colors and strokes make boards scannable</li>
+                  <li><strong>Undo freely</strong> — up to 200 steps per session</li>
                 </ul>
               </div>
             </div>
@@ -1481,11 +1450,10 @@ export default function DocumentationPage() {
               <div className="doc-editorial-text">
                 <span className="doc-editorial-label">Questions</span>
                 <h3 className="doc-editorial-heading">Common answers</h3>
-                <p className="doc-editorial-desc">Everything you need to know about using Kanvas.</p>
                 <ul className="doc-editorial-list">
-                  <li><strong>Free to use</strong> — no account required, start immediately</li>
-                  <li><strong>Local storage</strong> — boards save to your browser automatically</li>
-                  <li><strong>Export formats</strong> — PNG, JPG, PDF, SVG, and JSON</li>
+                  <li><strong>Free to use</strong> — no account required</li>
+                  <li><strong>Local storage</strong> — saves to your browser</li>
+                  <li><strong>Export formats</strong> — PNG, JPG, PDF, SVG, JSON</li>
                   <li><strong>Offline capable</strong> — core tools work without internet</li>
                   <li><strong>Image support</strong> — PNG, JPEG, SVG, WebP up to 20 MB</li>
                 </ul>
