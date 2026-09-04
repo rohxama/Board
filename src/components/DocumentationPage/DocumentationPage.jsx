@@ -1635,6 +1635,125 @@ export default function DocumentationPage() {
             </div>
           </section>
 
+          <section id="text" className="doc-section">
+            <h2 className="doc-section-title"><NavIcon name="text" /> Text & Typography</h2>
+
+            <div className="doc-editorial">
+              <div className="doc-editorial-visual">
+                <div className="doc-text-showcase">
+                  <div className="doc-text-canvas">
+                    <svg viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }} aria-hidden="true">
+                      {/* Canvas dot grid */}
+                      {[0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640].map(x => (
+                        [0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420].map(y => (
+                          <circle key={`${x}-${y}`} cx={x} cy={y} r="0.6" fill="var(--dot)" />
+                        ))
+                      )).flat()}
+
+                      {/* ── Top: Large heading ── */}
+                      <text x="40" y="48" fontSize="28" fontWeight="800" fontFamily="system-ui" fill="var(--text)" letterSpacing="-0.5">Product Launch Plan</text>
+                      <text x="40" y="70" fontSize="11" fontFamily="system-ui" fill="#6b7280">Q4 2024 roadmap — key milestones, owners, and deliverables</text>
+
+                      {/* Underline accent */}
+                      <path d="M40 80 C80 78, 280 79, 340 80" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+
+                      {/* ── Section: Team ── */}
+                      <text x="40" y="118" fontSize="16" fontWeight="700" fontFamily="system-ui" fill="var(--text)">Team</text>
+                      <path d="M40 126 C60 124, 100 125, 120 126" stroke="#d1d5db" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+
+                      {/* Avatar labels */}
+                      <circle cx="56" cy="152" r="14" fill="rgba(59,130,246,0.1)" stroke="#3b82f6" strokeWidth="1.2" />
+                      <text x="56" y="156" textAnchor="middle" fontSize="10" fontWeight="600" fontFamily="system-ui" fill="#3b82f6">JD</text>
+                      <text x="80" y="148" fontSize="10" fontWeight="600" fontFamily="system-ui" fill="var(--text)">Jane Doe</text>
+                      <text x="80" y="162" fontSize="8" fontFamily="system-ui" fill="#9ca3af">Design Lead</text>
+
+                      <circle cx="200" cy="152" r="14" fill="rgba(139,92,246,0.1)" stroke="#8b5cf6" strokeWidth="1.2" />
+                      <text x="200" y="156" textAnchor="middle" fontSize="10" fontWeight="600" fontFamily="system-ui" fill="#8b5cf6">MK</text>
+                      <text x="224" y="148" fontSize="10" fontWeight="600" fontFamily="system-ui" fill="var(--text)">Mike Kim</text>
+                      <text x="224" y="162" fontSize="8" fontFamily="system-ui" fill="#9ca3af">Frontend Dev</text>
+
+                      <circle cx="360" cy="152" r="14" fill="rgba(34,197,94,0.1)" stroke="#22c55e" strokeWidth="1.2" />
+                      <text x="360" y="156" textAnchor="middle" fontSize="10" fontWeight="600" fontFamily="system-ui" fill="#22c55e">AS</text>
+                      <text x="384" y="148" fontSize="10" fontWeight="600" fontFamily="system-ui" fill="var(--text)">Ana Silva</text>
+                      <text x="384" y="162" fontSize="8" fontFamily="system-ui" fill="#9ca3af">Backend Dev</text>
+
+                      {/* ── Middle: Content blocks ── */}
+                      {/* Card with heading + body */}
+                      <rect x="40" y="190" width="260" height="120" rx="10" fill="rgba(59,130,246,0.03)" stroke="#e5e7eb" strokeWidth="1.2" />
+                      <text x="56" y="216" fontSize="13" fontWeight="700" fontFamily="system-ui" fill="var(--text)">Milestone: Beta Launch</text>
+                      <text x="56" y="236" fontSize="9" fontFamily="system-ui" fill="#6b7280">Target date: November 15th</text>
+                      <text x="56" y="252" fontSize="9" fontFamily="system-ui" fill="#6b7280">Feature freeze one week before</text>
+                      <text x="56" y="268" fontSize="9" fontFamily="system-ui" fill="#6b7280">QA sprint follows immediately</text>
+                      <rect x="56" y="282" width="60" height="16" rx="4" fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.6" />
+                      <text x="86" y="293" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill="#1e40af">On Track</text>
+                      <rect x="124" y="282" width="72" height="16" rx="4" fill="rgba(245,158,11,0.1)" stroke="#f59e0b" strokeWidth="0.6" />
+                      <text x="160" y="293" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill="#92400e">2 weeks left</text>
+
+                      {/* Card with checklist */}
+                      <rect x="320" y="190" width="200" height="120" rx="10" fill="rgba(34,197,94,0.03)" stroke="#e5e7eb" strokeWidth="1.2" />
+                      <text x="336" y="216" fontSize="13" fontWeight="700" fontFamily="system-ui" fill="var(--text)">Pre-launch Checklist</text>
+                      <text x="336" y="238" fontSize="9" fontFamily="system-ui" fill="#22c55e">✓ Set up monitoring</text>
+                      <text x="336" y="254" fontSize="9" fontFamily="system-ui" fill="#22c55e">✓ Write rollback plan</text>
+                      <text x="336" y="270" fontSize="9" fontFamily="system-ui" fill="#6b7280">○ Load testing</text>
+                      <text x="336" y="286" fontSize="9" fontFamily="system-ui" fill="#6b7280">○ Security audit</text>
+                      <text x="336" y="302" fontSize="9" fontFamily="system-ui" fill="#6b7280">○ Documentation</text>
+
+                      {/* ── Bottom: Sticky note ── */}
+                      <rect x="540" y="190" width="90" height="120" rx="3" fill="#fefce8" stroke="#eab308" strokeWidth="1" />
+                      <text x="552" y="212" fontSize="9" fontWeight="700" fontFamily="system-ui" fill="#854d0e">Remember</text>
+                      <line x1="552" y1="218" x2="618" y2="218" stroke="#eab308" strokeWidth="0.5" opacity="0.5" />
+                      <text x="552" y="234" fontSize="8" fontFamily="system-ui" fill="#854d0e">Review PR #89</text>
+                      <text x="552" y="248" fontSize="8" fontFamily="system-ui" fill="#854d0e">before standup</text>
+                      <text x="552" y="268" fontSize="8" fontFamily="system-ui" fill="#854d0e">Ask Ana about</text>
+                      <text x="552" y="282" fontSize="8" fontFamily="system-ui" fill="#854d0e">API rate limits</text>
+
+                      {/* ── Bottom row: Text size samples ── */}
+                      <line x1="40" y1="332" x2="600" y2="332" stroke="#e5e7eb" strokeWidth="1" strokeDasharray="6 4" />
+
+                      <text x="40" y="358" fontSize="8" fontFamily="system-ui" fill="#9ca3af" letterSpacing="1.5" fontWeight="500">TEXT SCALE</text>
+
+                      <text x="40" y="382" fontSize="18" fontWeight="800" fontFamily="system-ui" fill="var(--text)">Heading 1</text>
+                      <text x="180" y="382" fontSize="13" fontWeight="700" fontFamily="system-ui" fill="var(--text)">Heading 2</text>
+                      <text x="310" y="382" fontSize="11" fontWeight="600" fontFamily="system-ui" fill="var(--text)">Heading 3</text>
+                      <text x="430" y="382" fontSize="9" fontWeight="500" fontFamily="system-ui" fill="var(--text)">Body text</text>
+                      <text x="540" y="382" fontSize="8" fontFamily="system-ui" fill="#9ca3af">Caption</text>
+
+                      {/* Size labels */}
+                      <text x="40" y="398" fontSize="7" fontFamily="system-ui" fill="#d1d5db">28px bold</text>
+                      <text x="180" y="398" fontSize="7" fontFamily="system-ui" fill="#d1d5db">18px semibold</text>
+                      <text x="310" y="398" fontSize="7" fontFamily="system-ui" fill="#d1d5db">14px medium</text>
+                      <text x="430" y="398" fontSize="7" fontFamily="system-ui" fill="#d1d5db">12px regular</text>
+                      <text x="540" y="398" fontSize="7" fontFamily="system-ui" fill="#d1d5db">10px light</text>
+
+                      {/* Selection handles on the heading */}
+                      <rect x="36" y="28" width="7" height="7" rx="2" fill="#3b82f6" />
+                      <rect x="400" y="28" width="7" height="7" rx="2" fill="#3b82f6" />
+                      <rect x="36" y="70" width="7" height="7" rx="2" fill="#3b82f6" />
+                      <rect x="400" y="70" width="7" height="7" rx="2" fill="#3b82f6" />
+                      <rect x="36" y="28" width="371" height="49" rx="8" fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="4 2" />
+                    </svg>
+                  </div>
+                  <div className="doc-text-label">
+                    <span className="doc-text-label-text">Text scales from captions to headings — double-click any shape to edit</span>
+                  </div>
+                </div>
+              </div>
+              <div className="doc-editorial-text">
+                <span className="doc-editorial-label">Typography</span>
+                <h3 className="doc-editorial-heading">Write directly on the canvas</h3>
+                <ul className="doc-editorial-list">
+                  <li><strong>Press T</strong> or click the text tool, then click anywhere to type</li>
+                  <li><strong>Double-click a shape</strong> to add text inside rectangles, ellipses, and diamonds</li>
+                  <li><strong>Scale text</strong> — drag the font size in the Style panel from 8px to 72px</li>
+                  <li><strong>Weight options</strong> — light, regular, medium, semibold, bold</li>
+                  <li><strong>Text wraps</strong> automatically inside shapes — drag to resize the container</li>
+                  <li><strong>Alignment</strong> — left, center, or right align within any shape</li>
+                  <li><strong>Combine with sticky notes</strong> — yellow cards for quick annotations and reminders</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
           <SectionBreak
             description="Move freely across your infinite canvas — zoom in for detail, pan to explore."
             illustration={<ZoomBreakIllustration />}
