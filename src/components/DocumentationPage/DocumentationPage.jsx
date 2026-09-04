@@ -1467,15 +1467,48 @@ export default function DocumentationPage() {
 
           <section id="undo-redo" className="doc-section">
             <h2 className="doc-section-title"><NavIcon name="undo" /> Undo & Redo</h2>
-            <p className="doc-section-intro">Kanvas keeps a history of your actions so you can easily undo mistakes or redo changes.</p>
 
-            <div className="doc-card">
-              <h3 id="how-undo-works" className="doc-card-title">How It Works</h3>
-              <ul className="doc-list">
-                <li><strong>Undo:</strong> Reverses the last action. Press <kbd>Ctrl</kbd>+<kbd>Z</kbd> (or <kbd>Cmd</kbd>+<kbd>Z</kbd> on Mac).</li>
-                <li><strong>Redo:</strong> Re-applies an action that was undone. Press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> or <kbd>Ctrl</kbd>+<kbd>Y</kbd>.</li>
-              </ul>
-              <p className="doc-note">Kanvas stores up to 200 undo steps. History is preserved during your session.</p>
+            <div className="doc-editorial doc-editorial--reversed">
+              <div className="doc-editorial-visual">
+                <svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-illustration" aria-hidden="true" style={{ width: '100%', height: 'auto' }}>
+                  <rect x="0" y="0" width="280" height="120" rx="10" fill="var(--surface-solid)" stroke="var(--border)" strokeWidth="1" />
+                  {/* Before state: shapes scattered */}
+                  <text x="20" y="18" fontSize="8" fontWeight="700" fontFamily="system-ui" fill="var(--text-muted)">BEFORE</text>
+                  <rect x="20" y="26" width="40" height="24" rx="3" fill="rgba(239,68,68,0.08)" stroke="#ef4444" strokeWidth="0.8" />
+                  <text x="40" y="42" textAnchor="middle" fontSize="5" fontFamily="system-ui" fill="#ef4444">Moved</text>
+                  <circle cx="100" cy="38" r="14" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" strokeWidth="0.8" />
+                  <text x="100" y="41" textAnchor="middle" fontSize="5" fontFamily="system-ui" fill="#3b82f6">Deleted</text>
+                  <rect x="130" y="26" width="36" height="24" rx="3" fill="rgba(34,197,94,0.06)" stroke="#22c55e" strokeWidth="0.8" />
+                  <text x="148" y="42" textAnchor="middle" fontSize="5" fontFamily="system-ui" fill="#22c55e">Added</text>
+
+                  {/* Arrow: undo */}
+                  <path d="M180 38 L200 38" stroke="var(--accent)" strokeWidth="1" strokeLinecap="round" />
+                  <path d="M196 35 L202 38 L196 41" fill="none" stroke="var(--accent)" strokeWidth="1" strokeLinecap="round" />
+
+                  {/* After state: shapes restored */}
+                  <text x="210" y="18" fontSize="8" fontWeight="700" fontFamily="system-ui" fill="var(--text-muted)">AFTER</text>
+                  <rect x="210" y="26" width="40" height="24" rx="3" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" strokeWidth="0.8" />
+                  <text x="230" y="42" textAnchor="middle" fontSize="5" fontFamily="system-ui" fill="#3b82f6">Restored</text>
+                  <circle cx="100" cy="80" r="14" fill="rgba(34,197,94,0.06)" stroke="#22c55e" strokeWidth="0.8" />
+                  <text x="100" y="83" textAnchor="middle" fontSize="5" fontFamily="system-ui" fill="#22c55e">Redone</text>
+
+                  {/* Keyboard shortcut badge */}
+                  <rect x="20" y="80" width="60" height="20" rx="4" fill="var(--accent-soft)" />
+                  <text x="50" y="94" textAnchor="middle" fontSize="6" fontWeight="700" fontFamily="system-ui" fill="var(--accent)">Ctrl + Z</text>
+                  <text x="90" y="94" fontSize="5" fontFamily="system-ui" fill="var(--text-muted)">undo</text>
+                </svg>
+              </div>
+              <div className="doc-editorial-text">
+                <span className="doc-editorial-label">History</span>
+                <h3 className="doc-editorial-heading">Never worry about mistakes</h3>
+                <p className="doc-editorial-desc">Kanvas keeps a history of your actions so you can easily undo mistakes or redo changes.</p>
+                <ul className="doc-editorial-list">
+                  <li><strong>Undo</strong> — reverses the last action. Press <kbd>Ctrl</kbd>+<kbd>Z</kbd></li>
+                  <li><strong>Redo</strong> — re-applies an undone action. Press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></li>
+                  <li><strong>200 steps</strong> — generous history per session</li>
+                  <li><strong>Session-based</strong> — history is preserved while the tab stays open</li>
+                </ul>
+              </div>
             </div>
           </section>
 
@@ -1489,9 +1522,26 @@ export default function DocumentationPage() {
 
           <section id="styling" className="doc-section">
             <h2 className="doc-section-title"><NavIcon name="palette" /> Color & Styling</h2>
-            <ColorLabHero />
 
-            <p className="doc-section-intro">Kanvas gives you precise control over every shape on the canvas. Choose colors, adjust strokes, add fills, and fine-tune opacity to make your boards visually distinct.</p>
+            <div className="doc-editorial">
+              <div className="doc-editorial-visual">
+                <ColorLabHero />
+              </div>
+              <div className="doc-editorial-text">
+                <span className="doc-editorial-label">Styling</span>
+                <h3 className="doc-editorial-heading">Shape every detail</h3>
+                <p className="doc-editorial-desc">Kanvas gives you precise control over every shape on the canvas. Choose colors, adjust strokes, add fills, and fine-tune opacity to make your boards visually distinct.</p>
+                <ul className="doc-editorial-list">
+                  <li><strong>6 stroke colors</strong> — pick from a curated palette via the Style panel</li>
+                  <li><strong>5 fill colors</strong> — add solid backgrounds to rectangles, ellipses, and diamonds</li>
+                  <li><strong>3 stroke widths</strong> — thin, medium, or thick outlines</li>
+                  <li><strong>3 stroke styles</strong> — solid, dashed, or dotted lines</li>
+                  <li><strong>Opacity slider</strong> — from fully transparent to fully opaque</li>
+                  <li><strong>Corner radius</strong> — sharp or rounded rectangle corners</li>
+                </ul>
+                <p className="doc-editorial-note">Select any shape to reveal its properties in the Style panel.</p>
+              </div>
+            </div>
 
             {/* Color Palette */}
             <div className="doc-colorlab-block">
@@ -1564,23 +1614,22 @@ export default function DocumentationPage() {
 
           <section id="themes" className="doc-section">
             <h2 className="doc-section-title"><NavIcon name="sun" /> Light & Dark Mode</h2>
-            <ThemesIllustration />
-            <p className="doc-section-intro">Kanvas supports both light and dark themes. Switch between them from the Appearance panel in the account menu.</p>
 
-            <div className="doc-theme-grid">
-              <div className="doc-theme-card">
-                <div className="doc-theme-preview doc-theme-light">
-                  <NavIcon name="sun" />
-                </div>
-                <h4>Light Mode</h4>
-                <p>Clean white canvas with dark text and subtle dot grid. The default theme for Kanvas.</p>
+            <div className="doc-editorial doc-editorial--reversed">
+              <div className="doc-editorial-visual">
+                <ThemesIllustration />
               </div>
-              <div className="doc-theme-card">
-                <div className="doc-theme-preview doc-theme-dark">
-                  <NavIcon name="moon" />
-                </div>
-                <h4>Dark Mode</h4>
-                <p>Dark canvas with light text and muted dot grid. Easier on the eyes in low-light environments.</p>
+              <div className="doc-editorial-text">
+                <span className="doc-editorial-label">Themes</span>
+                <h3 className="doc-editorial-heading">One toggle, every surface</h3>
+                <p className="doc-editorial-desc">Switch between light and dark themes from the Appearance panel. The same board content adapts instantly — no manual restyle needed.</p>
+                <ul className="doc-editorial-list">
+                  <li><strong>Canvas background</strong> — white in light mode, dark gray in dark mode</li>
+                  <li><strong>Shape colors</strong> — automatically adjusted for readability on each theme</li>
+                  <li><strong>All UI elements</strong> — toolbars, panels, and menus follow the theme</li>
+                  <li><strong>Persistent preference</strong> — your choice is saved across sessions</li>
+                </ul>
+                <p className="doc-editorial-note">Try the interactive toggle below to see the effect.</p>
               </div>
             </div>
 
@@ -1607,14 +1656,33 @@ export default function DocumentationPage() {
 
           <section id="export" className="doc-section">
             <h2 className="doc-section-title"><NavIcon name="download" /> Export Your Board</h2>
-            <ExportIllustration />
+
+            <div className="doc-editorial">
+              <div className="doc-editorial-visual">
+                <ExportIllustration />
+              </div>
+              <div className="doc-editorial-text">
+                <span className="doc-editorial-label">Export</span>
+                <h3 className="doc-editorial-heading">From canvas to file</h3>
+                <p className="doc-editorial-desc">Save your work in multiple formats. Click the Export Board button in the top toolbar to see all options.</p>
+                <ul className="doc-editorial-list">
+                  <li><strong>PNG / JPG</strong> — high-resolution images for sharing and presentations</li>
+                  <li><strong>PDF</strong> — printable document with the board rendered as an image</li>
+                  <li><strong>SVG</strong> — vector format that scales to any size without quality loss</li>
+                  <li><strong>JSON</strong> — save all shape data; import later to resume editing</li>
+                  <li><strong>Copy Image</strong> — paste the board directly into other apps</li>
+                  <li><strong>Print</strong> — open the system print dialog with the board</li>
+                </ul>
+                <p className="doc-editorial-note">JSON import validates file size (max 25 MB) and shape count (max 10,000 shapes).</p>
+              </div>
+            </div>
+
             <FeatureStory
               heading="Share Your Work"
               description="Export your board in any format — from PNG images to vector SVGs."
               diagram={<ExportStoryDiagram />}
               steps={['Create your board', 'Click the Export button', 'Choose your format', 'Download or copy to clipboard']}
             />
-            <p className="doc-section-intro">Save your work in multiple formats. Click the Export Board button in the top toolbar to see all options.</p>
 
             <div className="doc-export-grid">
               <div className="doc-export-item doc-export-item--blue">
@@ -1721,44 +1789,48 @@ export default function DocumentationPage() {
 
           <section id="tips" className="doc-section">
             <h2 className="doc-section-title"><NavIcon name="zap" /> Tips for a Better Experience</h2>
-            <TipsIllustration />
-            <div className="doc-tips-grid">
-              <div className="doc-tip-card doc-tip-card--purple">
-                <span className="doc-tip-number">01</span>
-                <h4>Use Select Mode</h4>
-                <p>Always switch back to Select mode to move, resize, and edit objects. It's the most-used tool.</p>
+
+            <div className="doc-editorial doc-editorial--reversed">
+              <div className="doc-editorial-visual">
+                <TipsIllustration />
               </div>
-              <div className="doc-tip-card doc-tip-card--blue">
-                <span className="doc-tip-number">02</span>
-                <h4>Zoom for Detail</h4>
-                <p>Use zoom when working with small details or precise alignment. The scroll wheel is the fastest way.</p>
-              </div>
-              <div className="doc-tip-card doc-tip-card--coral">
-                <span className="doc-tip-number">03</span>
-                <h4>Pan to Navigate</h4>
-                <p>Hold Space and drag to quickly navigate large boards without switching tools.</p>
-              </div>
-              <div className="doc-tip-card doc-tip-card--yellow">
-                <span className="doc-tip-number">04</span>
-                <h4>Export Your Work</h4>
-                <p>Save your finished boards as PNG, PDF, or JSON. JSON lets you import and continue editing later.</p>
-              </div>
-              <div className="doc-tip-card doc-tip-card--pink">
-                <span className="doc-tip-number">05</span>
-                <h4>Experiment with Styles</h4>
-                <p>Try different stroke colors, widths, and fill options to make your boards visually distinct.</p>
-              </div>
-              <div className="doc-tip-card doc-tip-card--green">
-                <span className="doc-tip-number">06</span>
-                <h4>Use Undo Freely</h4>
-                <p>Don't worry about mistakes — Ctrl+Z supports up to 200 undo steps per session.</p>
+              <div className="doc-editorial-text">
+                <span className="doc-editorial-label">Tips</span>
+                <h3 className="doc-editorial-heading">Work smarter on the canvas</h3>
+                <p className="doc-editorial-desc">A few habits that make Kanvas faster and more productive.</p>
+                <ul className="doc-editorial-list">
+                  <li><strong>Stay in Select mode</strong> — it's the most-used tool; switch back after drawing</li>
+                  <li><strong>Zoom for detail</strong> — scroll wheel is the fastest way to focus on small areas</li>
+                  <li><strong>Space + drag to pan</strong> — navigate large boards without switching tools</li>
+                  <li><strong>Export your work</strong> — save as JSON to resume editing later</li>
+                  <li><strong>Try different styles</strong> — stroke colors, widths, and fills make boards scannable</li>
+                  <li><strong>Use undo freely</strong> — Ctrl+Z supports up to 200 steps per session</li>
+                </ul>
               </div>
             </div>
           </section>
 
           <section id="faq" className="doc-section">
             <h2 className="doc-section-title"><NavIcon name="info" /> FAQ</h2>
-            <FAQIllustration />
+
+            <div className="doc-editorial">
+              <div className="doc-editorial-visual">
+                <FAQIllustration />
+              </div>
+              <div className="doc-editorial-text">
+                <span className="doc-editorial-label">Questions</span>
+                <h3 className="doc-editorial-heading">Common answers</h3>
+                <p className="doc-editorial-desc">Everything you need to know about using Kanvas.</p>
+                <ul className="doc-editorial-list">
+                  <li><strong>Free to use</strong> — no account required, start immediately</li>
+                  <li><strong>Local storage</strong> — boards save to your browser automatically</li>
+                  <li><strong>Export formats</strong> — PNG, JPG, PDF, SVG, and JSON</li>
+                  <li><strong>Offline capable</strong> — core tools work without internet</li>
+                  <li><strong>Image support</strong> — PNG, JPEG, SVG, WebP up to 20 MB</li>
+                </ul>
+              </div>
+            </div>
+
             <div className="doc-faq-list">
               <FAQItem
                 index={0}

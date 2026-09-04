@@ -796,6 +796,114 @@ html[data-theme='dark'] .doc-card {
   margin-top: 12px;
 }
 
+/* ─── Editorial split layouts ────────────────────────────────────
+   Two-column layouts for major sections. The visual (illustration
+   or demo) sits on one side, text on the other. Alternating the
+   `--reversed` modifier flips the direction between sections. */
+.doc-editorial {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+  margin-bottom: 40px;
+  padding: 32px;
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  background: var(--surface-solid);
+  box-shadow: 0 1px 2px rgba(39, 45, 70, .03), 0 4px 12px rgba(39, 45, 70, .04);
+}
+html[data-theme='dark'] .doc-editorial {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .1), 0 4px 12px rgba(0, 0, 0, .15);
+}
+.doc-editorial--reversed {
+  direction: rtl;
+}
+.doc-editorial--reversed > * {
+  direction: ltr;
+}
+.doc-editorial-visual {
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 10px;
+}
+.doc-editorial-visual svg,
+.doc-editorial-visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.doc-editorial-text {
+  min-width: 0;
+}
+.doc-editorial-label {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.doc-editorial-heading {
+  font-size: clamp(20px, 2.5vw, 26px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin: 0 0 12px;
+  line-height: 1.2;
+}
+.doc-editorial-desc {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+}
+.doc-editorial-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: editorial-step;
+}
+.doc-editorial-list li {
+  position: relative;
+  padding-left: 32px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  counter-increment: editorial-step;
+}
+.doc-editorial-list li::before {
+  content: counter(editorial-step, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 1px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.doc-editorial-list strong {
+  color: var(--text);
+  font-weight: 600;
+}
+.doc-editorial-note {
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 500;
+  margin-top: 16px;
+}
+@media (max-width: 768px) {
+  .doc-editorial {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 24px;
+  }
+  .doc-editorial--reversed {
+    direction: ltr;
+  }
+}
+
 /* ─── Tool cards ────────────────────────────────────────────────── */
 .doc-tool-card {
   border: 1px solid var(--card-border);
