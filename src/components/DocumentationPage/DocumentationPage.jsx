@@ -1203,13 +1203,13 @@ export default function DocumentationPage() {
                   <text x="620" y="74" textAnchor="middle" fontSize="10" fontWeight="700" fontFamily="system-ui" fill="#92400e">Sprint</text>
                   <text x="620" y="92" textAnchor="middle" fontSize="22" fontWeight="800" fontFamily="system-ui" fill="#f59e0b">3</text>
 
-                  {/* Arrows connecting row 1 */}
-                  <path d="M220 80 L240 80" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
-                  <path d="M235 77 L241 80 L235 83" fill="#94a3b8" />
-                  <path d="M400 80 L420 80" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
-                  <path d="M415 77 L421 80 L415 83" fill="#94a3b8" />
-                  <path d="M560 80 L572 80" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
-                  <path d="M569 77 L574 80 L569 83" fill="#94a3b8" />
+                  {/* Arrows connecting cards */}
+                  <path className="doc-demo-draw" pathLength="1" d="M220 80 L240 80" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
+                  <path className="doc-demo-draw" pathLength="1" d="M235 77 L241 80 L235 83" fill="#94a3b8" />
+                  <path className="doc-demo-draw" pathLength="1" d="M400 80 L420 80" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
+                  <path className="doc-demo-draw" pathLength="1" d="M415 77 L421 80 L415 83" fill="#94a3b8" />
+                  <path className="doc-demo-draw" pathLength="1" d="M560 80 L572 80" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
+                  <path className="doc-demo-draw" pathLength="1" d="M569 77 L574 80 L569 83" fill="#94a3b8" />
 
                   {/* ── Separator line ── */}
                   <line x1="40" y1="155" x2="680" y2="155" stroke="#e5e7eb" strokeWidth="1" strokeDasharray="6 4" />
@@ -1221,13 +1221,13 @@ export default function DocumentationPage() {
                   <text x="100" y="234" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill="#be185d">to ship?</text>
 
                   {/* Arrow from diamond — yes */}
-                  <path d="M140 225 L200 225" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round" />
-                  <path d="M195 222 L201 225 L195 228" fill="#22c55e" />
+                  <path className="doc-demo-draw doc-demo-draw--slow" pathLength="1" d="M140 225 L200 225" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round" />
+                  <path className="doc-demo-draw doc-demo-draw--slow" pathLength="1" d="M195 222 L201 225 L195 228" fill="#22c55e" />
                   <text x="170" y="218" textAnchor="middle" fontSize="7" fontWeight="500" fontFamily="system-ui" fill="#22c55e">yes</text>
 
                   {/* Arrow from diamond — no */}
-                  <path d="M100 255 L100 310" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" />
-                  <path d="M97 305 L100 311 L103 305" fill="#ef4444" />
+                  <path className="doc-demo-draw doc-demo-draw--slow" pathLength="1" d="M100 255 L100 310" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" />
+                  <path className="doc-demo-draw doc-demo-draw--slow" pathLength="1" d="M97 305 L100 311 L103 305" fill="#ef4444" />
                   <text x="112" y="285" fontSize="7" fontWeight="500" fontFamily="system-ui" fill="#ef4444">no</text>
 
                   {/* Rectangle — ship card (selected) */}
@@ -1235,11 +1235,11 @@ export default function DocumentationPage() {
                   <text x="224" y="220" fontSize="10" fontWeight="700" fontFamily="system-ui" fill="#166534">Ship It</text>
                   <text x="224" y="238" fontSize="8" fontFamily="system-ui" fill="#6b7280">Deploy to production</text>
                   {/* Selection handles */}
-                  <rect x="204" y="191" width="7" height="7" rx="2" fill="#3b82f6" />
-                  <rect x="364" y="191" width="7" height="7" rx="2" fill="#3b82f6" />
-                  <rect x="204" y="251" width="7" height="7" rx="2" fill="#3b82f6" />
-                  <rect x="364" y="251" width="7" height="7" rx="2" fill="#3b82f6" />
-                  <rect x="204" y="191" width="167" height="67" rx="10" fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="4 2" />
+                  <rect className="doc-demo-pulse" x="204" y="191" width="7" height="7" rx="2" fill="#3b82f6" />
+                  <rect className="doc-demo-pulse" x="364" y="191" width="7" height="7" rx="2" fill="#3b82f6" />
+                  <rect className="doc-demo-pulse" x="204" y="251" width="7" height="7" rx="2" fill="#3b82f6" />
+                  <rect className="doc-demo-pulse" x="364" y="251" width="7" height="7" rx="2" fill="#3b82f6" />
+                  <rect className="doc-demo-pulse-border" x="204" y="191" width="167" height="67" rx="10" fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="4 2" />
 
                   {/* Rectangle — fix card */}
                   <rect x="80" y="318" width="130" height="52" rx="8" fill="rgba(239,68,68,0.04)" stroke="#ef4444" strokeWidth="1.5" />
@@ -1247,8 +1247,8 @@ export default function DocumentationPage() {
                   <text x="96" y="358" fontSize="7" fontFamily="system-ui" fill="#6b7280">Address review feedback</text>
 
                   {/* Arrow from fix back to diamond */}
-                  <path d="M80 344 L60 344 L60 255" stroke="#94a3b8" strokeWidth="1.2" strokeLinecap="round" strokeDasharray="4 3" />
-                  <path d="M57 260 L60 254 L63 260" fill="#94a3b8" />
+                  <path className="doc-demo-draw doc-demo-draw--slow" pathLength="1" d="M80 344 L60 344 L60 255" stroke="#94a3b8" strokeWidth="1.2" strokeLinecap="round" strokeDasharray="4 3" />
+                  <path className="doc-demo-draw doc-demo-draw--slow" pathLength="1" d="M57 260 L60 254 L63 260" fill="#94a3b8" />
 
                   {/* ── Row 3: Shapes variety ── */}
                   {/* Ellipse — avatar */}
@@ -1528,23 +1528,23 @@ export default function DocumentationPage() {
 
                       {/* ── Arrow connectors between cards ── */}
                       {/* Backlog → In Progress */}
-                      <path d="M190 75 L210 75" stroke="#64748b" strokeWidth="1.8" strokeLinecap="round" />
-                      <path d="M205 71 L212 75 L205 79" fill="#64748b" stroke="#64748b" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round" />
+                      <path className="doc-demo-draw" pathLength="1" d="M190 75 L210 75" stroke="#64748b" strokeWidth="1.8" strokeLinecap="round" />
+                      <path className="doc-demo-draw" pathLength="1" d="M205 71 L212 75 L205 79" fill="#64748b" stroke="#64748b" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round" />
                       {/* Snap dots */}
-                      <circle cx="190" cy="75" r="3" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" strokeWidth="1" />
-                      <circle cx="210" cy="75" r="3" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" strokeWidth="1" />
+                      <circle className="doc-demo-pop" style={{ '--pop-delay': '0.8s' }} cx="190" cy="75" r="3" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" strokeWidth="1" />
+                      <circle className="doc-demo-pop" style={{ '--pop-delay': '1s' }} cx="210" cy="75" r="3" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" strokeWidth="1" />
 
                       {/* In Progress → Review */}
-                      <path d="M360 75 L380 75" stroke="#64748b" strokeWidth="1.8" strokeLinecap="round" />
-                      <path d="M375 71 L382 75 L375 79" fill="#64748b" stroke="#64748b" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round" />
-                      <circle cx="360" cy="75" r="3" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" strokeWidth="1" />
-                      <circle cx="380" cy="75" r="3" fill="rgba(139,92,246,0.15)" stroke="#8b5cf6" strokeWidth="1" />
+                      <path className="doc-demo-draw" pathLength="1" d="M360 75 L380 75" stroke="#64748b" strokeWidth="1.8" strokeLinecap="round" />
+                      <path className="doc-demo-draw" pathLength="1" d="M375 71 L382 75 L375 79" fill="#64748b" stroke="#64748b" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round" />
+                      <circle className="doc-demo-pop" style={{ '--pop-delay': '1.4s' }} cx="360" cy="75" r="3" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" strokeWidth="1" />
+                      <circle className="doc-demo-pop" style={{ '--pop-delay': '1.6s' }} cx="380" cy="75" r="3" fill="rgba(139,92,246,0.15)" stroke="#8b5cf6" strokeWidth="1" />
 
                       {/* Review → Done */}
-                      <path d="M530 75 L550 75" stroke="#64748b" strokeWidth="1.8" strokeLinecap="round" />
-                      <path d="M545 71 L552 75 L545 79" fill="#64748b" stroke="#64748b" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round" />
-                      <circle cx="530" cy="75" r="3" fill="rgba(139,92,246,0.15)" stroke="#8b5cf6" strokeWidth="1" />
-                      <circle cx="550" cy="75" r="3" fill="rgba(34,197,94,0.15)" stroke="#22c55e" strokeWidth="1" />
+                      <path className="doc-demo-draw" pathLength="1" d="M530 75 L550 75" stroke="#64748b" strokeWidth="1.8" strokeLinecap="round" />
+                      <path className="doc-demo-draw" pathLength="1" d="M545 71 L552 75 L545 79" fill="#64748b" stroke="#64748b" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round" />
+                      <circle className="doc-demo-pop" style={{ '--pop-delay': '2s' }} cx="530" cy="75" r="3" fill="rgba(139,92,246,0.15)" stroke="#8b5cf6" strokeWidth="1" />
+                      <circle className="doc-demo-pop" style={{ '--pop-delay': '2.2s' }} cx="550" cy="75" r="3" fill="rgba(34,197,94,0.15)" stroke="#22c55e" strokeWidth="1" />
 
                       {/* ── Middle: Feature tree ── */}
                       {/* Root node */}
@@ -1552,11 +1552,11 @@ export default function DocumentationPage() {
                       <text x="260" y="184" fontSize="10" fontWeight="700" fontFamily="system-ui" fill="#1e40af">Feature: Auth</text>
                       <text x="260" y="200" fontSize="7.5" fontFamily="system-ui" fill="#6b7280">User authentication system</text>
                       {/* Selection handles on root */}
-                      <rect x="236" y="156" width="7" height="7" rx="2" fill="#3b82f6" />
-                      <rect x="396" y="156" width="7" height="7" rx="2" fill="#3b82f6" />
-                      <rect x="236" y="212" width="7" height="7" rx="2" fill="#3b82f6" />
-                      <rect x="396" y="212" width="7" height="7" rx="2" fill="#3b82f6" />
-                      <rect x="236" y="156" width="167" height="63" rx="12" fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="4 2" />
+                      <rect className="doc-demo-pulse" x="236" y="156" width="7" height="7" rx="2" fill="#3b82f6" />
+                      <rect className="doc-demo-pulse" x="396" y="156" width="7" height="7" rx="2" fill="#3b82f6" />
+                      <rect className="doc-demo-pulse" x="236" y="212" width="7" height="7" rx="2" fill="#3b82f6" />
+                      <rect className="doc-demo-pulse" x="396" y="212" width="7" height="7" rx="2" fill="#3b82f6" />
+                      <rect className="doc-demo-pulse-border" x="236" y="156" width="167" height="63" rx="12" fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="4 2" />
 
                       {/* Child 1: Login */}
                       <rect x="60" y="280" width="130" height="50" rx="8" fill="rgba(34,197,94,0.04)" stroke="#22c55e" strokeWidth="1.5" />
@@ -1574,29 +1574,29 @@ export default function DocumentationPage() {
                       <text x="396" y="316" fontSize="7" fontFamily="system-ui" fill="#6b7280">Google, GitHub SSO</text>
 
                       {/* Tree connectors — branching from root */}
-                      <path d="M320 216 L320 240 L125 240 L125 280" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-                      <path d="M122 275 L125 281 L128 275" fill="#64748b" />
+                      <path className="doc-demo-draw doc-demo-draw--tree" pathLength="1" d="M320 216 L320 240 L125 240 L125 280" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                      <path className="doc-demo-pop" d="M122 275 L125 281 L128 275" fill="#64748b" />
 
-                      <path d="M320 216 L320 280" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-                      <path d="M317 275 L320 281 L323 275" fill="#64748b" />
+                      <path className="doc-demo-draw doc-demo-draw--tree" pathLength="1" d="M320 216 L320 280" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                      <path className="doc-demo-pop" d="M317 275 L320 281 L323 275" fill="#64748b" />
 
-                      <path d="M320 216 L320 240 L515 240 L515 280" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-                      <path d="M512 275 L515 281 L518 275" fill="#64748b" />
+                      <path className="doc-demo-draw doc-demo-draw--tree" pathLength="1" d="M320 216 L320 240 L515 240 L515 280" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                      <path className="doc-demo-pop" d="M512 275 L515 281 L518 275" fill="#64748b" />
 
                       {/* Branch snap points */}
-                      <circle cx="320" cy="240" r="3" fill="rgba(100,116,139,0.15)" stroke="#64748b" strokeWidth="1" />
-                      <circle cx="125" cy="240" r="3" fill="rgba(100,116,139,0.15)" stroke="#64748b" strokeWidth="1" />
-                      <circle cx="515" cy="240" r="3" fill="rgba(100,116,139,0.15)" stroke="#64748b" strokeWidth="1" />
+                      <circle className="doc-demo-pop" style={{ '--pop-delay': '3.2s' }} cx="320" cy="240" r="3" fill="rgba(100,116,139,0.15)" stroke="#64748b" strokeWidth="1" />
+                      <circle className="doc-demo-pop" style={{ '--pop-delay': '3.5s' }} cx="125" cy="240" r="3" fill="rgba(100,116,139,0.15)" stroke="#64748b" strokeWidth="1" />
+                      <circle className="doc-demo-pop" style={{ '--pop-delay': '3.8s' }} cx="515" cy="240" r="3" fill="rgba(100,116,139,0.15)" stroke="#64748b" strokeWidth="1" />
 
                       {/* ── Right side: Cross-reference arrows ── */}
                       {/* Dashed reference arrow from Login to Review card */}
-                      <path d="M190 305 C190 260, 396 200, 396 120" stroke="#8b5cf6" strokeWidth="1.2" strokeLinecap="round" fill="none" strokeDasharray="5 3" />
-                      <path d="M393 125 L396 118 L399 125" fill="#8b5cf6" />
+                      <path className="doc-demo-draw doc-demo-draw--ref" pathLength="1" d="M190 305 C190 260, 396 200, 396 120" stroke="#8b5cf6" strokeWidth="1.2" strokeLinecap="round" fill="none" strokeDasharray="5 3" />
+                      <path className="doc-demo-pop" d="M393 125 L396 118 L399 125" fill="#8b5cf6" />
                       <text x="280" y="210" fontSize="6.5" fontWeight="500" fontFamily="system-ui" fill="#8b5cf6" transform="rotate(-32, 280, 210)">depends on</text>
 
                       {/* Solid reference arrow from OAuth to Done */}
-                      <path d="M510 305 C540 260, 580 200, 590 120" stroke="#22c55e" strokeWidth="1.2" strokeLinecap="round" fill="none" />
-                      <path d="M587 125 L590 118 L593 125" fill="#22c55e" />
+                      <path className="doc-demo-draw doc-demo-draw--ref" pathLength="1" d="M510 305 C540 260, 580 200, 590 120" stroke="#22c55e" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+                      <path className="doc-demo-pop" d="M587 125 L590 118 L593 125" fill="#22c55e" />
                       <text x="560" y="210" fontSize="6.5" fontWeight="500" fontFamily="system-ui" fill="#22c55e" transform="rotate(-50, 560, 210)">shipped</text>
 
                       {/* ── Bottom: Annotation area ── */}

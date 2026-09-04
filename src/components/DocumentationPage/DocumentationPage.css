@@ -2493,6 +2493,72 @@ html[data-theme='dark'] .doc-colorlab-demo {
   animation-delay: -1s;
 }
 
+/* ─── Stroke draw animation ─────────────────────────────────────── */
+@keyframes docDraw {
+  from { stroke-dashoffset: 1; }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes docPop {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.4); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes docPulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.45; }
+}
+@keyframes docPulseBorder {
+  from { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: -12; }
+}
+
+/* Draw: arrows that trace themselves */
+.doc-demo-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: docDraw 1.2s ease-out forwards;
+  animation-delay: var(--draw-delay, 0.3s);
+}
+.doc-demo-draw--slow {
+  animation-duration: 1.6s;
+  animation-delay: var(--draw-delay, 1.8s);
+}
+.doc-demo-draw--tree {
+  animation-duration: 1.8s;
+  animation-delay: var(--draw-delay, 2.2s);
+}
+
+/* Pop: snap dots and arrow tips appear */
+.doc-demo-pop {
+  transform-origin: center;
+  transform: scale(0);
+  opacity: 0;
+  animation: docPop 0.4s ease-out forwards;
+  animation-delay: var(--pop-delay, 1.5s);
+}
+
+/* Pulse: selection handles breathe */
+.doc-demo-pulse {
+  animation: docPulse 2.4s ease-in-out infinite;
+  animation-delay: var(--pulse-delay, 0s);
+}
+
+/* Pulse border: selection dash marches */
+.doc-demo-pulse-border {
+  animation: docPulseBorder 1.8s linear infinite;
+}
+
+/* Ref: cross-reference arrows fade in */
+@keyframes docFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.doc-demo-draw--ref {
+  opacity: 0;
+  animation: docFadeIn 1.2s ease-out forwards;
+  animation-delay: var(--draw-delay, 3s);
+}
+
 /* ─── Before & After demo ───────────────────────────────────────── */
 .doc-beforeafter-wrap {
   border: 1px solid var(--card-border);
