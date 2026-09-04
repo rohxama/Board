@@ -1323,9 +1323,151 @@ export default function DocumentationPage() {
             </div>
           </section>
 
+          <section id="drawing" className="doc-section">
+            <h2 className="doc-section-title"><NavIcon name="pen" /> Drawing</h2>
+
+            <div className="doc-editorial">
+              <div className="doc-editorial-visual">
+                <div className="doc-drawing-showcase">
+                  <div className="doc-drawing-canvas">
+                    <svg viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }} aria-hidden="true">
+                      {/* Canvas dot grid */}
+                      {[0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600].map(x => (
+                        [0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400].map(y => (
+                          <circle key={`${x}-${y}`} cx={x} cy={y} r="0.6" fill="var(--dot)" />
+                        ))
+                      )).flat()}
+
+                      {/* ── Rough wireframe sketch — hand-drawn look ── */}
+                      {/* Phone outline — wobbly rectangle */}
+                      <path d="M60 60 C62 58, 158 56, 198 60 C202 62, 204 148, 200 198 C198 202, 102 204, 62 200 C58 198, 56 102, 60 60 Z"
+                        stroke="#374151" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                      {/* Phone notch */}
+                      <path d="M110 60 C112 52, 148 52, 150 60"
+                        stroke="#374151" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                      {/* Phone screen area */}
+                      <path d="M68 72 C70 70, 188 68, 192 72 C194 74, 196 188, 192 192 C190 194, 72 196, 68 192 C66 190, 64 74, 68 72 Z"
+                        stroke="#9ca3af" strokeWidth="1" strokeLinecap="round" fill="none" strokeDasharray="3 2" />
+
+                      {/* App header bar — sketchy */}
+                      <path d="M72 80 L188 79" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round" />
+                      <path d="M72 80 C74 78, 120 77, 130 80" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                      <path d="M170 78 C172 76, 186 77, 188 80" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+
+                      {/* Content blocks — rough sketchy rectangles */}
+                      {/* Image placeholder */}
+                      <path d="M76 92 C78 90, 140 89, 142 92 C144 94, 145 130, 142 132 C140 134, 78 135, 76 132 C74 130, 74 94, 76 92 Z"
+                        stroke="#9ca3af" strokeWidth="1.2" strokeLinecap="round" fill="rgba(156,163,175,0.06)" />
+                      {/* Mountain sketch inside image */}
+                      <path d="M80 128 L96 104 L108 118 L120 98 L138 128"
+                        stroke="#d1d5db" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+                      <circle cx="128" cy="100" r="5" stroke="#d1d5db" strokeWidth="1" fill="none" />
+
+                      {/* Text lines — wobbly */}
+                      <path d="M76 142 C78 140, 130 141, 140 142" stroke="#6b7280" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+                      <path d="M76 152 C78 150, 110 151, 120 152" stroke="#d1d5db" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                      <path d="M76 160 C78 158, 100 159, 108 160" stroke="#d1d5db" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+
+                      {/* Button sketch */}
+                      <path d="M76 172 C78 170, 120 169, 122 172 C124 174, 125 184, 122 186 C120 188, 78 189, 76 186 C74 184, 74 174, 76 172 Z"
+                        stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" fill="rgba(59,130,246,0.06)" />
+                      <path d="M82 180 C84 178, 112 179, 116 180" stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+
+                      {/* ── Right side: rough flow diagram ── */}
+                      {/* Circle node */}
+                      <path d="M320 80 C325 72, 365 71, 370 80 C375 89, 374 109, 370 118 C366 127, 326 128, 320 118 C314 109, 315 89, 320 80 Z"
+                        stroke="#8b5cf6" strokeWidth="1.8" strokeLinecap="round" fill="rgba(139,92,246,0.04)" />
+                      <path d="M334 94 C336 92, 352 93, 356 94" stroke="#8b5cf6" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                      <path d="M338 104 C340 102, 350 103, 352 104" stroke="#c4b5fd" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+
+                      {/* Arrow down — wobbly */}
+                      <path d="M345 122 C346 128, 344 140, 345 148" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                      <path d="M341 144 L345 150 L349 144" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+
+                      {/* Rectangle node */}
+                      <path d="M310 158 C312 155, 378 154, 380 158 C382 160, 383 198, 380 202 C378 205, 312 206, 310 202 C308 199, 308 161, 310 158 Z"
+                        stroke="#22c55e" strokeWidth="1.8" strokeLinecap="round" fill="rgba(34,197,94,0.04)" />
+                      <path d="M324 174 C326 172, 362 173, 366 174" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                      <path d="M328 184 C330 182, 350 183, 354 184" stroke="#86efac" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+                      <path d="M328 192 C330 190, 342 191, 346 192" stroke="#86efac" strokeWidth="1" strokeLinecap="round" fill="none" />
+
+                      {/* Arrow right — curved */}
+                      <path d="M384 180 C396 178, 408 176, 418 180" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                      <path d="M414 176 L420 180 L414 184" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+
+                      {/* Diamond node */}
+                      <path d="M450 150 L480 180 L450 210 L420 180 Z"
+                        stroke="#ec4899" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="rgba(236,72,153,0.04)" />
+                      <path d="M438 176 C440 174, 458 175, 462 176" stroke="#ec4899" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+                      <path d="M440 186 C442 184, 456 185, 458 186" stroke="#f9a8d4" strokeWidth="1" strokeLinecap="round" fill="none" />
+
+                      {/* Arrow down from diamond */}
+                      <path d="M450 214 C451 220, 449 232, 450 240" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                      <path d="M446 236 L450 242 L454 236" stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+
+                      {/* Ellipse node */}
+                      <path d="M420 252 C425 242, 475 241, 480 252 C485 263, 484 283, 480 292 C476 301, 426 302, 420 292 C414 283, 415 263, 420 252 Z"
+                        stroke="#f59e0b" strokeWidth="1.8" strokeLinecap="round" fill="rgba(245,158,11,0.04)" />
+                      <path d="M438 268 C440 266, 460 267, 464 268" stroke="#f59e0b" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+                      <path d="M442 278 C444 276, 456 277, 458 278" stroke="#fcd34d" strokeWidth="1" strokeLinecap="round" fill="none" />
+
+                      {/* ── Bottom: rough annotations ── */}
+                      {/* Circle annotation */}
+                      <path d="M80 240 C82 234, 118 233, 120 240 C122 247, 121 263, 120 268 C118 274, 82 275, 80 268 C78 262, 78 247, 80 240 Z"
+                        stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" fill="none" strokeDasharray="4 3" />
+                      <path d="M124 254 L148 248" stroke="#ef4444" strokeWidth="1" strokeLinecap="round" fill="none" />
+                      <path d="M88 256 C90 254, 110 255, 112 256" stroke="#ef4444" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+
+                      {/* Cross-out mark */}
+                      <path d="M200 230 L240 270" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+                      <path d="M200 270 L240 230" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+
+                      {/* Star / highlight */}
+                      <path d="M280 240 L284 252 L296 252 L286 260 L290 272 L280 264 L270 272 L274 260 L264 252 L276 252 Z"
+                        stroke="#f59e0b" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="rgba(245,158,11,0.08)" />
+
+                      {/* Arrow annotation */}
+                      <path d="M160 310 C162 306, 218 305, 220 310 C222 314, 223 330, 220 334 C218 338, 162 339, 160 334 C158 330, 158 314, 160 310 Z"
+                        stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" fill="rgba(59,130,246,0.04)" />
+                      <path d="M170 322 C172 320, 206 321, 210 322" stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                      <path d="M172 330 C174 328, 196 329, 200 330" stroke="#93c5fd" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+
+                      {/* Rough underlines */}
+                      <path d="M320 320 C322 318, 420 317, 424 320" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" fill="none" />
+                      <path d="M320 336 C322 334, 380 333, 384 336" stroke="#d1d5db" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                      <path d="M320 350 C322 348, 360 347, 364 350" stroke="#d1d5db" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+
+                      {/* Pencil cursor */}
+                      <path d="M520 340 L530 310 L534 312 L524 342 Z" fill="#374151" stroke="#374151" strokeWidth="1" strokeLinejoin="round" />
+                      <path d="M520 340 L518 348 L524 342 Z" fill="#f59e0b" />
+                      <path d="M530 310 L532 306 L536 308 L534 312 Z" fill="#9ca3af" />
+
+                      {/* Pencil trail */}
+                      <path d="M524 342 C520 350, 510 358, 498 362 C486 366, 470 364, 460 358"
+                        stroke="#374151" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.3" strokeDasharray="2 3" />
+                    </svg>
+                  </div>
+                  <div className="doc-drawing-label">
+                    <span className="doc-drawing-label-text">Freehand sketching with natural strokes — wireframes, flow diagrams, annotations</span>
+                  </div>
+                </div>
+              </div>
+              <div className="doc-editorial-text">
+                <span className="doc-editorial-label">Freehand</span>
+                <h3 className="doc-editorial-heading">Draw naturally on the canvas</h3>
+                <ul className="doc-editorial-list">
+                  <li><strong>Press P</strong> or click the pencil tool to start drawing</li>
+                  <li><strong>Click and drag</strong> to sketch freehand strokes</li>
+                  <li><strong>Adjust stroke width</strong> in the Style panel for thick or thin lines</li>
+                  <li><strong>Combine with shapes</strong> — sketch over rectangles and arrows for a rough look</li>
+                  <li><strong>Use for wireframes</strong> — quick, imperfect layouts before committing to precision</li>
+                  <li><strong>Annotate</strong> — circle issues, cross out ideas, star important items</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
           <SectionBreak
-            label="03"
-            heading="Zoom & Canvas Navigation"
             description="Move freely across your infinite canvas — zoom in for detail, pan to explore."
             illustration={<ZoomBreakIllustration />}
             accent="blue"
