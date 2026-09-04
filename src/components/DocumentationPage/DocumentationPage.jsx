@@ -1023,24 +1023,32 @@ export default function DocumentationPage() {
 
           <section id="getting-started" className="doc-section">
             <h2 className="doc-section-title"><NavIcon name="play" /> Getting Started</h2>
-            <GettingStartedIllustration />
+
+            <div className="doc-editorial">
+              <div className="doc-editorial-visual">
+                <GettingStartedIllustration />
+              </div>
+              <div className="doc-editorial-text">
+                <span className="doc-editorial-label">Quick start</span>
+                <h3 className="doc-editorial-heading" id="how-to-start">How to start creating</h3>
+                <p className="doc-editorial-desc">Go from idea to first shape in under a minute.</p>
+                <ol className="doc-editorial-list">
+                  <li><strong>Open</strong> Kanvas in your browser</li>
+                  <li><strong>Choose</strong> a tool from the left toolbar</li>
+                  <li><strong>Click and drag</strong> on the canvas to create shapes</li>
+                  <li><strong>Switch back</strong> to Select to move and edit</li>
+                  <li><strong>Use</strong> the Style panel to customize colors and strokes</li>
+                </ol>
+                <p className="doc-editorial-note">The canvas is infinite — zoom and pan to explore as much space as you need.</p>
+              </div>
+            </div>
+
             <FeatureStory
               heading="From Idea to Board"
               description="Create your first board in four simple steps."
               diagram={<GettingStartedDiagram />}
               steps={['Open Kanvas in your browser', 'Choose a tool from the toolbar', 'Click and drag to create shapes', 'Select, move, and style your work']}
             />
-            <div className="doc-card">
-              <h3 id="how-to-start" className="doc-card-title">How to Start Creating</h3>
-              <ol className="doc-start-steps">
-                <li><strong>Open</strong> Kanvas in your browser.</li>
-                <li><strong>Choose</strong> a tool from the toolbar on the left side of the screen.</li>
-                <li><strong>Click and drag</strong> on the canvas to create shapes, lines, or drawings.</li>
-                <li><strong>Switch back</strong> to the <strong>Select</strong> tool to move and edit objects.</li>
-                <li><strong>Use</strong> the toolbar and style controls to customize your work.</li>
-              </ol>
-              <p className="doc-note">The canvas is infinite — zoom and pan to explore as much space as you need.</p>
-            </div>
           </section>
 
           <WorkflowSection />
@@ -1055,350 +1063,32 @@ export default function DocumentationPage() {
 
           <section id="tools" className="doc-section">
             <h2 className="doc-section-title"><NavIcon name="cursor" /> Tools</h2>
-            <ToolsIllustration />
-            <p className="doc-section-intro">Kanvas provides a focused set of tools for creating and editing on the canvas. Each tool is accessible from the left toolbar.</p>
 
-            <ToolCard
-              icon="cursor"
-              name="Select"
-              shortcut="V"
-              description="The primary tool for interacting with objects on the canvas. Use it to select, move, resize, and rotate shapes."
-              className="doc-tool-card--blue"
-              visual={
-                <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-tool-canvas">
-                  <rect x="0" y="0" width="200" height="120" rx="8" fill="var(--surface-muted)" />
-                  <rect x="30" y="22" width="56" height="40" rx="4" fill="#dbeafe" stroke="#3b82f6" strokeWidth="2" />
-                  <rect x="26" y="18" width="8" height="8" rx="1.5" fill="#3b82f6" />
-                  <rect x="82" y="18" width="8" height="8" rx="1.5" fill="#3b82f6" />
-                  <rect x="26" y="58" width="8" height="8" rx="1.5" fill="#3b82f6" />
-                  <rect x="82" y="58" width="8" height="8" rx="1.5" fill="#3b82f6" />
-                  <line x1="58" y1="10" x2="58" y2="18" stroke="#3b82f6" strokeWidth="2" />
-                  <circle cx="58" cy="7" r="4" fill="#3b82f6" />
-                  <circle cx="140" cy="45" r="22" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2" />
-                  <rect x="118" y="38" width="8" height="8" rx="1.5" fill="#f59e0b" />
-                  <rect x="154" y="38" width="8" height="8" rx="1.5" fill="#f59e0b" />
-                  <rect x="118" y="44" width="8" height="8" rx="1.5" fill="#f59e0b" />
-                  <rect x="154" y="44" width="8" height="8" rx="1.5" fill="#f59e0b" />
-                  <path d="M136 100 L140 90 L144 100" fill="var(--text-muted)" opacity="0.4" />
-                  <text x="100" y="112" textAnchor="middle" fill="var(--text-muted)" fontSize="9" fontWeight="600" fontFamily="system-ui, sans-serif">click to select · drag to move</text>
-                </svg>
-              }
-              howToUse={[
-                'Click the Select tool in the toolbar (or press V).',
-                'Click on any shape to select it — resize handles and a rotation anchor appear.',
-                'Drag the shape to move it around the canvas.',
-                'Drag any corner handle to resize. Hold Shift to maintain proportions.',
-                'Drag the rotation handle above the shape to rotate it.',
-                'Click on an empty area to deselect. Hold Shift and click to add shapes to the selection.',
-              ]}
-              tips="Double-click a text shape to edit its content."
-            />
-
-            <ToolCard
-              icon="hand"
-              name="Pan"
-              shortcut="H"
-              description="Move around the infinite canvas without affecting any shapes. Panning lets you navigate large boards and focus on different areas."
-              className="doc-tool-card--purple"
-              visual={
-                <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-tool-canvas">
-                  <rect x="0" y="0" width="200" height="120" rx="8" fill="var(--surface-muted)" />
-                  <g opacity="0.15">
-                    {[0,20,40,60,80,100,120,140,160,180,200].map(x => (
-                      <line key={`v${x}`} x1={x} y1="0" x2={x} y2="120" stroke="var(--text-muted)" strokeWidth="0.5" />
-                    ))}
-                    {[0,20,40,60,80,100,120].map(y => (
-                      <line key={`h${y}`} x1="0" y1={y} x2="200" y2={y} stroke="var(--text-muted)" strokeWidth="0.5" />
-                    ))}
-                  </g>
-                  <rect x="15" y="30" width="40" height="28" rx="3" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1.5" />
-                  <rect x="55" y="20" width="32" height="22" rx="3" fill="#fef3c7" stroke="#f59e0b" strokeWidth="1.5" />
-                  <rect x="100" y="40" width="36" height="26" rx="3" fill="#dcfce7" stroke="#22c55e" strokeWidth="1.5" />
-                  <path d="M155 35 L175 35" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M168 29 L175 35 L168 41" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M155 85 L135 85" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M142 79 L135 85 L142 91" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <text x="100" y="112" textAnchor="middle" fill="var(--text-muted)" fontSize="9" fontWeight="600" fontFamily="system-ui, sans-serif">hold Space + drag to pan</text>
-                </svg>
-              }
-              howToUse={[
-                'Select the Pan tool from the toolbar (or press H).',
-                'Click and drag anywhere on the canvas to move your view.',
-                'Release to stop panning.',
-              ]}
-              tips="Hold the Space bar at any time to temporarily activate Pan mode, then release to return to your previous tool."
-            />
-
-            <ToolCard
-              icon="square"
-              name="Rectangle"
-              shortcut="R"
-              description="Draw rectangular shapes on the canvas. Rectangles support fill colors, stroke styles, rounded corners, and opacity."
-              className="doc-tool-card--blue"
-              visual={
-                <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-tool-canvas">
-                  <rect x="0" y="0" width="200" height="120" rx="8" fill="var(--surface-muted)" />
-                  <rect x="25" y="20" width="65" height="50" rx="6" fill="#dbeafe" stroke="#3b82f6" strokeWidth="2" />
-                  <rect x="105" y="30" width="55" height="40" rx="12" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2" />
-                  <rect x="40" y="75" width="50" height="30" rx="4" fill="#dcfce7" stroke="#22c55e" strokeWidth="2" opacity="0.7" />
-                  <rect x="115" y="78" width="40" height="24" rx="2" fill="none" stroke="#a855f7" strokeWidth="1.5" strokeDasharray="4 2" />
-                  <text x="100" y="112" textAnchor="middle" fill="var(--text-muted)" fontSize="9" fontWeight="600" fontFamily="system-ui, sans-serif">click + drag to draw</text>
-                </svg>
-              }
-              howToUse={[
-                'Select the Rectangle tool (or press R).',
-                'Click and drag on the canvas to create a rectangle.',
-                'After drawing, you return to Select mode automatically.',
-                'Select the rectangle again to move, resize, or style it.',
-              ]}
-              tips="Use the Style panel to switch between sharp and rounded corners."
-            />
-
-            <ToolCard
-              icon="circle"
-              name="Ellipse"
-              shortcut="O"
-              description="Draw ellipses and circles on the canvas. Ellipses support fill colors, stroke styles, and opacity."
-              className="doc-tool-card--coral"
-              visual={
-                <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-tool-canvas">
-                  <rect x="0" y="0" width="200" height="120" rx="8" fill="var(--surface-muted)" />
-                  <ellipse cx="65" cy="50" rx="35" ry="28" fill="#dbeafe" stroke="#3b82f6" strokeWidth="2" />
-                  <ellipse cx="140" cy="45" rx="22" ry="22" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2" />
-                  <ellipse cx="130" cy="85" rx="30" ry="18" fill="#dcfce7" stroke="#22c55e" strokeWidth="2" opacity="0.7" />
-                  <ellipse cx="55" cy="88" rx="18" ry="14" fill="none" stroke="#a855f7" strokeWidth="1.5" strokeDasharray="4 2" />
-                  <text x="100" y="112" textAnchor="middle" fill="var(--text-muted)" fontSize="9" fontWeight="600" fontFamily="system-ui, sans-serif">hold Shift for perfect circle</text>
-                </svg>
-              }
-              howToUse={[
-                'Select the Ellipse tool (or press O).',
-                'Click and drag on the canvas to create an ellipse.',
-                'After drawing, you return to Select mode automatically.',
-                'Select the ellipse again to move, resize, or style it.',
-              ]}
-              tips="Hold Shift while dragging to create a perfect circle."
-            />
-
-            <ToolCard
-              icon="diamond"
-              name="Diamond"
-              shortcut="D"
-              description="Draw diamond shapes on the canvas. Diamonds support fill colors, stroke styles, and opacity."
-              className="doc-tool-card--purple"
-              visual={
-                <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-tool-canvas">
-                  <rect x="0" y="0" width="200" height="120" rx="8" fill="var(--surface-muted)" />
-                  <path d="M55 15 L85 50 L55 85 L25 50 Z" fill="#dbeafe" stroke="#3b82f6" strokeWidth="2" />
-                  <path d="M150 20 L175 50 L150 80 L125 50 Z" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2" />
-                  <path d="M95 70 L115 85 L95 100 L75 85 Z" fill="#dcfce7" stroke="#22c55e" strokeWidth="2" opacity="0.7" />
-                  <text x="100" y="112" textAnchor="middle" fill="var(--text-muted)" fontSize="9" fontWeight="600" fontFamily="system-ui, sans-serif">click + drag to draw</text>
-                </svg>
-              }
-              howToUse={[
-                'Select the Diamond tool (or press D).',
-                'Click and drag on the canvas to create a diamond.',
-                'After drawing, you return to Select mode automatically.',
-                'Select the diamond again to move, resize, or style it.',
-              ]}
-            />
-
-            <ToolCard
-              icon="arrow"
-              name="Arrow"
-              shortcut="A"
-              description="Draw arrows to connect shapes or point to specific areas. Arrows can bind to nearby shapes and follow them when moved."
-              className="doc-tool-card--coral"
-              visual={
-                <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-tool-canvas">
-                  <rect x="0" y="0" width="200" height="120" rx="8" fill="var(--surface-muted)" />
-                  <rect x="20" y="25" width="45" height="32" rx="4" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1.5" />
-                  <rect x="135" y="30" width="45" height="28" rx="4" fill="#fef3c7" stroke="#f59e0b" strokeWidth="1.5" />
-                  <path d="M68 41 L132 44" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M122 38 L135 44 L124 50" fill="#ef4444" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  <circle cx="68" cy="41" r="3.5" fill="#dbeafe" stroke="#ef4444" strokeWidth="1.5" />
-                  <path d="M40 70 L100 85" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round" />
-                  <path d="M92 80 L102 85 L93 91" fill="#22c55e" stroke="#22c55e" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M40 70 L40 82" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round" />
-                  <path d="M36 76 L40 82 L44 76" fill="#22c55e" stroke="#22c55e" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-                  <text x="100" y="112" textAnchor="middle" fill="var(--text-muted)" fontSize="9" fontWeight="600" fontFamily="system-ui, sans-serif">arrows snap to shapes</text>
-                </svg>
-              }
-              howToUse={[
-                'Select the Arrow tool (or press A).',
-                'Click and drag from a starting point to an ending point.',
-                'Arrows have an arrowhead at the end by default.',
-                'Select the arrow to move its endpoints or change its style.',
-              ]}
-              tips="When you drag an arrow endpoint close to a shape, it snaps to the shape boundary and stays connected when the shape moves."
-            />
-
-            <ToolCard
-              icon="line"
-              name="Line"
-              shortcut="L"
-              description="Draw straight lines on the canvas. Lines support different stroke widths and styles."
-              className="doc-tool-card--blue"
-              visual={
-                <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-tool-canvas">
-                  <rect x="0" y="0" width="200" height="120" rx="8" fill="var(--surface-muted)" />
-                  <line x1="30" y1="85" x2="170" y2="30" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" />
-                  <line x1="30" y1="55" x2="170" y2="55" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" />
-                  <line x1="80" y1="20" x2="140" y2="100" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="6 3" />
-                  <line x1="30" y1="20" x2="170" y2="100" stroke="var(--text-muted)" strokeWidth="0.5" opacity="0.3" />
-                  <text x="100" y="112" textAnchor="middle" fill="var(--text-muted)" fontSize="9" fontWeight="600" fontFamily="system-ui, sans-serif">hold Shift for 45° angles</text>
-                </svg>
-              }
-              howToUse={[
-                'Select the Line tool (or press L).',
-                'Click and drag to draw a straight line.',
-                'Select the line to move its endpoints or change its style.',
-              ]}
-              tips="Hold Shift while drawing to constrain the line to 45-degree angles."
-            />
-
-            <ToolCard
-              icon="pen"
-              name="Pencil"
-              shortcut="P"
-              description="Draw freehand on the canvas. Create organic shapes, sketches, and handwritten notes."
-              className="doc-tool-card--green"
-              visual={
-                <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-tool-canvas">
-                  <rect x="0" y="0" width="200" height="120" rx="8" fill="var(--surface-muted)" />
-                  <path d="M25 80 C35 30, 55 90, 75 50 C95 10, 110 70, 130 40 C150 10, 165 60, 180 35" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-                  <path d="M30 95 C50 85, 65 100, 85 90 C105 80, 120 95, 140 88" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.6" />
-                  <path d="M100 65 C110 60, 120 68, 135 62" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.5" />
-                  <text x="100" y="112" textAnchor="middle" fill="var(--text-muted)" fontSize="9" fontWeight="600" fontFamily="system-ui, sans-serif">click + drag freely</text>
-                </svg>
-              }
-              howToUse={[
-                'Select the Pencil tool (or press P).',
-                'Click and drag to draw freely on the canvas.',
-                'Release to finish a stroke. You can create multiple strokes.',
-                'Switch to another tool when finished drawing.',
-              ]}
-              tips="Use the Stroke Width control in the Style panel to adjust pencil thickness."
-            />
-
-            <ToolCard
-              icon="laser"
-              name="Laser"
-              shortcut="K"
-              description="A temporary pointer that draws a glowing beam across the canvas. Perfect for presentations and pointing things out without leaving permanent marks."
-              className="doc-tool-card--pink"
-              visual={
-                <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-tool-canvas">
-                  <rect x="0" y="0" width="200" height="120" rx="8" fill="var(--surface-muted)" />
-                  <defs>
-                    <filter id="laser-glow" x="-50%" y="-50%" width="200%" height="200%">
-                      <feGaussianBlur stdDeviation="4" result="blur" />
-                      <feMerge>
-                        <feMergeNode in="blur" />
-                        <feMergeNode in="SourceGraphic" />
-                      </feMerge>
-                    </filter>
-                  </defs>
-                  <path d="M25 85 C45 20, 80 90, 110 35 C130 0, 155 50, 180 20" stroke="#ef4444" strokeWidth="3" strokeLinecap="round" filter="url(#laser-glow)" />
-                  <circle cx="180" cy="20" r="5" fill="#ef4444" filter="url(#laser-glow)" />
-                  <path d="M180 20 L180 20" stroke="#ff6666" strokeWidth="1" filter="url(#laser-glow)" opacity="0.5" />
-                  <text x="100" y="112" textAnchor="middle" fill="var(--text-muted)" fontSize="9" fontWeight="600" fontFamily="system-ui, sans-serif">temporary · disappears after 1s</text>
-                </svg>
-              }
-              howToUse={[
-                'Select the Laser tool (or press K).',
-                'Click and drag across the canvas to draw a beam.',
-                'The laser beam glows with a neon effect while you draw.',
-                'After releasing, the beam stays visible for 1 second.',
-                'The beam then retracts and disappears automatically.',
-              ]}
-              tips="The laser is completely non-interactive — it cannot be selected or edited. Multiple laser strokes can overlap simultaneously."
-            />
-
-            <ToolCard
-              icon="eraser"
-              name="Eraser"
-              shortcut="E"
-              description="Remove shapes from the canvas by clicking on them."
-              className="doc-tool-card--coral"
-              visual={
-                <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-tool-canvas">
-                  <rect x="0" y="0" width="200" height="120" rx="8" fill="var(--surface-muted)" />
-                  <rect x="25" y="25" width="50" height="35" rx="4" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1.5" opacity="0.35" />
-                  <rect x="15" y="18" width="8" height="8" rx="1.5" fill="#3b82f6" opacity="0.35" />
-                  <rect x="67" y="18" width="8" height="8" rx="1.5" fill="#3b82f6" opacity="0.35" />
-                  <rect x="15" y="55" width="8" height="8" rx="1.5" fill="#3b82f6" opacity="0.35" />
-                  <rect x="67" y="55" width="8" height="8" rx="1.5" fill="#3b82f6" opacity="0.35" />
-                  <ellipse cx="135" cy="40" rx="25" ry="18" fill="#fef3c7" stroke="#f59e0b" strokeWidth="1.5" opacity="0.35" />
-                  <path d="M95 30 L115 55" stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round" opacity="0.25" />
-                  <path d="M95 55 L115 30" stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round" opacity="0.25" />
-                  <path d="M85 75 L105 95" stroke="#ef4444" strokeWidth="3" strokeLinecap="round" />
-                  <circle cx="105" cy="95" r="3" fill="#ef4444" opacity="0.4" />
-                  <text x="100" y="112" textAnchor="middle" fill="var(--text-muted)" fontSize="9" fontWeight="600" fontFamily="system-ui, sans-serif">click shape to erase</text>
-                </svg>
-              }
-              howToUse={[
-                'Select the Eraser tool (or press E).',
-                'Click on any shape to erase it.',
-                'Shapes are removed immediately — use Undo (Ctrl+Z) if you make a mistake.',
-              ]}
-              tips="The eraser works on all shape types including images and text."
-            />
-
-            <ToolCard
-              icon="text"
-              name="Text"
-              shortcut="T"
-              description="Add text labels, notes, and headings directly on the canvas."
-              className="doc-tool-card--yellow"
-              visual={
-                <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-tool-canvas">
-                  <rect x="0" y="0" width="200" height="120" rx="8" fill="var(--surface-muted)" />
-                  <text x="40" y="45" fill="var(--text)" fontSize="28" fontWeight="800" fontFamily="system-ui, sans-serif">Aa</text>
-                  <line x1="40" y1="52" x2="105" y2="52" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" />
-                  <rect x="115" y="22" width="70" height="24" rx="4" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1.5" />
-                  <text x="150" y="38" textAnchor="middle" fill="#3b82f6" fontSize="12" fontWeight="600" fontFamily="system-ui, sans-serif">Label</text>
-                  <rect x="30" y="70" width="60" height="18" rx="3" fill="#fef3c7" stroke="#f59e0b" strokeWidth="1.5" />
-                  <text x="60" y="83" textAnchor="middle" fill="#f59e0b" fontSize="10" fontWeight="500" fontFamily="system-ui, sans-serif">Note</text>
-                  <rect x="115" y="68" width="70" height="22" rx="3" fill="#dcfce7" stroke="#22c55e" strokeWidth="1.5" />
-                  <text x="150" y="83" textAnchor="middle" fill="#22c55e" fontSize="10" fontWeight="600" fontFamily="system-ui, sans-serif">Heading</text>
-                  <text x="100" y="112" textAnchor="middle" fill="var(--text-muted)" fontSize="9" fontWeight="600" fontFamily="system-ui, sans-serif">click to place · type to write</text>
-                </svg>
-              }
-              howToUse={[
-                'Select the Text tool (or press T).',
-                'Click on the canvas where you want to place text.',
-                'Start typing. Press Enter for new lines.',
-                'Click outside or press Ctrl+Enter to finish editing.',
-                'Select the text object to move or style it.',
-              ]}
-              tips="Double-click existing text to edit it. Use the Style panel to change font size."
-            />
-
-            <ToolCard
-              icon="image"
-              name="Image"
-              description="Upload and place images on the canvas. Supported formats include PNG, JPEG, SVG, and WebP."
-              className="doc-tool-card--purple"
-              visual={
-                <svg viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-tool-canvas">
-                  <rect x="0" y="0" width="200" height="120" rx="8" fill="var(--surface-muted)" />
-                  <rect x="25" y="15" width="80" height="60" rx="6" fill="#dbeafe" stroke="#3b82f6" strokeWidth="2" />
-                  <circle cx="50" cy="35" r="8" fill="#3b82f6" opacity="0.6" />
-                  <path d="M25 60 L55 40 L80 55 L95 42 L105 52 L105 75 L25 75 Z" fill="#3b82f6" opacity="0.3" />
-                  <rect x="120" y="20" width="60" height="45" rx="4" fill="#fef3c7" stroke="#f59e0b" strokeWidth="1.5" />
-                  <path d="M120 50 L140 35 L155 45 L165 38 L180 48 L180 65 L120 65 Z" fill="#f59e0b" opacity="0.3" />
-                  <circle cx="135" cy="32" r="5" fill="#f59e0b" opacity="0.5" />
-                  <text x="100" y="112" textAnchor="middle" fill="var(--text-muted)" fontSize="9" fontWeight="600" fontFamily="system-ui, sans-serif">PNG · JPEG · SVG · WebP</text>
-                </svg>
-              }
-              howToUse={[
-                'Click the Image button in the toolbar (or press 9).',
-                'Select an image file from your computer.',
-                'The image is placed in the center of your current view.',
-                'Select the image to move, resize, flip, or adjust its opacity.',
-              ]}
-              tips="You can also drag and drop image files directly onto the canvas. Maximum file size is 20 MB."
-            />
+            <div className="doc-editorial doc-editorial--reversed">
+              <div className="doc-editorial-visual">
+                <ToolsIllustration />
+              </div>
+              <div className="doc-editorial-text">
+                <span className="doc-editorial-label">Toolbar</span>
+                <h3 className="doc-editorial-heading">Every tool, one click away</h3>
+                <p className="doc-editorial-desc">Kanvas provides a focused set of tools for creating and editing on the canvas. Each tool is accessible from the left toolbar.</p>
+                <ul className="doc-editorial-list">
+                  <li><strong>Select (V)</strong> — select, move, resize, and rotate shapes</li>
+                  <li><strong>Pan (H)</strong> — navigate the infinite canvas without editing</li>
+                  <li><strong>Rectangle (R)</strong> — draw rectangles with fill, stroke, and rounded corners</li>
+                  <li><strong>Ellipse (O)</strong> — draw ellipses and circles</li>
+                  <li><strong>Diamond (D)</strong> — draw diamond shapes</li>
+                  <li><strong>Arrow (A)</strong> — connect shapes with snappable arrows</li>
+                  <li><strong>Line (L)</strong> — draw straight lines at any angle</li>
+                  <li><strong>Pencil (P)</strong> — freehand drawing for organic sketches</li>
+                  <li><strong>Text (T)</strong> — add labels, notes, and headings</li>
+                  <li><strong>Eraser (E)</strong> — click to remove any shape</li>
+                  <li><strong>Laser (K)</strong> — temporary pointer for presentations</li>
+                  <li><strong>Image (9)</strong> — upload PNG, JPEG, SVG, or WebP files</li>
+                </ul>
+                <p className="doc-editorial-note">Hold Space at any time to temporarily switch to Pan mode.</p>
+              </div>
+            </div>
           </section>
 
           <SectionBreak
@@ -1411,58 +1101,33 @@ export default function DocumentationPage() {
 
           <section id="zoom" className="doc-section">
             <h2 className="doc-section-title"><NavIcon name="zoom" /> Zoom & Canvas Navigation</h2>
+
+            <div className="doc-editorial doc-editorial--reversed">
+              <div className="doc-editorial-visual">
+                <ZoomDemo />
+              </div>
+              <div className="doc-editorial-text">
+                <span className="doc-editorial-label">Navigation</span>
+                <h3 className="doc-editorial-heading">Navigate the canvas</h3>
+                <p className="doc-editorial-desc">Move freely across your infinite canvas with zoom and pan controls. The canvas has no boundaries — explore freely.</p>
+                <ul className="doc-editorial-list">
+                  <li><strong>Zoom in</strong> — scroll wheel, press <kbd>Ctrl</kbd>+<kbd>+</kbd>, or click +</li>
+                  <li><strong>Zoom out</strong> — scroll wheel, press <kbd>Ctrl</kbd>+<kbd>-</kbd>, or click −</li>
+                  <li><strong>Reset to 100%</strong> — click the percentage display or press <kbd>Ctrl</kbd>+<kbd>0</kbd></li>
+                  <li><strong>Zoom to fit</strong> — press <kbd>Shift</kbd>+<kbd>1</kbd> to frame all content</li>
+                  <li><strong>Pan</strong> — hold <kbd>Space</kbd> and drag, or use two-finger trackpad drag</li>
+                  <li><strong>Fullscreen</strong> — click the fullscreen button for an immersive view</li>
+                </ul>
+                <p className="doc-editorial-note">Presets: 25% · 50% · 75% · 100% · 150% — click the percentage to open the menu.</p>
+              </div>
+            </div>
+
             <FeatureStory
               heading="Navigate the Canvas"
               description="Move freely across your infinite canvas with zoom and pan."
               diagram={<NavigationStoryDiagram />}
               steps={['Scroll to zoom in and out', 'Hold Space and drag to pan', 'Press Shift+1 to zoom to fit', 'Explore without boundaries']}
             />
-            <p className="doc-section-intro">Navigate the infinite canvas with zoom and pan controls. The canvas has no boundaries — explore freely.</p>
-
-            <div className="doc-zoom-grid">
-              <div className="doc-zoom-item">
-                <h4>Zoom In</h4>
-                <p>Click the + button in the zoom controls, use the scroll wheel, or press <kbd>Ctrl</kbd>+<kbd>+</kbd>.</p>
-              </div>
-              <div className="doc-zoom-item">
-                <h4>Zoom Out</h4>
-                <p>Click the − button, scroll the wheel, or press <kbd>Ctrl</kbd>+<kbd>-</kbd>.</p>
-              </div>
-              <div className="doc-zoom-item">
-                <h4>Reset to 100%</h4>
-                <p>Click the percentage display or press <kbd>Ctrl</kbd>+<kbd>0</kbd> to reset zoom to 100%.</p>
-              </div>
-              <div className="doc-zoom-item">
-                <h4>Zoom to Fit</h4>
-                <p>Press <kbd>Shift</kbd>+<kbd>1</kbd> to zoom to fit all content on screen.</p>
-              </div>
-            </div>
-
-            <ZoomDemo />
-
-            <div className="doc-card">
-              <h3 id="preset-zoom" className="doc-card-title">Preset Zoom Levels</h3>
-              <p>Click the zoom percentage in the bottom-right controls to open the preset zoom menu:</p>
-              <div className="doc-zoom-presets">
-                <span>25%</span><span>50%</span><span>75%</span><span>100%</span><span>150%</span>
-              </div>
-              <p className="doc-note">The canvas supports zoom from 25% to 300% via scroll wheel.</p>
-            </div>
-
-            <div className="doc-card">
-              <h3 id="panning" className="doc-card-title">Panning</h3>
-              <p>There are multiple ways to pan the canvas:</p>
-              <ul className="doc-list">
-                <li>Select the <strong>Pan tool</strong> (H) and drag to move around.</li>
-                <li>Hold <kbd>Space</kbd> and drag to temporarily pan regardless of the active tool.</li>
-                <li>On trackpads, use two-finger drag to pan.</li>
-              </ul>
-            </div>
-
-            <div className="doc-card">
-              <h3 id="fullscreen" className="doc-card-title">Fullscreen</h3>
-              <p>Click the fullscreen button in the zoom controls bar to enter fullscreen mode for an immersive drawing experience. Press Esc to exit.</p>
-            </div>
           </section>
 
           <section id="undo-redo" className="doc-section">
@@ -1544,62 +1209,50 @@ export default function DocumentationPage() {
             </div>
 
             {/* Color Palette */}
-            <div className="doc-colorlab-block">
-              <h3 className="doc-colorlab-heading">Color Palette</h3>
-              <p className="doc-colorlab-desc">Kanvas provides six curated stroke colors and five fill colors. Select any shape and pick a swatch from the Style panel.</p>
-              <SwatchDisplay />
-            </div>
+            <h3 className="doc-section-subtitle">Color Palette</h3>
+            <p className="doc-section-intro">Kanvas provides six curated stroke colors and five fill colors. Select any shape and pick a swatch from the Style panel.</p>
+            <SwatchDisplay />
 
-            {/* Fill */}
-            <div className="doc-colorlab-block">
-              <h3 className="doc-colorlab-heading">Fill</h3>
-              <p className="doc-colorlab-desc">Fill applies a background color to rectangles, ellipses, and diamonds. Shapes start transparent — add a fill to make them solid.</p>
-              <FillDemo />
-            </div>
-
-            {/* Stroke Width */}
-            <div className="doc-colorlab-block">
-              <h3 className="doc-colorlab-heading">Stroke Width</h3>
-              <p className="doc-colorlab-desc">Control the thickness of shape outlines. Choose from Thin (1px), Medium (3px), or Thick (6px) in the Style panel.</p>
-              <StrokeWidthDemo />
-            </div>
-
-            {/* Stroke Style */}
-            <div className="doc-colorlab-block">
-              <h3 className="doc-colorlab-heading">Stroke Style</h3>
-              <p className="doc-colorlab-desc">Change how outlines render. Solid is the default, but dashed and dotted styles add visual variety.</p>
-              <StrokeStyleDemo />
-            </div>
-
-            {/* Opacity */}
-            <div className="doc-colorlab-block">
-              <h3 className="doc-colorlab-heading">Opacity</h3>
-              <p className="doc-colorlab-desc">Slide from 0% (fully transparent) to 100% (fully opaque). Useful for layering shapes and creating depth.</p>
-              <OpacityDemo />
-            </div>
-
-            {/* Corner Style */}
-            <div className="doc-colorlab-block">
-              <h3 className="doc-colorlab-heading">Corner Style</h3>
-              <p className="doc-colorlab-desc">Rectangles support two corner modes: sharp (radius 0) and rounded (radius 8). Toggle from the Style panel.</p>
-              <CornerStyleDemo />
-            </div>
-
-            {/* Font Size */}
-            <div className="doc-colorlab-block">
-              <h3 className="doc-colorlab-heading">Font Size</h3>
-              <p className="doc-colorlab-desc">Text objects support ten preset sizes from 12px to 48px. Select a text shape and choose from the dropdown.</p>
-              <FontSizeDemo />
+            {/* Demos grid — two columns on desktop */}
+            <div className="doc-demos-grid">
+              <div className="doc-demos-grid-item">
+                <h4 className="doc-demos-grid-heading">Fill</h4>
+                <p className="doc-demos-grid-desc">Fill applies a background color to rectangles, ellipses, and diamonds. Shapes start transparent — add a fill to make them solid.</p>
+                <FillDemo />
+              </div>
+              <div className="doc-demos-grid-item">
+                <h4 className="doc-demos-grid-heading">Stroke Width</h4>
+                <p className="doc-demos-grid-desc">Control the thickness of shape outlines. Choose from Thin (1px), Medium (3px), or Thick (6px) in the Style panel.</p>
+                <StrokeWidthDemo />
+              </div>
+              <div className="doc-demos-grid-item">
+                <h4 className="doc-demos-grid-heading">Stroke Style</h4>
+                <p className="doc-demos-grid-desc">Change how outlines render. Solid is the default, but dashed and dotted styles add visual variety.</p>
+                <StrokeStyleDemo />
+              </div>
+              <div className="doc-demos-grid-item">
+                <h4 className="doc-demos-grid-heading">Opacity</h4>
+                <p className="doc-demos-grid-desc">Slide from 0% (fully transparent) to 100% (fully opaque). Useful for layering shapes and creating depth.</p>
+                <OpacityDemo />
+              </div>
+              <div className="doc-demos-grid-item">
+                <h4 className="doc-demos-grid-heading">Corner Style</h4>
+                <p className="doc-demos-grid-desc">Rectangles support two corner modes: sharp (radius 0) and rounded (radius 8). Toggle from the Style panel.</p>
+                <CornerStyleDemo />
+              </div>
+              <div className="doc-demos-grid-item">
+                <h4 className="doc-demos-grid-heading">Font Size</h4>
+                <p className="doc-demos-grid-desc">Text objects support ten preset sizes from 12px to 48px. Select a text shape and choose from the dropdown.</p>
+                <FontSizeDemo />
+              </div>
             </div>
 
             {/* Combined Styles */}
-            <div className="doc-colorlab-block">
-              <h3 className="doc-colorlab-heading">Combined Styles</h3>
-              <p className="doc-colorlab-desc">Mix and match fill, stroke, width, style, and opacity to create polished compositions. Here are some common patterns.</p>
-              <CombinedStylesDemo />
-            </div>
+            <h3 className="doc-section-subtitle">Combined Styles</h3>
+            <p className="doc-section-intro">Mix and match fill, stroke, width, style, and opacity to create polished compositions. Here are some common patterns.</p>
+            <CombinedStylesDemo />
 
-            {/* Quick reference grid */}
+            {/* Quick reference */}
             <div className="doc-style-grid">
               <div className="doc-style-item">
                 <h4>Layer Order</h4>
@@ -1628,22 +1281,13 @@ export default function DocumentationPage() {
                   <li><strong>Shape colors</strong> — automatically adjusted for readability on each theme</li>
                   <li><strong>All UI elements</strong> — toolbars, panels, and menus follow the theme</li>
                   <li><strong>Persistent preference</strong> — your choice is saved across sessions</li>
+                  <li><strong>Dot grid</strong> — adapts contrast to stay subtle on both backgrounds</li>
                 </ul>
                 <p className="doc-editorial-note">Try the interactive toggle below to see the effect.</p>
               </div>
             </div>
 
             <ThemeToggleDemo />
-
-            <div className="doc-card">
-              <h3 id="how-themes-adapt" className="doc-card-title">How Themes Adapt</h3>
-              <ul className="doc-list">
-                <li>The canvas background and dot grid change to match the active theme.</li>
-                <li>All toolbars, panels, and UI elements follow the theme instantly.</li>
-                <li>Shape colors are automatically adjusted for readability — dark colors become lighter on dark backgrounds, and light colors become darker on light backgrounds.</li>
-                <li>Your theme preference is saved and persists across sessions.</li>
-              </ul>
-            </div>
           </section>
 
           <SectionBreak
@@ -1684,47 +1328,64 @@ export default function DocumentationPage() {
               steps={['Create your board', 'Click the Export button', 'Choose your format', 'Download or copy to clipboard']}
             />
 
-            <div className="doc-export-grid">
-              <div className="doc-export-item doc-export-item--blue">
-                <div className="doc-export-icon"><NavIcon name="image" /></div>
-                <h4>Download PNG</h4>
-                <p>Exports the board as a high-resolution PNG image with a transparent or themed background. Best for sharing and presentations.</p>
+            {/* Export formats as compact reference */}
+            <div className="doc-export-compact">
+              <div className="doc-export-compact-item">
+                <NavIcon name="image" />
+                <div>
+                  <strong>PNG</strong>
+                  <span>High-res image with transparent background</span>
+                </div>
               </div>
-              <div className="doc-export-item doc-export-item--coral">
-                <div className="doc-export-icon"><NavIcon name="camera" /></div>
-                <h4>Download JPG</h4>
-                <p>Exports as a JPEG image at 92% quality. Good for smaller file sizes when sharing online.</p>
+              <div className="doc-export-compact-item">
+                <NavIcon name="camera" />
+                <div>
+                  <strong>JPG</strong>
+                  <span>92% quality, smaller file size</span>
+                </div>
               </div>
-              <div className="doc-export-item doc-export-item--pink">
-                <div className="doc-export-icon"><NavIcon name="pdf" /></div>
-                <h4>Download PDF</h4>
-                <p>Generates a PDF document containing the board image. Ideal for printing or archiving.</p>
+              <div className="doc-export-compact-item">
+                <NavIcon name="pdf" />
+                <div>
+                  <strong>PDF</strong>
+                  <span>Printable document for archiving</span>
+                </div>
               </div>
-              <div className="doc-export-item doc-export-item--purple">
-                <div className="doc-export-icon"><NavIcon name="svg" /></div>
-                <h4>Export SVG</h4>
-                <p>Exports shape data as an SVG file. Preserves vector quality at any scale.</p>
+              <div className="doc-export-compact-item">
+                <NavIcon name="svg" />
+                <div>
+                  <strong>SVG</strong>
+                  <span>Vector format, scales to any size</span>
+                </div>
               </div>
-              <div className="doc-export-item doc-export-item--yellow">
-                <div className="doc-export-icon"><NavIcon name="json" /></div>
-                <h4>Export JSON</h4>
-                <p>Saves all shape data as JSON. Can be imported back into Kanvas later to restore your board.</p>
+              <div className="doc-export-compact-item">
+                <NavIcon name="json" />
+                <div>
+                  <strong>JSON</strong>
+                  <span>Save shape data, import later to resume</span>
+                </div>
               </div>
-              <div className="doc-export-item doc-export-item--blue">
-                <div className="doc-export-icon"><NavIcon name="copy" /></div>
-                <h4>Copy Image</h4>
-                <p>Copies the board as a PNG image to your clipboard. Paste directly into other apps.</p>
+              <div className="doc-export-compact-item">
+                <NavIcon name="copy" />
+                <div>
+                  <strong>Copy Image</strong>
+                  <span>Paste board directly into other apps</span>
+                </div>
               </div>
-              <div className="doc-export-item doc-export-item--coral">
-                <div className="doc-export-icon"><NavIcon name="print" /></div>
-                <h4>Print Board</h4>
-                <p>Opens the print dialog with the board rendered as an image. Print directly or save as PDF from your system.</p>
+              <div className="doc-export-compact-item">
+                <NavIcon name="print" />
+                <div>
+                  <strong>Print</strong>
+                  <span>Open system print dialog</span>
+                </div>
               </div>
-            </div>
-
-            <div className="doc-card">
-              <h3 id="importing-boards" className="doc-card-title">Importing Boards</h3>
-              <p>You can import previously exported JSON files to restore a board. Use the import option from the board menu or drag a JSON file onto the canvas. Import validates file size (max 25 MB) and shape count (max 10,000 shapes).</p>
+              <div className="doc-export-compact-item">
+                <NavIcon name="json" />
+                <div>
+                  <strong>Import JSON</strong>
+                  <span>Drag a JSON file onto the canvas to restore</span>
+                </div>
+              </div>
             </div>
           </section>
 

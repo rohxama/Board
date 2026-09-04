@@ -1885,6 +1885,100 @@ html[data-theme='dark'] .doc-section-break-frag {
   font-size: 12px;
 }
 
+/* ─── Demos grid (2-column for styling demos) ───────────────────── */
+.doc-demos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+.doc-demos-grid-item {
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 20px;
+  background: var(--surface-solid);
+  box-shadow: 0 1px 2px rgba(39, 45, 70, .03), 0 4px 12px rgba(39, 45, 70, .04);
+}
+html[data-theme='dark'] .doc-demos-grid-item {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .1), 0 4px 12px rgba(0, 0, 0, .15);
+}
+.doc-demos-grid-heading {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+.doc-demos-grid-desc {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  margin: 0 0 16px;
+  overflow-wrap: break-word;
+}
+@media (max-width: 768px) {
+  .doc-demos-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* ─── Section subtitles ─────────────────────────────────────────── */
+.doc-section-subtitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 6px;
+  padding-top: 8px;
+}
+
+/* ─── Export compact reference ──────────────────────────────────── */
+.doc-export-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  background: var(--surface-solid);
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(39, 45, 70, .03), 0 4px 12px rgba(39, 45, 70, .04);
+}
+html[data-theme='dark'] .doc-export-compact {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .1), 0 4px 12px rgba(0, 0, 0, .15);
+}
+.doc-export-compact-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--card-border);
+  transition: background 0.15s ease;
+}
+.doc-export-compact-item:last-child {
+  border-bottom: none;
+}
+.doc-export-compact-item:hover {
+  background: var(--surface-muted);
+}
+.doc-export-compact-item svg {
+  width: 20px;
+  height: 20px;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.doc-export-compact-item strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.doc-export-compact-item span {
+  display: block;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
 /* ─── Color Lab ─────────────────────────────────────────────────── */
 .doc-colorlab-block {
   margin-bottom: 40px;
