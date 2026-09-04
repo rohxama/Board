@@ -1139,105 +1139,6 @@ html[data-theme='dark'] .doc-drawing-showcase {
   line-height: 1.5;
 }
 
-/* ─── Connectors showcase — arrows & connections ────────────────── */
-.doc-connectors-showcase {
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
-  background: var(--surface-solid);
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(39, 45, 70, .04), 0 8px 24px rgba(39, 45, 70, .06);
-}
-html[data-theme='dark'] .doc-connectors-showcase {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 8px 24px rgba(0, 0, 0, .2);
-}
-.doc-connectors-canvas {
-  width: 100%;
-  aspect-ratio: 640 / 420;
-  background: var(--surface-muted);
-  overflow: hidden;
-}
-.doc-connectors-canvas svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-.doc-connectors-label {
-  padding: 12px 20px;
-  border-top: 1px solid var(--card-border);
-  background: var(--surface-solid);
-}
-.doc-connectors-label-text {
-  font-size: 12px;
-  color: var(--text-muted);
-  line-height: 1.5;
-}
-
-/* ─── Text showcase — typography on canvas ──────────────────────── */
-.doc-text-showcase {
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
-  background: var(--surface-solid);
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(39, 45, 70, .04), 0 8px 24px rgba(39, 45, 70, .06);
-}
-html[data-theme='dark'] .doc-text-showcase {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 8px 24px rgba(0, 0, 0, .2);
-}
-.doc-text-canvas {
-  width: 100%;
-  aspect-ratio: 640 / 420;
-  background: var(--surface-muted);
-  overflow: hidden;
-}
-.doc-text-canvas svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-.doc-text-label {
-  padding: 12px 20px;
-  border-top: 1px solid var(--card-border);
-  background: var(--surface-solid);
-}
-.doc-text-label-text {
-  font-size: 12px;
-  color: var(--text-muted);
-  line-height: 1.5;
-}
-
-/* ─── Images showcase — photo placement ─────────────────────────── */
-.doc-images-showcase {
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
-  background: var(--surface-solid);
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(39, 45, 70, .04), 0 8px 24px rgba(39, 45, 70, .06);
-}
-html[data-theme='dark'] .doc-images-showcase {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 8px 24px rgba(0, 0, 0, .2);
-}
-.doc-images-canvas {
-  width: 100%;
-  aspect-ratio: 640 / 420;
-  background: var(--surface-muted);
-  overflow: hidden;
-}
-.doc-images-canvas svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-.doc-images-label {
-  padding: 12px 20px;
-  border-top: 1px solid var(--card-border);
-  background: var(--surface-solid);
-}
-.doc-images-label-text {
-  font-size: 12px;
-  color: var(--text-muted);
-  line-height: 1.5;
-}
-
 /* ─── Tool cards grid ───────────────────────────────────────────── */
 .doc-tool-grid {
   display: grid;
@@ -2432,24 +2333,7 @@ html[data-theme='dark'] .doc-export-compact {
   margin: 0 0 20px;
   max-width: 600px;
 }
-.doc-colorlab-canvas-wrap {
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
-  background: var(--surface-solid);
-  overflow: hidden;
-  margin-bottom: 28px;
-  box-shadow: 0 2px 4px rgba(39, 45, 70, .04), 0 8px 24px rgba(39, 45, 70, .06);
-}
-html[data-theme='dark'] .doc-colorlab-canvas-wrap {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 8px 24px rgba(0, 0, 0, .2);
-}
-.doc-colorlab-canvas {
-  display: block;
-  width: 100%;
-  height: auto;
-  pointer-events: none;
-  user-select: none;
-}
+.doc-colorlab-hero,
 .doc-colorlab-swatch-row,
 .doc-colorlab-demo {
   display: block;
@@ -2462,121 +2346,20 @@ html[data-theme='dark'] .doc-colorlab-canvas-wrap {
   pointer-events: none;
   user-select: none;
 }
+html[data-theme='dark'] .doc-colorlab-hero,
 html[data-theme='dark'] .doc-colorlab-swatch-row,
 html[data-theme='dark'] .doc-colorlab-demo {
   box-shadow: 0 1px 3px rgba(0, 0, 0, .15), 0 6px 16px rgba(0, 0, 0, .2);
+}
+.doc-colorlab-hero {
+  max-width: 680px;
+  margin-bottom: 36px;
 }
 .doc-colorlab-swatch-row {
   max-width: 400px;
 }
 .doc-colorlab-demo {
   max-width: 540px;
-}
-
-/* ─── Cursor animation ─────────────────────────────────────────── */
-@keyframes docCursorDrift {
-  0%, 100% { transform: translate(0, 0); }
-  25%      { transform: translate(1.5px, -1px); }
-  50%      { transform: translate(-0.5px, 1.5px); }
-  75%      { transform: translate(1px, 0.5px); }
-}
-.doc-demo-cursor {
-  animation: docCursorDrift 6s ease-in-out infinite;
-  will-change: transform;
-}
-.doc-demo-cursor--pencil {
-  animation-duration: 8s;
-  animation-delay: -2s;
-}
-.doc-demo-cursor--hover {
-  animation-duration: 5s;
-  animation-delay: -1s;
-}
-
-/* ─── Stroke draw animation ─────────────────────────────────────── */
-@keyframes docDraw {
-  from { stroke-dashoffset: 1; }
-  to   { stroke-dashoffset: 0; }
-}
-@keyframes docPop {
-  0%   { transform: scale(0); opacity: 0; }
-  60%  { transform: scale(1.4); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
-}
-@keyframes docPulse {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: 0.45; }
-}
-@keyframes docPulseBorder {
-  from { stroke-dashoffset: 0; }
-  to   { stroke-dashoffset: -12; }
-}
-
-/* Draw: arrows that trace themselves */
-.doc-demo-draw {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: docDraw 1.2s ease-out forwards;
-  animation-delay: var(--draw-delay, 0.3s);
-}
-.doc-demo-draw--slow {
-  animation-duration: 1.6s;
-  animation-delay: var(--draw-delay, 1.8s);
-}
-.doc-demo-draw--tree {
-  animation-duration: 1.8s;
-  animation-delay: var(--draw-delay, 2.2s);
-}
-
-/* Pop: snap dots and arrow tips appear */
-.doc-demo-pop {
-  transform-origin: center;
-  transform: scale(0);
-  opacity: 0;
-  animation: docPop 0.4s ease-out forwards;
-  animation-delay: var(--pop-delay, 1.5s);
-}
-
-/* Pulse: selection handles breathe */
-.doc-demo-pulse {
-  animation: docPulse 2.4s ease-in-out infinite;
-  animation-delay: var(--pulse-delay, 0s);
-}
-
-/* Pulse border: selection dash marches */
-.doc-demo-pulse-border {
-  animation: docPulseBorder 1.8s linear infinite;
-}
-
-/* Ref: cross-reference arrows fade in */
-@keyframes docFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-.doc-demo-draw--ref {
-  opacity: 0;
-  animation: docFadeIn 1.2s ease-out forwards;
-  animation-delay: var(--draw-delay, 3s);
-}
-
-/* ─── Before & After demo ───────────────────────────────────────── */
-.doc-beforeafter-wrap {
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
-  background: var(--surface-solid);
-  overflow: hidden;
-  margin-bottom: 28px;
-  box-shadow: 0 2px 4px rgba(39, 45, 70, .04), 0 8px 24px rgba(39, 45, 70, .06);
-}
-html[data-theme='dark'] .doc-beforeafter-wrap {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 8px 24px rgba(0, 0, 0, .2);
-}
-.doc-beforeafter-svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  pointer-events: none;
-  user-select: none;
 }
 
 /* ─── Responsive: compact desktop ───────────────────────────────── */
@@ -2806,7 +2589,7 @@ html[data-theme='dark'] .doc-beforeafter-wrap {
     max-width: 100%;
     margin-bottom: 16px;
   }
-  .doc-colorlab-canvas-wrap {
+  .doc-colorlab-hero {
     max-width: 100%;
   }
   .doc-colorlab-swatch-row {
@@ -3948,9 +3731,197 @@ html[data-theme='dark'] .doc-workflow-step:hover {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* ─── Cursor drift animation ────────────────────────────────────── */
+@keyframes docCursorDrift {
+  0%, 100% { transform: translate(0, 0); }
+  25%      { transform: translate(1.5px, -1px); }
+  50%      { transform: translate(-0.5px, 1.5px); }
+  75%      { transform: translate(1px, 0.5px); }
+}
+.doc-demo-cursor {
+  animation: docCursorDrift 6s ease-in-out infinite;
+  will-change: transform;
+}
+.doc-demo-cursor--pencil {
+  animation-duration: 8s;
+  animation-delay: -2s;
+}
+.doc-demo-cursor--hover {
+  animation-duration: 5s;
+  animation-delay: -1s;
+}
+
+/* ─── Stroke draw animation ─────────────────────────────────────── */
+@keyframes docDraw {
+  from { stroke-dashoffset: 1; }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes docPop {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.4); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes docPulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.45; }
+}
+@keyframes docPulseBorder {
+  from { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: -12; }
+}
+
+/* Draw: arrows that trace themselves */
+.doc-demo-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: docDraw 1.2s ease-out forwards;
+  animation-delay: var(--draw-delay, 0.3s);
+}
+.doc-demo-draw--slow {
+  animation-duration: 1.6s;
+  animation-delay: var(--draw-delay, 1.8s);
+}
+.doc-demo-draw--tree {
+  animation-duration: 1.8s;
+  animation-delay: var(--draw-delay, 2.2s);
+}
+
+/* Pop: snap dots and arrow tips appear */
+.doc-demo-pop {
+  transform-origin: center;
+  transform: scale(0);
+  opacity: 0;
+  animation: docPop 0.4s ease-out forwards;
+  animation-delay: var(--pop-delay, 1.5s);
+}
+
+/* Pulse: selection handles breathe */
+.doc-demo-pulse {
+  animation: docPulse 2.4s ease-in-out infinite;
+  animation-delay: var(--pulse-delay, 0s);
+}
+
+/* Pulse border: selection dash marches */
+.doc-demo-pulse-border {
+  animation: docPulseBorder 1.8s linear infinite;
+}
+
+/* Ref: cross-reference arrows fade in */
+@keyframes docFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.doc-demo-draw--ref {
+  opacity: 0;
+  animation: docFadeIn 1.2s ease-out forwards;
+  animation-delay: var(--draw-delay, 3s);
+}
+
+/* ─── Scroll-triggered reveal ────────────────────────────────────── */
+@keyframes docRevealUp {
+  from {
+    opacity: 0;
+    transform: translateY(32px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(32px) scale(0.97);
+  will-change: opacity, transform;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-reveal].doc-revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Stagger children inside revealed showcases */
+.doc-revealed .doc-tool-showcase-toolbar {
+  animation: docRevealUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+.doc-revealed .doc-tool-showcase-canvas {
+  animation: docRevealUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+.doc-revealed .doc-tool-showcase-panel {
+  animation: docRevealUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+}
+
+.doc-revealed .doc-shapes-canvas {
+  animation: docRevealUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+.doc-revealed .doc-shapes-label {
+  animation: docRevealUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+}
+
+.doc-revealed .doc-drawing-canvas {
+  animation: docRevealUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+.doc-revealed .doc-drawing-label {
+  animation: docRevealUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+}
+
+/* Showcase grid: stagger each item */
+.doc-revealed .doc-showcase-item {
+  opacity: 0;
+  transform: translateY(24px);
+  animation: docRevealUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.doc-revealed .doc-showcase-item:nth-child(1) { animation-delay: 0.05s; }
+.doc-revealed .doc-showcase-item:nth-child(2) { animation-delay: 0.12s; }
+.doc-revealed .doc-showcase-item:nth-child(3) { animation-delay: 0.19s; }
+.doc-revealed .doc-showcase-item:nth-child(4) { animation-delay: 0.26s; }
+.doc-revealed .doc-showcase-item:nth-child(5) { animation-delay: 0.33s; }
+.doc-revealed .doc-showcase-item:nth-child(6) { animation-delay: 0.40s; }
+
 @media (prefers-reduced-motion: reduce) {
   .doc-back-to-top {
     transition: none !important;
+    transform: none !important;
+  }
+  .doc-demo-cursor,
+  .doc-demo-cursor--pencil,
+  .doc-demo-cursor--hover {
+    animation: none !important;
+  }
+  .doc-demo-draw,
+  .doc-demo-draw--slow,
+  .doc-demo-draw--tree,
+  .doc-demo-draw--ref {
+    animation: none !important;
+    stroke-dashoffset: 0 !important;
+    opacity: 1 !important;
+  }
+  .doc-demo-pop {
+    animation: none !important;
+    transform: scale(1) !important;
+    opacity: 1 !important;
+  }
+  .doc-demo-pulse,
+  .doc-demo-pulse-border {
+    animation: none !important;
+  }
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .doc-revealed .doc-tool-showcase-toolbar,
+  .doc-revealed .doc-tool-showcase-canvas,
+  .doc-revealed .doc-tool-showcase-panel,
+  .doc-revealed .doc-shapes-canvas,
+  .doc-revealed .doc-shapes-label,
+  .doc-revealed .doc-drawing-canvas,
+  .doc-revealed .doc-drawing-label,
+  .doc-revealed .doc-showcase-item {
+    animation: none !important;
+    opacity: 1 !important;
     transform: none !important;
   }
 }

@@ -11,7 +11,6 @@ import NotFoundPage from './components/NotFoundPage/NotFoundPage'
 import ThankYouPage from './components/ThankYouPage/ThankYouPage'
 import WaitlistPage from './components/WaitlistPage/WaitlistPage'
 import DocumentationPage from './components/DocumentationPage/DocumentationPage'
-import LandingPage from './components/LandingPage/LandingPage'
 import './components/DocumentationPage/DocumentationPage.css'
 import CookieConsent from './components/CookieConsent/CookieConsent'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
@@ -27,7 +26,6 @@ import { clampScale, zoomAtPoint } from './lib/viewport'
 const resolveRoute = () => {
   const hash = window.location.hash
   if (hash === '#/docs') return 'docs'
-  if (hash === '#/home') return 'landing'
   if (hash === '#/thank-you') return 'thankyou'
   if (hash === '#/waitlist') return 'waitlist'
   if (hash.startsWith('#/')) return 'notfound'
@@ -308,7 +306,6 @@ export default function App() {
     const titles = {
       board: 'Kanvas — Think. Draw. Create.',
       docs: 'Documentation — Kanvas',
-      landing: 'French Learning — Kanvas',
       notfound: '404 — Page Not Found',
       thankyou: 'Thank You',
       waitlist: 'Waitlist',
@@ -344,7 +341,6 @@ export default function App() {
       {showSplash && <SplashScreen canHide={splash === 'fading'} onHidden={() => setSplash('done')} />}
       {route === 'notfound' && <NotFoundPage />}
       {route === 'docs' && <DocumentationPage />}
-      {route === 'landing' && <LandingPage />}
       {route === 'thankyou' && <ThankYouPage />}
       {route === 'waitlist' && <WaitlistPage />}
     </ThemeProvider>

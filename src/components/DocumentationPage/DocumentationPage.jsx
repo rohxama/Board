@@ -18,7 +18,6 @@ import {
   CornerStyleDemo,
   CombinedStylesDemo,
   FontSizeDemo,
-  BeforeAfterDemo,
 } from './ColorLab'
 import {
   FeatureStory,
@@ -908,6 +907,21 @@ export default function DocumentationPage() {
     }
   }, [activeSection, collapsed, findCategoryForItem])
 
+  useEffect(() => {
+    const els = document.querySelectorAll('[data-reveal]')
+    if (!els.length) return
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('doc-revealed')
+          io.unobserve(e.target)
+        }
+      })
+    }, { threshold: 0.15 })
+    els.forEach(el => io.observe(el))
+    return () => io.disconnect()
+  }, [])
+
   return (
     <div className="doc-page">
       {/* Skip to content link for keyboard users */}
@@ -1069,7 +1083,7 @@ export default function DocumentationPage() {
             <h2 className="doc-section-title"><NavIcon name="cursor" /> Tools</h2>
 
             {/* Realistic product showcase — full Kanvas board */}
-            <div className="doc-tool-showcase">
+            <div className="doc-tool-showcase" data-reveal>
               <div className="doc-tool-showcase-toolbar">
                 <ToolbarFrag activeTool="rectangle" />
               </div>
@@ -1155,7 +1169,7 @@ export default function DocumentationPage() {
                   <rect x="288" y="234" width="6" height="6" rx="1.5" fill="var(--accent)" />
 
                   {/* Cursor */}
-                  <path className="doc-demo-cursor" d="M468 260 L468 276 L473 272 L478 280 L480 279 L475 271 L480 268Z" fill="var(--text)" />
+                  <path d="M468 260 L468 276 L473 272 L478 280 L480 279 L475 271 L480 268Z" fill="var(--text)" />
                 </svg>
               </div>
               <div className="doc-tool-showcase-panel">
@@ -1164,7 +1178,7 @@ export default function DocumentationPage() {
             </div>
 
             {/* Shapes showcase — realistic board composition */}
-            <div className="doc-shapes-showcase">
+            <div className="doc-shapes-showcase" data-reveal>
               <div className="doc-shapes-canvas">
                 <svg viewBox="0 0 720 420" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }} aria-hidden="true">
                   {/* Canvas dot grid */}
@@ -1203,13 +1217,13 @@ export default function DocumentationPage() {
                   <text x="620" y="74" textAnchor="middle" fontSize="10" fontWeight="700" fontFamily="system-ui" fill="#92400e">Sprint</text>
                   <text x="620" y="92" textAnchor="middle" fontSize="22" fontWeight="800" fontFamily="system-ui" fill="#f59e0b">3</text>
 
-                  {/* Arrows connecting cards */}
-                  <path className="doc-demo-draw" pathLength="1" d="M220 80 L240 80" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
-                  <path className="doc-demo-draw" pathLength="1" d="M235 77 L241 80 L235 83" fill="#94a3b8" />
-                  <path className="doc-demo-draw" pathLength="1" d="M400 80 L420 80" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
-                  <path className="doc-demo-draw" pathLength="1" d="M415 77 L421 80 L415 83" fill="#94a3b8" />
-                  <path className="doc-demo-draw" pathLength="1" d="M560 80 L572 80" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
-                  <path className="doc-demo-draw" pathLength="1" d="M569 77 L574 80 L569 83" fill="#94a3b8" />
+                  {/* Arrows connecting row 1 */}
+                  <path d="M220 80 L240 80" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M235 77 L241 80 L235 83" fill="#94a3b8" />
+                  <path d="M400 80 L420 80" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M415 77 L421 80 L415 83" fill="#94a3b8" />
+                  <path d="M560 80 L572 80" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M569 77 L574 80 L569 83" fill="#94a3b8" />
 
                   {/* ── Separator line ── */}
                   <line x1="40" y1="155" x2="680" y2="155" stroke="#e5e7eb" strokeWidth="1" strokeDasharray="6 4" />
@@ -1221,13 +1235,13 @@ export default function DocumentationPage() {
                   <text x="100" y="234" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill="#be185d">to ship?</text>
 
                   {/* Arrow from diamond — yes */}
-                  <path className="doc-demo-draw doc-demo-draw--slow" pathLength="1" d="M140 225 L200 225" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round" />
-                  <path className="doc-demo-draw doc-demo-draw--slow" pathLength="1" d="M195 222 L201 225 L195 228" fill="#22c55e" />
+                  <path d="M140 225 L200 225" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M195 222 L201 225 L195 228" fill="#22c55e" />
                   <text x="170" y="218" textAnchor="middle" fontSize="7" fontWeight="500" fontFamily="system-ui" fill="#22c55e">yes</text>
 
                   {/* Arrow from diamond — no */}
-                  <path className="doc-demo-draw doc-demo-draw--slow" pathLength="1" d="M100 255 L100 310" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" />
-                  <path className="doc-demo-draw doc-demo-draw--slow" pathLength="1" d="M97 305 L100 311 L103 305" fill="#ef4444" />
+                  <path d="M100 255 L100 310" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M97 305 L100 311 L103 305" fill="#ef4444" />
                   <text x="112" y="285" fontSize="7" fontWeight="500" fontFamily="system-ui" fill="#ef4444">no</text>
 
                   {/* Rectangle — ship card (selected) */}
@@ -1235,11 +1249,11 @@ export default function DocumentationPage() {
                   <text x="224" y="220" fontSize="10" fontWeight="700" fontFamily="system-ui" fill="#166534">Ship It</text>
                   <text x="224" y="238" fontSize="8" fontFamily="system-ui" fill="#6b7280">Deploy to production</text>
                   {/* Selection handles */}
-                  <rect className="doc-demo-pulse" x="204" y="191" width="7" height="7" rx="2" fill="#3b82f6" />
-                  <rect className="doc-demo-pulse" x="364" y="191" width="7" height="7" rx="2" fill="#3b82f6" />
-                  <rect className="doc-demo-pulse" x="204" y="251" width="7" height="7" rx="2" fill="#3b82f6" />
-                  <rect className="doc-demo-pulse" x="364" y="251" width="7" height="7" rx="2" fill="#3b82f6" />
-                  <rect className="doc-demo-pulse-border" x="204" y="191" width="167" height="67" rx="10" fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="4 2" />
+                  <rect x="204" y="191" width="7" height="7" rx="2" fill="#3b82f6" />
+                  <rect x="364" y="191" width="7" height="7" rx="2" fill="#3b82f6" />
+                  <rect x="204" y="251" width="7" height="7" rx="2" fill="#3b82f6" />
+                  <rect x="364" y="251" width="7" height="7" rx="2" fill="#3b82f6" />
+                  <rect x="204" y="191" width="167" height="67" rx="10" fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="4 2" />
 
                   {/* Rectangle — fix card */}
                   <rect x="80" y="318" width="130" height="52" rx="8" fill="rgba(239,68,68,0.04)" stroke="#ef4444" strokeWidth="1.5" />
@@ -1247,8 +1261,8 @@ export default function DocumentationPage() {
                   <text x="96" y="358" fontSize="7" fontFamily="system-ui" fill="#6b7280">Address review feedback</text>
 
                   {/* Arrow from fix back to diamond */}
-                  <path className="doc-demo-draw doc-demo-draw--slow" pathLength="1" d="M80 344 L60 344 L60 255" stroke="#94a3b8" strokeWidth="1.2" strokeLinecap="round" strokeDasharray="4 3" />
-                  <path className="doc-demo-draw doc-demo-draw--slow" pathLength="1" d="M57 260 L60 254 L63 260" fill="#94a3b8" />
+                  <path d="M80 344 L60 344 L60 255" stroke="#94a3b8" strokeWidth="1.2" strokeLinecap="round" strokeDasharray="4 3" />
+                  <path d="M57 260 L60 254 L63 260" fill="#94a3b8" />
 
                   {/* ── Row 3: Shapes variety ── */}
                   {/* Ellipse — avatar */}
@@ -1294,8 +1308,8 @@ export default function DocumentationPage() {
                   <text x="440" y="380" fontSize="14" fontWeight="800" fontFamily="system-ui" fill="var(--text)">Product Roadmap Q4</text>
                   <text x="440" y="398" fontSize="8" fontFamily="system-ui" fill="#9ca3af">Key milestones and deliverables</text>
 
-                      {/* Cursor pointer */}
-                      <path className="doc-demo-cursor" d="M380 370 L380 390 L387 384 L394 396 L397 394 L390 382 L397 378Z" fill="var(--text)" />
+                  {/* Cursor pointer */}
+                  <path d="M380 370 L380 390 L387 384 L394 396 L397 394 L390 382 L397 378Z" fill="var(--text)" />
                 </svg>
               </div>
               <div className="doc-shapes-label">
@@ -1329,7 +1343,7 @@ export default function DocumentationPage() {
 
             <div className="doc-editorial">
               <div className="doc-editorial-visual">
-                <div className="doc-drawing-showcase">
+                <div className="doc-drawing-showcase" data-reveal>
                   <div className="doc-drawing-canvas">
                     <svg viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }} aria-hidden="true">
                       {/* Canvas dot grid */}
@@ -1439,11 +1453,9 @@ export default function DocumentationPage() {
                       <path d="M320 350 C322 348, 360 347, 364 350" stroke="#d1d5db" strokeWidth="1.2" strokeLinecap="round" fill="none" />
 
                       {/* Pencil cursor */}
-                      <g className="doc-demo-cursor doc-demo-cursor--pencil">
-                        <path d="M520 340 L530 310 L534 312 L524 342 Z" fill="#374151" stroke="#374151" strokeWidth="1" strokeLinejoin="round" />
-                        <path d="M520 340 L518 348 L524 342 Z" fill="#f59e0b" />
-                        <path d="M530 310 L532 306 L536 308 L534 312 Z" fill="#9ca3af" />
-                      </g>
+                      <path d="M520 340 L530 310 L534 312 L524 342 Z" fill="#374151" stroke="#374151" strokeWidth="1" strokeLinejoin="round" />
+                      <path d="M520 340 L518 348 L524 342 Z" fill="#f59e0b" />
+                      <path d="M530 310 L532 306 L536 308 L534 312 Z" fill="#9ca3af" />
 
                       {/* Pencil trail */}
                       <path d="M524 342 C520 350, 510 358, 498 362 C486 366, 470 364, 460 358"
@@ -1465,462 +1477,6 @@ export default function DocumentationPage() {
                   <li><strong>Combine with shapes</strong> — sketch over rectangles and arrows for a rough look</li>
                   <li><strong>Use for wireframes</strong> — quick, imperfect layouts before committing to precision</li>
                   <li><strong>Annotate</strong> — circle issues, cross out ideas, star important items</li>
-                </ul>
-              </div>
-            </div>
-          </section>
-
-          <section id="connectors" className="doc-section">
-            <h2 className="doc-section-title"><NavIcon name="arrow" /> Arrows & Connectors</h2>
-
-            <div className="doc-editorial doc-editorial--reversed">
-              <div className="doc-editorial-visual">
-                <div className="doc-connectors-showcase">
-                  <div className="doc-connectors-canvas">
-                    <svg viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }} aria-hidden="true">
-                      {/* Canvas dot grid */}
-                      {[0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640].map(x => (
-                        [0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420].map(y => (
-                          <circle key={`${x}-${y}`} cx={x} cy={y} r="0.6" fill="var(--dot)" />
-                        ))
-                      )).flat()}
-
-                      {/* ── Top row: Kanban-style cards ── */}
-                      {/* Card: Backlog */}
-                      <rect x="40" y="30" width="150" height="90" rx="8" fill="rgba(156,163,175,0.04)" stroke="#9ca3af" strokeWidth="1.5" />
-                      <text x="56" y="54" fontSize="9" fontWeight="700" fontFamily="system-ui" fill="#374151">Backlog</text>
-                      <path d="M56 64 C58 62, 130 63, 136 64" stroke="#d1d5db" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-                      <path d="M56 76 C58 74, 110 75, 118 76" stroke="#e5e7eb" strokeWidth="1.2" strokeLinecap="round" fill="none" />
-                      <path d="M56 86 C58 84, 96 85, 104 86" stroke="#e5e7eb" strokeWidth="1" strokeLinecap="round" fill="none" />
-                      <rect x="56" y="98" width="36" height="14" rx="4" fill="rgba(156,163,175,0.1)" stroke="#d1d5db" strokeWidth="0.6" />
-                      <text x="74" y="108" textAnchor="middle" fontSize="6" fontWeight="500" fontFamily="system-ui" fill="#6b7280">3 tasks</text>
-
-                      {/* Card: In Progress (selected) */}
-                      <rect x="210" y="30" width="150" height="90" rx="8" fill="rgba(59,130,246,0.04)" stroke="#3b82f6" strokeWidth="1.5" />
-                      <text x="226" y="54" fontSize="9" fontWeight="700" fontFamily="system-ui" fill="#1e40af">In Progress</text>
-                      <path d="M226 64 C228 62, 310 63, 316 64" stroke="#93c5fd" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-                      <path d="M226 76 C228 74, 290 75, 298 76" stroke="#bfdbfe" strokeWidth="1.2" strokeLinecap="round" fill="none" />
-                      <rect x="226" y="86" width="56" height="16" rx="4" fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.6" />
-                      <text x="254" y="97" textAnchor="middle" fontSize="6.5" fontWeight="600" fontFamily="system-ui" fill="#1e40af">Active</text>
-                      {/* Selection handles */}
-                      <rect x="206" y="26" width="7" height="7" rx="2" fill="#3b82f6" />
-                      <rect x="356" y="26" width="7" height="7" rx="2" fill="#3b82f6" />
-                      <rect x="206" y="116" width="7" height="7" rx="2" fill="#3b82f6" />
-                      <rect x="356" y="116" width="7" height="7" rx="2" fill="#3b82f6" />
-                      <rect x="206" y="26" width="157" height="97" rx="10" fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="4 2" />
-                      {/* Active label */}
-                      <rect x="280" y="18" width="42" height="14" rx="4" fill="#3b82f6" />
-                      <text x="301" y="28" textAnchor="middle" fontSize="6.5" fontWeight="600" fontFamily="system-ui" fill="white">Active</text>
-
-                      {/* Card: Review */}
-                      <rect x="380" y="30" width="150" height="90" rx="8" fill="rgba(139,92,246,0.04)" stroke="#8b5cf6" strokeWidth="1.5" />
-                      <text x="396" y="54" fontSize="9" fontWeight="700" fontFamily="system-ui" fill="#5b21b6">Review</text>
-                      <path d="M396 64 C398 62, 470 63, 476 64" stroke="#c4b5fd" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-                      <path d="M396 76 C398 74, 450 75, 458 76" stroke="#ddd6fe" strokeWidth="1.2" strokeLinecap="round" fill="none" />
-                      <rect x="396" y="86" width="44" height="14" rx="4" fill="#ede9fe" stroke="#8b5cf6" strokeWidth="0.6" />
-                      <text x="418" y="96" textAnchor="middle" fontSize="6" fontWeight="500" fontFamily="system-ui" fill="#5b21b6">2 PRs</text>
-
-                      {/* Card: Done */}
-                      <rect x="550" y="30" width="80" height="90" rx="8" fill="rgba(34,197,94,0.04)" stroke="#22c55e" strokeWidth="1.5" />
-                      <text x="566" y="54" fontSize="9" fontWeight="700" fontFamily="system-ui" fill="#166534">Done</text>
-                      <path d="M566 64 C568 62, 610 63, 614 64" stroke="#86efac" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-                      <path d="M566 76 C568 74, 600 75, 606 76" stroke="#bbf7d0" strokeWidth="1.2" strokeLinecap="round" fill="none" />
-
-                      {/* ── Arrow connectors between cards ── */}
-                      {/* Backlog → In Progress */}
-                      <path className="doc-demo-draw" pathLength="1" d="M190 75 L210 75" stroke="#64748b" strokeWidth="1.8" strokeLinecap="round" />
-                      <path className="doc-demo-draw" pathLength="1" d="M205 71 L212 75 L205 79" fill="#64748b" stroke="#64748b" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round" />
-                      {/* Snap dots */}
-                      <circle className="doc-demo-pop" style={{ '--pop-delay': '0.8s' }} cx="190" cy="75" r="3" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" strokeWidth="1" />
-                      <circle className="doc-demo-pop" style={{ '--pop-delay': '1s' }} cx="210" cy="75" r="3" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" strokeWidth="1" />
-
-                      {/* In Progress → Review */}
-                      <path className="doc-demo-draw" pathLength="1" d="M360 75 L380 75" stroke="#64748b" strokeWidth="1.8" strokeLinecap="round" />
-                      <path className="doc-demo-draw" pathLength="1" d="M375 71 L382 75 L375 79" fill="#64748b" stroke="#64748b" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round" />
-                      <circle className="doc-demo-pop" style={{ '--pop-delay': '1.4s' }} cx="360" cy="75" r="3" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" strokeWidth="1" />
-                      <circle className="doc-demo-pop" style={{ '--pop-delay': '1.6s' }} cx="380" cy="75" r="3" fill="rgba(139,92,246,0.15)" stroke="#8b5cf6" strokeWidth="1" />
-
-                      {/* Review → Done */}
-                      <path className="doc-demo-draw" pathLength="1" d="M530 75 L550 75" stroke="#64748b" strokeWidth="1.8" strokeLinecap="round" />
-                      <path className="doc-demo-draw" pathLength="1" d="M545 71 L552 75 L545 79" fill="#64748b" stroke="#64748b" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round" />
-                      <circle className="doc-demo-pop" style={{ '--pop-delay': '2s' }} cx="530" cy="75" r="3" fill="rgba(139,92,246,0.15)" stroke="#8b5cf6" strokeWidth="1" />
-                      <circle className="doc-demo-pop" style={{ '--pop-delay': '2.2s' }} cx="550" cy="75" r="3" fill="rgba(34,197,94,0.15)" stroke="#22c55e" strokeWidth="1" />
-
-                      {/* ── Middle: Feature tree ── */}
-                      {/* Root node */}
-                      <rect x="240" y="160" width="160" height="56" rx="10" fill="rgba(59,130,246,0.05)" stroke="#3b82f6" strokeWidth="1.8" />
-                      <text x="260" y="184" fontSize="10" fontWeight="700" fontFamily="system-ui" fill="#1e40af">Feature: Auth</text>
-                      <text x="260" y="200" fontSize="7.5" fontFamily="system-ui" fill="#6b7280">User authentication system</text>
-                      {/* Selection handles on root */}
-                      <rect className="doc-demo-pulse" x="236" y="156" width="7" height="7" rx="2" fill="#3b82f6" />
-                      <rect className="doc-demo-pulse" x="396" y="156" width="7" height="7" rx="2" fill="#3b82f6" />
-                      <rect className="doc-demo-pulse" x="236" y="212" width="7" height="7" rx="2" fill="#3b82f6" />
-                      <rect className="doc-demo-pulse" x="396" y="212" width="7" height="7" rx="2" fill="#3b82f6" />
-                      <rect className="doc-demo-pulse-border" x="236" y="156" width="167" height="63" rx="12" fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="4 2" />
-
-                      {/* Child 1: Login */}
-                      <rect x="60" y="280" width="130" height="50" rx="8" fill="rgba(34,197,94,0.04)" stroke="#22c55e" strokeWidth="1.5" />
-                      <text x="76" y="302" fontSize="9" fontWeight="700" fontFamily="system-ui" fill="#166534">Login Page</text>
-                      <text x="76" y="316" fontSize="7" fontFamily="system-ui" fill="#6b7280">Email + password form</text>
-
-                      {/* Child 2: Signup */}
-                      <rect x="220" y="280" width="130" height="50" rx="8" fill="rgba(245,158,11,0.04)" stroke="#f59e0b" strokeWidth="1.5" />
-                      <text x="236" y="302" fontSize="9" fontWeight="700" fontFamily="system-ui" fill="#92400e">Sign Up</text>
-                      <text x="236" y="316" fontSize="7" fontFamily="system-ui" fill="#6b7280">Registration flow</text>
-
-                      {/* Child 3: OAuth */}
-                      <rect x="380" y="280" width="130" height="50" rx="8" fill="rgba(139,92,246,0.04)" stroke="#8b5cf6" strokeWidth="1.5" />
-                      <text x="396" y="302" fontSize="9" fontWeight="700" fontFamily="system-ui" fill="#5b21b6">OAuth</text>
-                      <text x="396" y="316" fontSize="7" fontFamily="system-ui" fill="#6b7280">Google, GitHub SSO</text>
-
-                      {/* Tree connectors — branching from root */}
-                      <path className="doc-demo-draw doc-demo-draw--tree" pathLength="1" d="M320 216 L320 240 L125 240 L125 280" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-                      <path className="doc-demo-pop" d="M122 275 L125 281 L128 275" fill="#64748b" />
-
-                      <path className="doc-demo-draw doc-demo-draw--tree" pathLength="1" d="M320 216 L320 280" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-                      <path className="doc-demo-pop" d="M317 275 L320 281 L323 275" fill="#64748b" />
-
-                      <path className="doc-demo-draw doc-demo-draw--tree" pathLength="1" d="M320 216 L320 240 L515 240 L515 280" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-                      <path className="doc-demo-pop" d="M512 275 L515 281 L518 275" fill="#64748b" />
-
-                      {/* Branch snap points */}
-                      <circle className="doc-demo-pop" style={{ '--pop-delay': '3.2s' }} cx="320" cy="240" r="3" fill="rgba(100,116,139,0.15)" stroke="#64748b" strokeWidth="1" />
-                      <circle className="doc-demo-pop" style={{ '--pop-delay': '3.5s' }} cx="125" cy="240" r="3" fill="rgba(100,116,139,0.15)" stroke="#64748b" strokeWidth="1" />
-                      <circle className="doc-demo-pop" style={{ '--pop-delay': '3.8s' }} cx="515" cy="240" r="3" fill="rgba(100,116,139,0.15)" stroke="#64748b" strokeWidth="1" />
-
-                      {/* ── Right side: Cross-reference arrows ── */}
-                      {/* Dashed reference arrow from Login to Review card */}
-                      <path className="doc-demo-draw doc-demo-draw--ref" pathLength="1" d="M190 305 C190 260, 396 200, 396 120" stroke="#8b5cf6" strokeWidth="1.2" strokeLinecap="round" fill="none" strokeDasharray="5 3" />
-                      <path className="doc-demo-pop" d="M393 125 L396 118 L399 125" fill="#8b5cf6" />
-                      <text x="280" y="210" fontSize="6.5" fontWeight="500" fontFamily="system-ui" fill="#8b5cf6" transform="rotate(-32, 280, 210)">depends on</text>
-
-                      {/* Solid reference arrow from OAuth to Done */}
-                      <path className="doc-demo-draw doc-demo-draw--ref" pathLength="1" d="M510 305 C540 260, 580 200, 590 120" stroke="#22c55e" strokeWidth="1.2" strokeLinecap="round" fill="none" />
-                      <path className="doc-demo-pop" d="M587 125 L590 118 L593 125" fill="#22c55e" />
-                      <text x="560" y="210" fontSize="6.5" fontWeight="500" fontFamily="system-ui" fill="#22c55e" transform="rotate(-50, 560, 210)">shipped</text>
-
-                      {/* ── Bottom: Annotation area ── */}
-                      {/* Rough highlight circle around Login */}
-                      <path d="M90 268 C94 260, 176 259, 180 268 C184 277, 183 342, 180 350 C176 358, 94 359, 90 350 C86 342, 85 277, 90 268 Z"
-                        stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" fill="none" strokeDasharray="4 3" opacity="0.6" />
-
-                      {/* Arrow annotation */}
-                      <path d="M440 360 L500 360" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" />
-                      <path d="M495 357 L501 360 L495 363" fill="#64748b" />
-                      <text x="440" y="378" fontSize="7" fontWeight="500" fontFamily="system-ui" fill="#6b7280">drag to connect</text>
-
-                      {/* Label: snap hint */}
-                      <rect x="530" y="350" width="80" height="22" rx="4" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" strokeWidth="0.8" />
-                      <text x="570" y="365" textAnchor="middle" fontSize="6.5" fontWeight="500" fontFamily="system-ui" fill="#3b82f6">snaps to edge</text>
-
-                      {/* Cursor dragging */}
-                      <path className="doc-demo-cursor" d="M188 72 L188 88 L194 83 L200 92 L203 90 L197 81 L203 77Z" fill="var(--text)" />
-                    </svg>
-                  </div>
-                  <div className="doc-connectors-label">
-                    <span className="doc-connectors-label-text">Arrows snap to shape edges — drag from any handle to create connections</span>
-                  </div>
-                </div>
-              </div>
-              <div className="doc-editorial-text">
-                <span className="doc-editorial-label">Connect</span>
-                <h3 className="doc-editorial-heading">Link shapes with smart arrows</h3>
-                <ul className="doc-editorial-list">
-                  <li><strong>Press A</strong> or click the arrow tool to start connecting</li>
-                  <li><strong>Drag from a shape edge</strong> — arrows snap to connection points</li>
-                  <li><strong>Drop on another shape</strong> — the arrow stays linked when you move either end</li>
-                  <li><strong>Add labels</strong> — double-click an arrow to type a description</li>
-                  <li><strong>Curved paths</strong> — drag the midpoint to bend an arrow around obstacles</li>
-                  <li><strong>Style arrows</strong> — change color, thickness, and dash style in the panel</li>
-                  <li><strong>Branching trees</strong> — connect one parent to multiple children for org charts and mind maps</li>
-                </ul>
-              </div>
-            </div>
-          </section>
-
-          <section id="text" className="doc-section">
-            <h2 className="doc-section-title"><NavIcon name="text" /> Text & Typography</h2>
-
-            <div className="doc-editorial">
-              <div className="doc-editorial-visual">
-                <div className="doc-text-showcase">
-                  <div className="doc-text-canvas">
-                    <svg viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }} aria-hidden="true">
-                      {/* Canvas dot grid */}
-                      {[0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640].map(x => (
-                        [0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420].map(y => (
-                          <circle key={`${x}-${y}`} cx={x} cy={y} r="0.6" fill="var(--dot)" />
-                        ))
-                      )).flat()}
-
-                      {/* ── Top: Large heading ── */}
-                      <text x="40" y="48" fontSize="28" fontWeight="800" fontFamily="system-ui" fill="var(--text)" letterSpacing="-0.5">Product Launch Plan</text>
-                      <text x="40" y="70" fontSize="11" fontFamily="system-ui" fill="#6b7280">Q4 2024 roadmap — key milestones, owners, and deliverables</text>
-
-                      {/* Underline accent */}
-                      <path d="M40 80 C80 78, 280 79, 340 80" stroke="#3b82f6" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-
-                      {/* ── Section: Team ── */}
-                      <text x="40" y="118" fontSize="16" fontWeight="700" fontFamily="system-ui" fill="var(--text)">Team</text>
-                      <path d="M40 126 C60 124, 100 125, 120 126" stroke="#d1d5db" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-
-                      {/* Avatar labels */}
-                      <circle cx="56" cy="152" r="14" fill="rgba(59,130,246,0.1)" stroke="#3b82f6" strokeWidth="1.2" />
-                      <text x="56" y="156" textAnchor="middle" fontSize="10" fontWeight="600" fontFamily="system-ui" fill="#3b82f6">JD</text>
-                      <text x="80" y="148" fontSize="10" fontWeight="600" fontFamily="system-ui" fill="var(--text)">Jane Doe</text>
-                      <text x="80" y="162" fontSize="8" fontFamily="system-ui" fill="#9ca3af">Design Lead</text>
-
-                      <circle cx="200" cy="152" r="14" fill="rgba(139,92,246,0.1)" stroke="#8b5cf6" strokeWidth="1.2" />
-                      <text x="200" y="156" textAnchor="middle" fontSize="10" fontWeight="600" fontFamily="system-ui" fill="#8b5cf6">MK</text>
-                      <text x="224" y="148" fontSize="10" fontWeight="600" fontFamily="system-ui" fill="var(--text)">Mike Kim</text>
-                      <text x="224" y="162" fontSize="8" fontFamily="system-ui" fill="#9ca3af">Frontend Dev</text>
-
-                      <circle cx="360" cy="152" r="14" fill="rgba(34,197,94,0.1)" stroke="#22c55e" strokeWidth="1.2" />
-                      <text x="360" y="156" textAnchor="middle" fontSize="10" fontWeight="600" fontFamily="system-ui" fill="#22c55e">AS</text>
-                      <text x="384" y="148" fontSize="10" fontWeight="600" fontFamily="system-ui" fill="var(--text)">Ana Silva</text>
-                      <text x="384" y="162" fontSize="8" fontFamily="system-ui" fill="#9ca3af">Backend Dev</text>
-
-                      {/* ── Middle: Content blocks ── */}
-                      {/* Card with heading + body */}
-                      <rect x="40" y="190" width="260" height="120" rx="10" fill="rgba(59,130,246,0.03)" stroke="#e5e7eb" strokeWidth="1.2" />
-                      <text x="56" y="216" fontSize="13" fontWeight="700" fontFamily="system-ui" fill="var(--text)">Milestone: Beta Launch</text>
-                      <text x="56" y="236" fontSize="9" fontFamily="system-ui" fill="#6b7280">Target date: November 15th</text>
-                      <text x="56" y="252" fontSize="9" fontFamily="system-ui" fill="#6b7280">Feature freeze one week before</text>
-                      <text x="56" y="268" fontSize="9" fontFamily="system-ui" fill="#6b7280">QA sprint follows immediately</text>
-                      <rect x="56" y="282" width="60" height="16" rx="4" fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.6" />
-                      <text x="86" y="293" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill="#1e40af">On Track</text>
-                      <rect x="124" y="282" width="72" height="16" rx="4" fill="rgba(245,158,11,0.1)" stroke="#f59e0b" strokeWidth="0.6" />
-                      <text x="160" y="293" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill="#92400e">2 weeks left</text>
-
-                      {/* Card with checklist */}
-                      <rect x="320" y="190" width="200" height="120" rx="10" fill="rgba(34,197,94,0.03)" stroke="#e5e7eb" strokeWidth="1.2" />
-                      <text x="336" y="216" fontSize="13" fontWeight="700" fontFamily="system-ui" fill="var(--text)">Pre-launch Checklist</text>
-                      <text x="336" y="238" fontSize="9" fontFamily="system-ui" fill="#22c55e">✓ Set up monitoring</text>
-                      <text x="336" y="254" fontSize="9" fontFamily="system-ui" fill="#22c55e">✓ Write rollback plan</text>
-                      <text x="336" y="270" fontSize="9" fontFamily="system-ui" fill="#6b7280">○ Load testing</text>
-                      <text x="336" y="286" fontSize="9" fontFamily="system-ui" fill="#6b7280">○ Security audit</text>
-                      <text x="336" y="302" fontSize="9" fontFamily="system-ui" fill="#6b7280">○ Documentation</text>
-
-                      {/* ── Bottom: Sticky note ── */}
-                      <rect x="540" y="190" width="90" height="120" rx="3" fill="#fefce8" stroke="#eab308" strokeWidth="1" />
-                      <text x="552" y="212" fontSize="9" fontWeight="700" fontFamily="system-ui" fill="#854d0e">Remember</text>
-                      <line x1="552" y1="218" x2="618" y2="218" stroke="#eab308" strokeWidth="0.5" opacity="0.5" />
-                      <text x="552" y="234" fontSize="8" fontFamily="system-ui" fill="#854d0e">Review PR #89</text>
-                      <text x="552" y="248" fontSize="8" fontFamily="system-ui" fill="#854d0e">before standup</text>
-                      <text x="552" y="268" fontSize="8" fontFamily="system-ui" fill="#854d0e">Ask Ana about</text>
-                      <text x="552" y="282" fontSize="8" fontFamily="system-ui" fill="#854d0e">API rate limits</text>
-
-                      {/* ── Bottom row: Text size samples ── */}
-                      <line x1="40" y1="332" x2="600" y2="332" stroke="#e5e7eb" strokeWidth="1" strokeDasharray="6 4" />
-
-                      <text x="40" y="358" fontSize="8" fontFamily="system-ui" fill="#9ca3af" letterSpacing="1.5" fontWeight="500">TEXT SCALE</text>
-
-                      <text x="40" y="382" fontSize="18" fontWeight="800" fontFamily="system-ui" fill="var(--text)">Heading 1</text>
-                      <text x="180" y="382" fontSize="13" fontWeight="700" fontFamily="system-ui" fill="var(--text)">Heading 2</text>
-                      <text x="310" y="382" fontSize="11" fontWeight="600" fontFamily="system-ui" fill="var(--text)">Heading 3</text>
-                      <text x="430" y="382" fontSize="9" fontWeight="500" fontFamily="system-ui" fill="var(--text)">Body text</text>
-                      <text x="540" y="382" fontSize="8" fontFamily="system-ui" fill="#9ca3af">Caption</text>
-
-                      {/* Size labels */}
-                      <text x="40" y="398" fontSize="7" fontFamily="system-ui" fill="#d1d5db">28px bold</text>
-                      <text x="180" y="398" fontSize="7" fontFamily="system-ui" fill="#d1d5db">18px semibold</text>
-                      <text x="310" y="398" fontSize="7" fontFamily="system-ui" fill="#d1d5db">14px medium</text>
-                      <text x="430" y="398" fontSize="7" fontFamily="system-ui" fill="#d1d5db">12px regular</text>
-                      <text x="540" y="398" fontSize="7" fontFamily="system-ui" fill="#d1d5db">10px light</text>
-
-                      {/* Selection handles on the heading */}
-                      <rect x="36" y="28" width="7" height="7" rx="2" fill="#3b82f6" />
-                      <rect x="400" y="28" width="7" height="7" rx="2" fill="#3b82f6" />
-                      <rect x="36" y="70" width="7" height="7" rx="2" fill="#3b82f6" />
-                      <rect x="400" y="70" width="7" height="7" rx="2" fill="#3b82f6" />
-                      <rect x="36" y="28" width="371" height="49" rx="8" fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="4 2" />
-                    </svg>
-                  </div>
-                  <div className="doc-text-label">
-                    <span className="doc-text-label-text">Text scales from captions to headings — double-click any shape to edit</span>
-                  </div>
-                </div>
-              </div>
-              <div className="doc-editorial-text">
-                <span className="doc-editorial-label">Typography</span>
-                <h3 className="doc-editorial-heading">Write directly on the canvas</h3>
-                <ul className="doc-editorial-list">
-                  <li><strong>Press T</strong> or click the text tool, then click anywhere to type</li>
-                  <li><strong>Double-click a shape</strong> to add text inside rectangles, ellipses, and diamonds</li>
-                  <li><strong>Scale text</strong> — drag the font size in the Style panel from 8px to 72px</li>
-                  <li><strong>Weight options</strong> — light, regular, medium, semibold, bold</li>
-                  <li><strong>Text wraps</strong> automatically inside shapes — drag to resize the container</li>
-                  <li><strong>Alignment</strong> — left, center, or right align within any shape</li>
-                  <li><strong>Combine with sticky notes</strong> — yellow cards for quick annotations and reminders</li>
-                </ul>
-              </div>
-            </div>
-          </section>
-
-          <section id="images" className="doc-section">
-            <h2 className="doc-section-title"><NavIcon name="image" /> Images</h2>
-
-            <div className="doc-editorial doc-editorial--reversed">
-              <div className="doc-editorial-visual">
-                <div className="doc-images-showcase">
-                  <div className="doc-images-canvas">
-                    <svg viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }} aria-hidden="true">
-                      {/* Canvas dot grid */}
-                      {[0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640].map(x => (
-                        [0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420].map(y => (
-                          <circle key={`${x}-${y}`} cx={x} cy={y} r="0.6" fill="var(--dot)" />
-                        ))
-                      )).flat()}
-
-                      {/* ── Large hero image (selected) ── */}
-                      <rect x="40" y="30" width="340" height="200" rx="10" fill="rgba(59,130,246,0.03)" stroke="#e5e7eb" strokeWidth="1.2" />
-                      {/* Image content — landscape with mountains */}
-                      <rect x="40" y="30" width="340" height="200" rx="10" fill="url(#imgGrad1)" clipPath="url(#imgClip1)" />
-                      <defs>
-                        <linearGradient id="imgGrad1" x1="40" y1="30" x2="380" y2="230" gradientUnits="userSpaceOnUse">
-                          <stop offset="0%" stopColor="#93c5fd" />
-                          <stop offset="40%" stopColor="#60a5fa" />
-                          <stop offset="100%" stopColor="#3b82f6" />
-                        </linearGradient>
-                        <clipPath id="imgClip1"><rect x="40" y="30" width="340" height="200" rx="10" /></clipPath>
-                      </defs>
-                      {/* Sky gradient overlay */}
-                      <rect x="40" y="30" width="340" height="120" rx="10" fill="rgba(147,197,253,0.3)" clipPath="url(#imgClip1)" />
-                      {/* Mountains */}
-                      <path d="M40 180 L120 100 L180 140 L260 80 L340 130 L380 160 L380 230 L40 230 Z" fill="rgba(30,64,175,0.25)" clipPath="url(#imgClip1)" />
-                      <path d="M40 200 L140 140 L220 170 L300 120 L380 170 L380 230 L40 230 Z" fill="rgba(30,64,175,0.35)" clipPath="url(#imgClip1)" />
-                      {/* Sun */}
-                      <circle cx="300" cy="70" r="20" fill="rgba(253,224,71,0.5)" clipPath="url(#imgClip1)" />
-                      {/* Cloud */}
-                      <ellipse cx="120" cy="60" rx="30" ry="10" fill="rgba(255,255,255,0.4)" clipPath="url(#imgClip1)" />
-                      <ellipse cx="140" cy="55" rx="20" ry="8" fill="rgba(255,255,255,0.3)" clipPath="url(#imgClip1)" />
-                      {/* Image label */}
-                      <rect x="52" y="200" width="80" height="20" rx="4" fill="rgba(0,0,0,0.5)" />
-                      <text x="62" y="214" fontSize="8" fontWeight="500" fontFamily="system-ui" fill="white">hero-banner.png</text>
-                      {/* Selection handles */}
-                      <rect x="36" y="26" width="7" height="7" rx="2" fill="#3b82f6" />
-                      <rect x="376" y="26" width="7" height="7" rx="2" fill="#3b82f6" />
-                      <rect x="36" y="226" width="7" height="7" rx="2" fill="#3b82f6" />
-                      <rect x="376" y="226" width="7" height="7" rx="2" fill="#3b82f6" />
-                      <rect x="36" y="26" width="347" height="207" rx="12" fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="4 2" />
-                      {/* Size badge */}
-                      <rect x="310" y="210" width="60" height="16" rx="4" fill="rgba(59,130,246,0.9)" />
-                      <text x="340" y="221" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill="white">1200×800</text>
-
-                      {/* ── Small image: avatar ── */}
-                      <rect x="420" y="30" width="80" height="80" rx="40" fill="rgba(139,92,246,0.1)" stroke="#e5e7eb" strokeWidth="1.2" />
-                      <circle cx="460" cy="70" r="40" fill="url(#imgGrad2)" />
-                      <defs>
-                        <linearGradient id="imgGrad2" x1="420" y1="30" x2="500" y2="110" gradientUnits="userSpaceOnUse">
-                          <stop offset="0%" stopColor="#c4b5fd" />
-                          <stop offset="100%" stopColor="#8b5cf6" />
-                        </linearGradient>
-                      </defs>
-                      <text x="460" y="74" textAnchor="middle" fontSize="18" fontWeight="700" fontFamily="system-ui" fill="white">JD</text>
-                      <rect x="420" y="100" width="80" height="14" rx="3" fill="rgba(0,0,0,0.5)" />
-                      <text x="460" y="110" textAnchor="middle" fontSize="7" fontWeight="500" fontFamily="system-ui" fill="white">avatar.jpg</text>
-
-                      {/* ── Small image: product screenshot ── */}
-                      <rect x="520" y="30" width="100" height="80" rx="6" fill="rgba(34,197,94,0.03)" stroke="#e5e7eb" strokeWidth="1.2" />
-                      <rect x="520" y="30" width="100" height="80" rx="6" fill="url(#imgGrad3)" />
-                      <defs>
-                        <linearGradient id="imgGrad3" x1="520" y1="30" x2="620" y2="110" gradientUnits="userSpaceOnUse">
-                          <stop offset="0%" stopColor="#86efac" />
-                          <stop offset="100%" stopColor="#22c55e" />
-                        </linearGradient>
-                      </defs>
-                      {/* Mini UI elements inside */}
-                      <rect x="530" y="40" width="60" height="6" rx="2" fill="rgba(255,255,255,0.4)" />
-                      <rect x="530" y="52" width="40" height="4" rx="1" fill="rgba(255,255,255,0.25)" />
-                      <rect x="530" y="60" width="50" height="4" rx="1" fill="rgba(255,255,255,0.2)" />
-                      <rect x="530" y="72" width="30" height="12" rx="3" fill="rgba(255,255,255,0.35)" />
-                      <rect x="520" y="100" width="100" height="14" rx="3" fill="rgba(0,0,0,0.5)" />
-                      <text x="570" y="110" textAnchor="middle" fontSize="7" fontWeight="500" fontFamily="system-ui" fill="white">dashboard.png</text>
-
-                      {/* ── Middle: Image grid layout ── */}
-                      <text x="40" y="260" fontSize="12" fontWeight="700" fontFamily="system-ui" fill="var(--text)">Gallery View</text>
-                      <path d="M40 268 C60 266, 130 267, 150 268" stroke="#d1d5db" strokeWidth="1.2" strokeLinecap="round" fill="none" />
-
-                      {/* Grid of 4 images */}
-                      <rect x="40" y="280" width="110" height="80" rx="6" fill="url(#imgGrad4)" />
-                      <defs>
-                        <linearGradient id="imgGrad4" x1="40" y1="280" x2="150" y2="360" gradientUnits="userSpaceOnUse">
-                          <stop offset="0%" stopColor="#fda4af" />
-                          <stop offset="100%" stopColor="#e11d48" />
-                        </linearGradient>
-                      </defs>
-                      <rect x="50" y="290" width="50" height="4" rx="1" fill="rgba(255,255,255,0.3)" />
-                      <rect x="50" y="300" width="35" height="3" rx="1" fill="rgba(255,255,255,0.2)" />
-
-                      <rect x="160" y="280" width="110" height="80" rx="6" fill="url(#imgGrad5)" />
-                      <defs>
-                        <linearGradient id="imgGrad5" x1="160" y1="280" x2="270" y2="360" gradientUnits="userSpaceOnUse">
-                          <stop offset="0%" stopColor="#fcd34d" />
-                          <stop offset="100%" stopColor="#f59e0b" />
-                        </linearGradient>
-                      </defs>
-                      <circle cx="215" cy="310" r="15" fill="rgba(255,255,255,0.25)" />
-                      <rect x="170" y="340" width="60" height="4" rx="1" fill="rgba(255,255,255,0.25)" />
-
-                      <rect x="280" y="280" width="110" height="80" rx="6" fill="url(#imgGrad6)" />
-                      <defs>
-                        <linearGradient id="imgGrad6" x1="280" y1="280" x2="390" y2="360" gradientUnits="userSpaceOnUse">
-                          <stop offset="0%" stopColor="#67e8f9" />
-                          <stop offset="100%" stopColor="#06b6d4" />
-                        </linearGradient>
-                      </defs>
-                      <path d="M290 340 L320 310 L350 330 L380 300 L390 340 L390 360 L290 360 Z" fill="rgba(255,255,255,0.2)" />
-
-                      <rect x="400" y="280" width="110" height="80" rx="6" fill="url(#imgGrad7)" />
-                      <defs>
-                        <linearGradient id="imgGrad7" x1="400" y1="280" x2="510" y2="360" gradientUnits="userSpaceOnUse">
-                          <stop offset="0%" stopColor="#a5b4fc" />
-                          <stop offset="100%" stopColor="#6366f1" />
-                        </linearGradient>
-                      </defs>
-                      <rect x="410" y="290" width="80" height="50" rx="4" fill="rgba(255,255,255,0.15)" />
-                      <rect x="420" y="300" width="40" height="4" rx="1" fill="rgba(255,255,255,0.3)" />
-                      <rect x="420" y="310" width="55" height="3" rx="1" fill="rgba(255,255,255,0.2)" />
-                      <rect x="420" y="320" width="30" height="10" rx="2" fill="rgba(255,255,255,0.3)" />
-
-                      {/* Grid labels */}
-                      <text x="95" y="376" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill="#9ca3af">marketing-v2.jpg</text>
-                      <text x="215" y="376" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill="#9ca3af">product-shot.jpg</text>
-                      <text x="335" y="376" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill="#9ca3af">landscape.jpg</text>
-                      <text x="455" y="376" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill="#9ca3af">ui-mockup.png</text>
-
-                      {/* ── Right: Drag-and-drop hint ── */}
-                      <rect x="540" y="260" width="90" height="90" rx="8" fill="rgba(59,130,246,0.04)" stroke="#3b82f6" strokeWidth="1.2" strokeDasharray="5 3" />
-                      <text x="585" y="296" textAnchor="middle" fontSize="8" fontWeight="600" fontFamily="system-ui" fill="#3b82f6">Drop here</text>
-                      <text x="585" y="310" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill="#93c5fd">to upload</text>
-                      {/* Plus icon */}
-                      <path d="M585 330 L585 342" stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" />
-                      <path d="M579 336 L591 336" stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" />
-
-                      {/* Cursor hovering over drop zone */}
-                      <g className="doc-demo-cursor doc-demo-cursor--hover">
-                        <path d="M562 348 L562 364 L568 359 L574 368 L577 366 L571 357 L577 353Z" fill="var(--text)" />
-                        {/* Drag ghost */}
-                        <rect x="558" y="344" width="30" height="22" rx="3" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" strokeWidth="1" strokeDasharray="3 2" opacity="0.6" />
-                      </g>
-                    </svg>
-                  </div>
-                  <div className="doc-images-label">
-                    <span className="doc-images-label-text">Drag images onto the canvas — resize, crop, and arrange with selection handles</span>
-                  </div>
-                </div>
-              </div>
-              <div className="doc-editorial-text">
-                <span className="doc-editorial-label">Media</span>
-                <h3 className="doc-editorial-heading">Place images anywhere on the canvas</h3>
-                <ul className="doc-editorial-list">
-                  <li><strong>Drag and drop</strong> — drop PNG, JPEG, SVG, or WebP files directly onto the canvas</li>
-                  <li><strong>Click the image tool</strong> — press <kbd>9</kbd> or use the toolbar to upload from file picker</li>
-                  <li><strong>Resize</strong> — drag corner handles to scale, hold <kbd>Shift</kbd> to lock proportions</li>
-                  <li><strong>Crop</strong> — double-click an image to enter crop mode, drag edges to trim</li>
-                  <li><strong>Layer</strong> — images sit behind text and shapes by default, right-click to reorder</li>
-                  <li><strong>Replace</strong> — select an image and drop a new file to swap it in place</li>
-                  <li><strong>Export</strong> — images are included in PNG, SVG, and PDF exports at full resolution</li>
                 </ul>
               </div>
             </div>
@@ -2072,11 +1628,6 @@ export default function DocumentationPage() {
             <h3 className="doc-section-subtitle">Combined Styles</h3>
             <p className="doc-section-intro">Mix and match fill, stroke, width, style, and opacity to create polished compositions. Here are some common patterns.</p>
             <CombinedStylesDemo />
-
-            {/* Before & After */}
-            <h3 className="doc-section-subtitle">Before & After</h3>
-            <p className="doc-section-intro">See how a plain shape transforms with Kanvas styling. Select any object, open the Style panel, and apply fill, stroke, radius, and opacity.</p>
-            <BeforeAfterDemo />
 
             {/* Quick reference */}
             <div className="doc-style-grid">
@@ -2349,7 +1900,7 @@ export default function DocumentationPage() {
             <h2 className="doc-section-title"><NavIcon name="zap" /> Play with Kanvas</h2>
             <p className="doc-showcase-intro">See what you can create. These compositions were made using Kanvas tools — shapes, lines, text, and colors on an infinite canvas.</p>
 
-            <div className="doc-showcase-grid">
+            <div className="doc-showcase-grid" data-reveal>
 
               {/* 1 — Colorful shapes composition (large) */}
               <div className="doc-showcase-item doc-showcase-item--large">
