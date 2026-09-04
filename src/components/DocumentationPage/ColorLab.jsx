@@ -513,3 +513,108 @@ export function FontSizeDemo() {
     </svg>
   )
 }
+
+/* ─── Before & After — shows a plain shape transformed with styling ──
+   Left side: plain unstyled rectangle. Arrow transition. Right side:
+   the same rectangle with fill, stroke, rounded corners, and text.
+   Demonstrates the real Kanvas styling pipeline in one glance. */
+export function BeforeAfterDemo() {
+  return (
+    <div className="doc-beforeafter-wrap">
+      <svg viewBox="0 0 680 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-beforeafter-svg" aria-hidden="true">
+        {/* ── Before: plain rectangle ── */}
+        <text x="100" y="22" textAnchor="middle" fontSize="9" fontWeight="700" fontFamily="system-ui" fill={C.muted} letterSpacing="1">BEFORE</text>
+
+        {/* Plain rectangle — no fill, thin gray stroke */}
+        <rect x="50" y="34" width="100" height="64" rx="0" fill="none" stroke={C.muted} strokeWidth="1" opacity="0.4" />
+        {/* Placeholder text lines */}
+        <rect x="62" y="50" width="50" height="4" rx="2" fill={C.muted} opacity="0.12" />
+        <rect x="62" y="60" width="60" height="3" rx="1.5" fill={C.muted} opacity="0.08" />
+        <rect x="62" y="68" width="40" height="3" rx="1.5" fill={C.muted} opacity="0.08" />
+        <rect x="62" y="80" width="36" height="12" rx="2" fill={C.muted} opacity="0.06" stroke={C.muted} strokeWidth="0.5" opacity="0.15" />
+
+        <text x="100" y="118" textAnchor="middle" fontSize="8" fontFamily="system-ui" fill={C.muted}>Plain rectangle</text>
+        <text x="100" y="130" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill={C.muted}>no fill, no style</text>
+
+        {/* Properties list — before */}
+        <text x="62" y="152" fontSize="7" fontFamily="system-ui" fill={C.muted}>fill: none</text>
+        <text x="62" y="164" fontSize="7" fontFamily="system-ui" fill={C.muted}>stroke: gray</text>
+        <text x="62" y="176" fontSize="7" fontFamily="system-ui" fill={C.muted}>corners: sharp</text>
+
+        {/* ── Transition arrow ── */}
+        <g transform="translate(190, 60)">
+          {/* Arrow body */}
+          <line x1="0" y1="20" x2="80" y2="20" stroke={C.accent} strokeWidth="2" strokeLinecap="round" />
+          {/* Arrow head */}
+          <path d="M74 14 L84 20 L74 26" fill="none" stroke={C.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          {/* Label */}
+          <text x="40" y="8" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill={C.accent}>apply style</text>
+          {/* Style dots */}
+          <circle cx="20" cy="36" r="3" fill={C.blue} />
+          <circle cx="34" cy="36" r="3" fill={C.green} />
+          <circle cx="48" cy="36" r="3" fill={C.orange} />
+          <circle cx="62" cy="36" r="3" fill={C.red} />
+        </g>
+
+        {/* ── After: styled rectangle ── */}
+        <text x="440" y="22" textAnchor="middle" fontSize="9" fontWeight="700" fontFamily="system-ui" fill={C.accent} letterSpacing="1">AFTER</text>
+
+        {/* Styled rectangle — blue fill, blue stroke, rounded corners */}
+        <rect x="380" y="34" width="120" height="64" rx="10" fill="rgba(59,130,246,0.1)" stroke={C.blue} strokeWidth="2" />
+        {/* Text content inside */}
+        <text x="396" y="56" fontSize="10" fontWeight="700" fontFamily="system-ui" fill={C.blue}>Card Title</text>
+        <rect x="396" y="64" width="70" height="3" rx="1.5" fill={C.blue} opacity="0.2" />
+        <rect x="396" y="72" width="50" height="2.5" rx="1.25" fill={C.blue} opacity="0.12" />
+        {/* Status badge */}
+        <rect x="396" y="82" width="44" height="12" rx="4" fill={C.green} opacity="0.15" stroke={C.green} strokeWidth="0.6" />
+        <text x="418" y="91" textAnchor="middle" fontSize="6.5" fontWeight="600" fontFamily="system-ui" fill={C.green}>Active</text>
+
+        <text x="440" y="118" textAnchor="middle" fontSize="8" fontFamily="system-ui" fill={C.accent}>Styled card</text>
+        <text x="440" y="130" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill={C.muted}>fill + stroke + radius</text>
+
+        {/* Properties list — after */}
+        <text x="396" y="152" fontSize="7" fontFamily="system-ui" fill={C.blue}>fill: blue 10%</text>
+        <text x="396" y="164" fontSize="7" fontFamily="system-ui" fill={C.blue}>stroke: blue 2px</text>
+        <text x="396" y="176" fontSize="7" fontFamily="system-ui" fill={C.blue}>corners: 10px</text>
+
+        {/* ── Before #2: plain circle ── */}
+        <text x="570" y="22" textAnchor="middle" fontSize="9" fontWeight="700" fontFamily="system-ui" fill={C.muted} letterSpacing="1">BEFORE</text>
+
+        <circle cx="570" cy="66" r="30" fill="none" stroke={C.muted} strokeWidth="1" opacity="0.4" />
+        <text x="570" y="69" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill={C.muted}>label</text>
+
+        <text x="570" y="112" textAnchor="middle" fontSize="8" fontFamily="system-ui" fill={C.muted}>Plain circle</text>
+        <text x="570" y="124" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill={C.muted}>outline only</text>
+
+        {/* Properties */}
+        <text x="546" y="144" fontSize="7" fontFamily="system-ui" fill={C.muted}>fill: none</text>
+        <text x="546" y="156" fontSize="7" fontFamily="system-ui" fill={C.muted}>stroke: gray</text>
+        <text x="546" y="168" fontSize="7" fontFamily="system-ui" fill={C.muted}>opacity: 100%</text>
+
+        {/* ── Transition arrow ── */}
+        <g transform="translate(618, 50)">
+          <line x1="0" y1="16" x2="40" y2="16" stroke={C.accent} strokeWidth="1.5" strokeLinecap="round" />
+          <path d="M36 12 L42 16 L36 20" fill="none" stroke={C.accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </g>
+
+        {/* ── After #2: styled circle ── */}
+        <text x="670" y="22" textAnchor="middle" fontSize="9" fontWeight="700" fontFamily="system-ui" fill={C.accent} letterSpacing="1">AFTER</text>
+
+        <circle cx="670" cy="66" r="30" fill="rgba(34,197,94,0.12)" stroke={C.green} strokeWidth="2" />
+        <text x="670" y="63" textAnchor="middle" fontSize="9" fontWeight="700" fontFamily="system-ui" fill={C.green}>OK</text>
+        <text x="670" y="75" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill={C.green} opacity="0.7">status</text>
+
+        <text x="670" y="112" textAnchor="middle" fontSize="8" fontFamily="system-ui" fill={C.accent}>Styled badge</text>
+        <text x="670" y="124" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill={C.muted}>fill + stroke</text>
+
+        {/* Properties */}
+        <text x="646" y="144" fontSize="7" fontFamily="system-ui" fill={C.green}>fill: green 12%</text>
+        <text x="646" y="156" fontSize="7" fontFamily="system-ui" fill={C.green}>stroke: green 2px</text>
+        <text x="646" y="168" fontSize="7" fontFamily="system-ui" fill={C.green}>opacity: 100%</text>
+
+        {/* Bottom note */}
+        <text x="340" y="196" textAnchor="middle" fontSize="8" fontFamily="system-ui" fill={C.muted}>Select any shape → open the Style panel → apply fill, stroke, width, radius, and opacity</text>
+      </svg>
+    </div>
+  )
+}

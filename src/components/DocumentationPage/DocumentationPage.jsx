@@ -18,6 +18,7 @@ import {
   CornerStyleDemo,
   CombinedStylesDemo,
   FontSizeDemo,
+  BeforeAfterDemo,
 } from './ColorLab'
 import {
   FeatureStory,
@@ -2067,6 +2068,11 @@ export default function DocumentationPage() {
             <h3 className="doc-section-subtitle">Combined Styles</h3>
             <p className="doc-section-intro">Mix and match fill, stroke, width, style, and opacity to create polished compositions. Here are some common patterns.</p>
             <CombinedStylesDemo />
+
+            {/* Before & After */}
+            <h3 className="doc-section-subtitle">Before & After</h3>
+            <p className="doc-section-intro">See how a plain shape transforms with Kanvas styling. Select any object, open the Style panel, and apply fill, stroke, radius, and opacity.</p>
+            <BeforeAfterDemo />
 
             {/* Quick reference */}
             <div className="doc-style-grid">
