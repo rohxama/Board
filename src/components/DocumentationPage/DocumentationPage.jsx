@@ -257,119 +257,178 @@ function useHeadingToc(contentRef) {
 const WORKFLOW_STEPS = [
   {
     num: '01',
-    title: 'Think',
-    desc: 'Start with an idea. Every great board begins with a single thought — a concept, a problem, a spark.',
-    color: '#10b981',
+    title: 'Create',
+    desc: 'Pick a tool and draw your first shape on the canvas.',
+    color: '#3b82f6',
     illustration: (
-      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
-        <rect x="8" y="8" width="48" height="48" rx="4" fill="rgba(16,185,129,0.04)" stroke="#10b981" strokeWidth="0.8" />
-        <rect x="14" y="14" width="24" height="16" rx="2" fill="rgba(16,185,129,0.08)" stroke="#10b981" strokeWidth="0.8" />
-        <text x="26" y="25" textAnchor="middle" fontSize="5" fontWeight="500" fontFamily="system-ui" fill="#10b981">Idea</text>
-        {/* Selection state on Idea rect */}
-        <rect x="10" y="10" width="32" height="24" rx="3" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeDasharray="3 2" />
-        <rect x="6" y="6" width="4" height="4" rx="1" fill="var(--accent)" />
-        <rect x="42" y="6" width="4" height="4" rx="1" fill="var(--accent)" />
-        <rect x="6" y="32" width="4" height="4" rx="1" fill="var(--accent)" />
-        <rect x="42" y="32" width="4" height="4" rx="1" fill="var(--accent)" />
-        <path d="M42 22 L50 22" stroke="#10b981" strokeWidth="0.6" strokeLinecap="round" />
-        <path d="M48 20 L52 22 L48 24" fill="none" stroke="#10b981" strokeWidth="0.6" strokeLinecap="round" />
-        <rect x="14" y="38" width="18" height="12" rx="1" fill="rgba(234,179,8,0.06)" stroke="#eab308" strokeWidth="0.6" />
-        <text x="23" y="46" textAnchor="middle" fontSize="4" fontFamily="system-ui" fill="#854d0e">Notes</text>
-        <circle cx="48" cy="44" r="6" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" strokeWidth="0.6" />
-        <text x="48" y="46" textAnchor="middle" fontSize="4" fontWeight="500" fontFamily="system-ui" fill="#3b82f6">Plan</text>
+      <svg viewBox="0 0 160 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
+        {/* Dot grid */}
+        {[0,16,32,48,64,80,96,112,128,144,160].map(x => [0,16,32,48,64,80,96].map(y => <circle key={`${x}-${y}`} cx={x} cy={y} r="0.5" fill="#d1d5db" />)).flat()}
+        {/* Toolbar hint */}
+        <rect x="4" y="4" width="18" height="92" rx="3" fill="rgba(255,255,255,0.85)" stroke="#e5e7eb" strokeWidth="0.6" />
+        <rect x="7" y="8" width="12" height="10" rx="2" fill="rgba(59,130,246,0.1)" stroke="#3b82f6" strokeWidth="0.8" />
+        <rect x="7" y="22" width="12" height="10" rx="2" fill="none" stroke="#d1d5db" strokeWidth="0.5" />
+        <circle cx="13" cy="40" r="5" fill="none" stroke="#d1d5db" strokeWidth="0.5" />
+        <rect x="7" y="50" width="12" height="10" rx="2" fill="none" stroke="#d1d5db" strokeWidth="0.5" />
+        {/* Rectangle being drawn */}
+        <rect x="44" y="28" width="72" height="44" rx="4" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" strokeWidth="1.2" />
+        <text x="80" y="50" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill="#1e40af">My Shape</text>
+        <text x="80" y="62" textAnchor="middle" fontSize="5" fontFamily="system-ui" fill="#6b7280">Click and drag to draw</text>
+        {/* Cursor drawing */}
+        <path d="M120 74 L120 84 L124 81 L128 88 L130 87 L126 80 L130 77Z" fill="#1e293b" />
+        {/* Draw trail */}
+        <rect x="44" y="28" width="72" height="44" rx="4" fill="none" stroke="#3b82f6" strokeWidth="0.6" strokeDasharray="3 2" opacity="0.4" />
       </svg>
     ),
   },
   {
     num: '02',
-    title: 'Choose',
-    desc: 'Pick the right tool. Rectangle, ellipse, arrow, pencil — each shape serves a purpose.',
-    color: '#3b82f6',
+    title: 'Edit',
+    desc: 'Select, move, resize, and arrange shapes on the infinite canvas.',
+    color: '#8b5cf6',
     illustration: (
-      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
-        <rect x="6" y="12" width="14" height="40" rx="2" fill="rgba(59,130,246,0.04)" stroke="#3b82f6" strokeWidth="0.8" />
-        <rect x="8" y="14" width="10" height="8" rx="1.5" fill="rgba(59,130,246,0.1)" stroke="#3b82f6" strokeWidth="0.6" />
-        <path d="M11 28 L13 32 L15 29" fill="none" stroke="#3b82f6" strokeWidth="0.5" strokeLinecap="round" />
-        <rect x="8" y="36" width="10" height="8" rx="1" fill="none" stroke="#3b82f6" strokeWidth="0.5" />
-        <circle cx="13" cy="50" r="3" fill="none" stroke="#3b82f6" strokeWidth="0.5" />
-        <rect x="26" y="16" width="20" height="14" rx="1.5" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" strokeWidth="0.8" />
-        <circle cx="52" cy="23" r="8" fill="rgba(59,130,246,0.05)" stroke="#3b82f6" strokeWidth="0.8" />
-        <path d="M30 44 L44 44 L44 52 L30 52Z" fill="rgba(59,130,246,0.04)" stroke="#3b82f6" strokeWidth="0.6" />
+      <svg viewBox="0 0 160 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
+        {[0,16,32,48,64,80,96,112,128,144,160].map(x => [0,16,32,48,64,80,96].map(y => <circle key={`${x}-${y}`} cx={x} cy={y} r="0.5" fill="#d1d5db" />)).flat()}
+        {/* Card 1 — unselected */}
+        <rect x="12" y="20" width="52" height="32" rx="4" fill="rgba(139,92,246,0.05)" stroke="#8b5cf6" strokeWidth="0.8" />
+        <text x="22" y="35" fontSize="6" fontWeight="600" fontFamily="system-ui" fill="#5b21b6">Research</text>
+        <text x="22" y="44" fontSize="4.5" fontFamily="system-ui" fill="#6b7280">User interviews</text>
+        {/* Card 2 — selected with handles */}
+        <rect x="80" y="16" width="60" height="36" rx="4" fill="rgba(59,130,246,0.05)" stroke="#3b82f6" strokeWidth="1" />
+        <text x="90" y="32" fontSize="6" fontWeight="600" fontFamily="system-ui" fill="#1e40af">Wireframe</text>
+        <text x="90" y="42" fontSize="4.5" fontFamily="system-ui" fill="#6b7280">Layout draft</text>
+        {/* Selection handles */}
+        <rect x="76" y="12" width="5" height="5" rx="1" fill="#3b82f6" />
+        <rect x="140" y="12" width="5" height="5" rx="1" fill="#3b82f6" />
+        <rect x="76" y="48" width="5" height="5" rx="1" fill="#3b82f6" />
+        <rect x="140" y="48" width="5" height="5" rx="1" fill="#3b82f6" />
+        <rect x="76" y="12" width="69" height="45" rx="6" fill="none" stroke="#3b82f6" strokeWidth="1" strokeDasharray="3 2" />
+        {/* Move cursor */}
+        <path d="M108 68 L108 80 L112 76 L116 84 L118 83 L114 75 L118 72Z" fill="#1e293b" />
+        {/* Move hint arrows */}
+        <path d="M96 60 L100 56" stroke="#3b82f6" strokeWidth="0.6" strokeLinecap="round" />
+        <path d="M98 55 L101 56 L100 59" fill="none" stroke="#3b82f6" strokeWidth="0.5" strokeLinecap="round" />
+        {/* Dashed card — ghost of original position */}
+        <rect x="80" y="56" width="60" height="36" rx="4" fill="none" stroke="#d1d5db" strokeWidth="0.5" strokeDasharray="3 2" />
       </svg>
     ),
   },
   {
     num: '03',
-    title: 'Draw',
-    desc: 'Turn it into shapes and sketches. Click and drag to bring your ideas to life on the canvas.',
-    color: '#8b5cf6',
+    title: 'Style',
+    desc: 'Apply colors, strokes, fills, and opacity from the Style panel.',
+    color: '#f97066',
     illustration: (
-      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
-        <rect x="10" y="28" width="22" height="14" rx="1.5" stroke="#8b5cf6" strokeWidth="0.8" fill="rgba(139,92,246,0.05)" />
-        <circle cx="46" cy="35" r="10" stroke="#8b5cf6" strokeWidth="0.8" fill="rgba(139,92,246,0.05)" />
-        <path d="M36 35 L38 35" stroke="#8b5cf6" strokeWidth="0.6" strokeLinecap="round" />
-        <path d="M14 16 L30 16 L30 24 L14 24Z" fill="rgba(139,92,246,0.04)" stroke="#8b5cf6" strokeWidth="0.5" />
-        <text x="22" y="21" textAnchor="middle" fontSize="4" fontFamily="system-ui" fill="#8b5cf6">Label</text>
-        <path d="M22 46 L22 52" stroke="#8b5cf6" strokeWidth="0.6" strokeLinecap="round" />
-        <path d="M20 50 L22 54 L24 50" fill="none" stroke="#8b5cf6" strokeWidth="0.5" strokeLinecap="round" />
+      <svg viewBox="0 0 160 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
+        {[0,16,32,48,64,80,96,112,128,144,160].map(x => [0,16,32,48,64,80,96].map(y => <circle key={`${x}-${y}`} cx={x} cy={y} r="0.5" fill="#d1d5db" />)).flat()}
+        {/* Shape — styled */}
+        <rect x="16" y="20" width="72" height="44" rx="6" fill="rgba(59,130,246,0.1)" stroke="#3b82f6" strokeWidth="1.5" />
+        <text x="52" y="42" textAnchor="middle" fontSize="7" fontWeight="700" fontFamily="system-ui" fill="#1e40af">Styled Card</text>
+        <text x="52" y="54" textAnchor="middle" fontSize="5" fontFamily="system-ui" fill="#6b7280">Fill + stroke + radius</text>
+        {/* Selection handles */}
+        <rect x="12" y="16" width="5" height="5" rx="1" fill="#f97066" />
+        <rect x="88" y="16" width="5" height="5" rx="1" fill="#f97066" />
+        <rect x="12" y="60" width="5" height="5" rx="1" fill="#f97066" />
+        <rect x="88" y="60" width="5" height="5" rx="1" fill="#f97066" />
+        <rect x="12" y="16" width="85" height="53" rx="8" fill="none" stroke="#f97066" strokeWidth="1" strokeDasharray="3 2" />
+        {/* Style panel */}
+        <rect x="104" y="8" width="48" height="84" rx="4" fill="rgba(255,255,255,0.92)" stroke="#e5e7eb" strokeWidth="0.6" />
+        <text x="110" y="20" fontSize="5" fontWeight="700" fontFamily="system-ui" fill="#374151">Style</text>
+        {/* Color swatches */}
+        <rect x="110" y="26" width="8" height="8" rx="2" fill="#3b82f6" />
+        <rect x="120" y="26" width="8" height="8" rx="2" fill="#8b5cf6" />
+        <rect x="130" y="26" width="8" height="8" rx="2" fill="#22c55e" />
+        <rect x="140" y="26" width="8" height="8" rx="2" fill="#f59e0b" />
+        {/* Stroke width */}
+        <text x="110" y="44" fontSize="4" fontFamily="system-ui" fill="#6b7280">Width</text>
+        <rect x="110" y="48" width="36" height="4" rx="2" fill="#e5e7eb" />
+        <rect x="110" y="48" width="18" height="4" rx="2" fill="#f97066" />
+        <circle cx="128" cy="50" r="3" fill="white" stroke="#f97066" strokeWidth="1" />
+        {/* Opacity */}
+        <text x="110" y="62" fontSize="4" fontFamily="system-ui" fill="#6b7280">Opacity</text>
+        <rect x="110" y="66" width="36" height="4" rx="2" fill="#e5e7eb" />
+        <rect x="110" y="66" width="28" height="4" rx="2" fill="#22c55e" />
+        <circle cx="138" cy="68" r="3" fill="white" stroke="#22c55e" strokeWidth="1" />
+        {/* Cursor on swatch */}
+        <path d="M126 30 L126 38 L129 36 L132 40 L133 39.5 L130 35.5 L133 34Z" fill="#1e293b" />
       </svg>
     ),
   },
   {
     num: '04',
-    title: 'Style',
-    desc: 'Add color and visual hierarchy. Use strokes, fills, and opacity to make your ideas pop.',
-    color: '#f97066',
+    title: 'Connect',
+    desc: 'Draw arrows between shapes to show relationships and flow.',
+    color: '#22c55e',
     illustration: (
-      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
-        <rect x="10" y="14" width="22" height="16" rx="2" stroke="#f97066" strokeWidth="1" fill="rgba(249,112,102,0.08)" />
-        <rect x="36" y="14" width="22" height="16" rx="2" stroke="#f97066" strokeWidth="1" strokeDasharray="4 3" fill="rgba(249,112,102,0.04)" />
-        <circle cx="18" cy="46" r="6" fill="rgba(249,112,102,0.08)" stroke="#f97066" strokeWidth="0.8" />
-        {/* Selection state on center circle */}
-        <circle cx="36" cy="46" r="10" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeDasharray="3 2" />
-        <rect x="30" y="40" width="4" height="4" rx="1" fill="var(--accent)" />
-        <rect x="38" y="40" width="4" height="4" rx="1" fill="var(--accent)" />
-        <rect x="30" y="48" width="4" height="4" rx="1" fill="var(--accent)" />
-        <rect x="38" y="48" width="4" height="4" rx="1" fill="var(--accent)" />
-        <circle cx="36" cy="46" r="6" fill="rgba(249,112,102,0.12)" stroke="#f97066" strokeWidth="0.8" />
-        <circle cx="52" cy="46" r="6" fill="rgba(249,112,102,0.18)" stroke="#f97066" strokeWidth="0.8" />
-        <path d="M14 36h14" stroke="#f97066" strokeWidth="0.8" strokeLinecap="round" />
+      <svg viewBox="0 0 160 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
+        {[0,16,32,48,64,80,96,112,128,144,160].map(x => [0,16,32,48,64,80,96].map(y => <circle key={`${x}-${y}`} cx={x} cy={y} r="0.5" fill="#d1d5db" />)).flat()}
+        {/* Card A */}
+        <rect x="8" y="24" width="48" height="28" rx="4" fill="rgba(34,197,94,0.05)" stroke="#22c55e" strokeWidth="0.8" />
+        <text x="18" y="40" fontSize="6" fontWeight="600" fontFamily="system-ui" fill="#166534">Ideas</text>
+        <text x="18" y="48" fontSize="4" fontFamily="system-ui" fill="#6b7280">Brainstorm</text>
+        {/* Arrow A→B */}
+        <path d="M56 38 L74 38" stroke="#64748b" strokeWidth="1" strokeLinecap="round" />
+        <path d="M71 36 L75 38 L71 40" fill="#64748b" stroke="#64748b" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round" />
+        {/* Snap dots */}
+        <circle cx="56" cy="38" r="2" fill="rgba(34,197,94,0.2)" stroke="#22c55e" strokeWidth="0.6" />
+        <circle cx="74" cy="38" r="2" fill="rgba(59,130,246,0.2)" stroke="#3b82f6" strokeWidth="0.6" />
+        {/* Card B */}
+        <rect x="74" y="24" width="48" height="28" rx="4" fill="rgba(59,130,246,0.05)" stroke="#3b82f6" strokeWidth="0.8" />
+        <text x="84" y="40" fontSize="6" fontWeight="600" fontFamily="system-ui" fill="#1e40af">Design</text>
+        <text x="84" y="48" fontSize="4" fontFamily="system-ui" fill="#6b7280">Wireframes</text>
+        {/* Arrow B→C */}
+        <path d="M122 38 L140 38" stroke="#64748b" strokeWidth="1" strokeLinecap="round" />
+        <path d="M137 36 L141 38 L137 40" fill="#64748b" stroke="#64748b" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="122" cy="38" r="2" fill="rgba(59,130,246,0.2)" stroke="#3b82f6" strokeWidth="0.6" />
+        <circle cx="140" cy="38" r="2" fill="rgba(139,92,246,0.2)" stroke="#8b5cf6" strokeWidth="0.6" />
+        {/* Card C */}
+        <rect x="108" y="24" width="48" height="28" rx="4" fill="rgba(139,92,246,0.05)" stroke="#8b5cf6" strokeWidth="0.8" />
+        <text x="118" y="40" fontSize="6" fontWeight="600" fontFamily="system-ui" fill="#5b21b6">Build</text>
+        <text x="118" y="48" fontSize="4" fontFamily="system-ui" fill="#6b7280">Develop</text>
+        {/* Arrow cursor dragging */}
+        <path d="M70 68 L70 80 L74 76 L78 84 L80 83 L76 75 L80 72Z" fill="#1e293b" />
+        {/* Drag line preview */}
+        <path d="M78 80 L92 60" stroke="#22c55e" strokeWidth="0.8" strokeLinecap="round" strokeDasharray="3 2" />
       </svg>
     ),
   },
   {
     num: '05',
-    title: 'Organize',
-    desc: 'Arrange your ideas on the infinite canvas. Group related concepts and create visual flow.',
-    color: '#f59e0b',
-    illustration: (
-      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
-        <rect x="6" y="8" width="18" height="12" rx="1.5" stroke="#f59e0b" strokeWidth="0.8" fill="rgba(245,158,11,0.05)" />
-        <rect x="40" y="8" width="18" height="12" rx="1.5" stroke="#f59e0b" strokeWidth="0.8" fill="rgba(245,158,11,0.05)" />
-        <rect x="22" y="30" width="20" height="12" rx="1.5" stroke="#f59e0b" strokeWidth="0.8" fill="rgba(245,158,11,0.05)" />
-        <rect x="6" y="46" width="16" height="10" rx="1.5" stroke="#f59e0b" strokeWidth="0.8" fill="rgba(245,158,11,0.05)" />
-        <rect x="42" y="46" width="16" height="10" rx="1.5" stroke="#f59e0b" strokeWidth="0.8" fill="rgba(245,158,11,0.05)" />
-        <path d="M15 20v4l17 8M49 20v4L32 30" stroke="#f59e0b" strokeWidth="0.6" strokeLinecap="round" strokeDasharray="3 3" />
-      </svg>
-    ),
-  },
-  {
-    num: '06',
     title: 'Export',
-    desc: 'Take your work wherever you need it. Download as PNG, JPG, PDF, or share a JSON to continue later.',
+    desc: 'Download your board as PNG, JPG, PDF, or share a JSON file.',
     color: '#ec4899',
     illustration: (
-      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
-        <rect x="8" y="8" width="28" height="48" rx="3" stroke="#ec4899" strokeWidth="0.8" fill="rgba(236,72,153,0.04)" />
-        <rect x="12" y="14" width="20" height="10" rx="1.5" fill="rgba(236,72,153,0.06)" stroke="#ec4899" strokeWidth="0.6" />
-        <rect x="12" y="28" width="20" height="5" rx="1" fill="rgba(236,72,153,0.04)" />
-        <rect x="12" y="38" width="14" height="5" rx="1" fill="rgba(236,72,153,0.04)" />
-        <path d="M44 24 L52 24" stroke="#ec4899" strokeWidth="0.8" strokeLinecap="round" />
-        <path d="M49 21 L54 24 L49 27" fill="none" stroke="#ec4899" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round" />
-        <rect x="44" y="32" width="14" height="10" rx="2" fill="rgba(236,72,153,0.06)" stroke="#ec4899" strokeWidth="0.6" />
-        <text x="51" y="40" textAnchor="middle" fontSize="4" fontWeight="500" fontFamily="system-ui" fill="#ec4899">PNG</text>
-        <rect x="44" y="46" width="14" height="10" rx="2" fill="rgba(236,72,153,0.04)" stroke="#ec4899" strokeWidth="0.5" />
-        <text x="51" y="54" textAnchor="middle" fontSize="4" fontWeight="500" fontFamily="system-ui" fill="#ec4899">PDF</text>
+      <svg viewBox="0 0 160 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-workflow-illust" aria-hidden="true">
+        {[0,16,32,48,64,80,96,112,128,144,160].map(x => [0,16,32,48,64,80,96].map(y => <circle key={`${x}-${y}`} cx={x} cy={y} r="0.5" fill="#d1d5db" />)).flat()}
+        {/* Board preview */}
+        <rect x="8" y="8" width="80" height="52" rx="4" fill="rgba(255,255,255,0.85)" stroke="#e5e7eb" strokeWidth="0.6" />
+        {/* Mini shapes on board */}
+        <rect x="14" y="14" width="28" height="16" rx="2" fill="rgba(59,130,246,0.08)" stroke="#3b82f6" strokeWidth="0.6" />
+        <text x="28" y="24" textAnchor="middle" fontSize="4" fontFamily="system-ui" fill="#1e40af">Card</text>
+        <circle cx="62" cy="22" r="10" fill="rgba(139,92,246,0.06)" stroke="#8b5cf6" strokeWidth="0.6" />
+        <text x="62" y="24" textAnchor="middle" fontSize="4" fontFamily="system-ui" fill="#5b21b6">Node</text>
+        <path d="M42 22 L52 22" stroke="#64748b" strokeWidth="0.5" strokeLinecap="round" />
+        <path d="M50 21 L53 22 L50 23" fill="#64748b" />
+        <rect x="14" y="38" width="22" height="14" rx="2" fill="rgba(34,197,94,0.06)" stroke="#22c55e" strokeWidth="0.5" />
+        <rect x="42" y="38" width="18" height="14" rx="2" fill="rgba(245,158,11,0.06)" stroke="#f59e0b" strokeWidth="0.5" />
+        <rect x="66" y="38" width="16" height="14" rx="2" fill="rgba(236,72,153,0.06)" stroke="#ec4899" strokeWidth="0.5" />
+        {/* Export menu */}
+        <rect x="96" y="12" width="56" height="76" rx="6" fill="rgba(255,255,255,0.95)" stroke="#e5e7eb" strokeWidth="0.8" />
+        <text x="104" y="26" fontSize="6" fontWeight="700" fontFamily="system-ui" fill="#374151">Export</text>
+        {/* Export options */}
+        <rect x="102" y="32" width="44" height="14" rx="3" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" strokeWidth="0.6" />
+        <text x="110" y="42" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#1e40af">PNG</text>
+        <text x="130" y="42" fontSize="4" fontFamily="system-ui" fill="#6b7280">Image</text>
+        <rect x="102" y="50" width="44" height="14" rx="3" fill="rgba(139,92,246,0.04)" stroke="#d1d5db" strokeWidth="0.5" />
+        <text x="110" y="60" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#5b21b6">PDF</text>
+        <text x="130" y="60" fontSize="4" fontFamily="system-ui" fill="#6b7280">Document</text>
+        <rect x="102" y="68" width="44" height="14" rx="3" fill="rgba(34,197,94,0.04)" stroke="#d1d5db" strokeWidth="0.5" />
+        <text x="110" y="78" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#166534">JSON</text>
+        <text x="130" y="78" fontSize="4" fontFamily="system-ui" fill="#6b7280">Save</text>
+        {/* Cursor clicking PNG */}
+        <path d="M138 38 L138 48 L141 46 L144 50 L145.5 49.5 L142.5 45.5 L145.5 44Z" fill="#1e293b" />
+        {/* Click ring */}
+        <circle cx="144" cy="48" r="4" fill="none" stroke="#ec4899" strokeWidth="0.8" opacity="0.5" />
       </svg>
     ),
   },

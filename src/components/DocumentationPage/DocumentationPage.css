@@ -3590,22 +3590,24 @@ html[data-theme='dark'] .doc-workflow-step {
   font-variant-numeric: tabular-nums;
 }
 .doc-workflow-illust-wrap {
-  width: 56px;
-  height: 56px;
+  width: 100%;
+  max-width: 200px;
+  height: 80px;
   margin: 0 auto 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: color-mix(in srgb, var(--wf-color) 7%, transparent);
-  border-radius: 14px;
+  background: color-mix(in srgb, var(--wf-color) 5%, transparent);
+  border-radius: 10px;
   box-shadow: inset 0 1px 2px rgba(39, 45, 70, .04);
+  overflow: hidden;
 }
 html[data-theme='dark'] .doc-workflow-illust-wrap {
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
 }
 .doc-workflow-illust {
-  width: 42px;
-  height: 42px;
+  width: 100%;
+  height: 100%;
 }
 .doc-workflow-heading {
   font-size: 0.92rem;
@@ -3651,13 +3653,13 @@ html[data-theme='dark'] .doc-workflow-illust-wrap {
   }
   .doc-workflow-illust-wrap {
     flex-shrink: 0;
-    width: 48px;
-    height: 48px;
+    width: 80px;
+    height: 52px;
     margin: 0;
   }
   .doc-workflow-illust {
-    width: 36px;
-    height: 36px;
+    width: 100%;
+    height: 100%;
   }
   .doc-workflow-num {
     margin-bottom: 0;
