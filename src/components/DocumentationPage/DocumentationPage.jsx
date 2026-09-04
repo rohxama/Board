@@ -1467,6 +1467,174 @@ export default function DocumentationPage() {
             </div>
           </section>
 
+          <section id="connectors" className="doc-section">
+            <h2 className="doc-section-title"><NavIcon name="arrow" /> Arrows & Connectors</h2>
+
+            <div className="doc-editorial doc-editorial--reversed">
+              <div className="doc-editorial-visual">
+                <div className="doc-connectors-showcase">
+                  <div className="doc-connectors-canvas">
+                    <svg viewBox="0 0 640 420" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }} aria-hidden="true">
+                      {/* Canvas dot grid */}
+                      {[0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640].map(x => (
+                        [0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420].map(y => (
+                          <circle key={`${x}-${y}`} cx={x} cy={y} r="0.6" fill="var(--dot)" />
+                        ))
+                      )).flat()}
+
+                      {/* ── Top row: Kanban-style cards ── */}
+                      {/* Card: Backlog */}
+                      <rect x="40" y="30" width="150" height="90" rx="8" fill="rgba(156,163,175,0.04)" stroke="#9ca3af" strokeWidth="1.5" />
+                      <text x="56" y="54" fontSize="9" fontWeight="700" fontFamily="system-ui" fill="#374151">Backlog</text>
+                      <path d="M56 64 C58 62, 130 63, 136 64" stroke="#d1d5db" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                      <path d="M56 76 C58 74, 110 75, 118 76" stroke="#e5e7eb" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+                      <path d="M56 86 C58 84, 96 85, 104 86" stroke="#e5e7eb" strokeWidth="1" strokeLinecap="round" fill="none" />
+                      <rect x="56" y="98" width="36" height="14" rx="4" fill="rgba(156,163,175,0.1)" stroke="#d1d5db" strokeWidth="0.6" />
+                      <text x="74" y="108" textAnchor="middle" fontSize="6" fontWeight="500" fontFamily="system-ui" fill="#6b7280">3 tasks</text>
+
+                      {/* Card: In Progress (selected) */}
+                      <rect x="210" y="30" width="150" height="90" rx="8" fill="rgba(59,130,246,0.04)" stroke="#3b82f6" strokeWidth="1.5" />
+                      <text x="226" y="54" fontSize="9" fontWeight="700" fontFamily="system-ui" fill="#1e40af">In Progress</text>
+                      <path d="M226 64 C228 62, 310 63, 316 64" stroke="#93c5fd" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                      <path d="M226 76 C228 74, 290 75, 298 76" stroke="#bfdbfe" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+                      <rect x="226" y="86" width="56" height="16" rx="4" fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.6" />
+                      <text x="254" y="97" textAnchor="middle" fontSize="6.5" fontWeight="600" fontFamily="system-ui" fill="#1e40af">Active</text>
+                      {/* Selection handles */}
+                      <rect x="206" y="26" width="7" height="7" rx="2" fill="#3b82f6" />
+                      <rect x="356" y="26" width="7" height="7" rx="2" fill="#3b82f6" />
+                      <rect x="206" y="116" width="7" height="7" rx="2" fill="#3b82f6" />
+                      <rect x="356" y="116" width="7" height="7" rx="2" fill="#3b82f6" />
+                      <rect x="206" y="26" width="157" height="97" rx="10" fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="4 2" />
+                      {/* Active label */}
+                      <rect x="280" y="18" width="42" height="14" rx="4" fill="#3b82f6" />
+                      <text x="301" y="28" textAnchor="middle" fontSize="6.5" fontWeight="600" fontFamily="system-ui" fill="white">Active</text>
+
+                      {/* Card: Review */}
+                      <rect x="380" y="30" width="150" height="90" rx="8" fill="rgba(139,92,246,0.04)" stroke="#8b5cf6" strokeWidth="1.5" />
+                      <text x="396" y="54" fontSize="9" fontWeight="700" fontFamily="system-ui" fill="#5b21b6">Review</text>
+                      <path d="M396 64 C398 62, 470 63, 476 64" stroke="#c4b5fd" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                      <path d="M396 76 C398 74, 450 75, 458 76" stroke="#ddd6fe" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+                      <rect x="396" y="86" width="44" height="14" rx="4" fill="#ede9fe" stroke="#8b5cf6" strokeWidth="0.6" />
+                      <text x="418" y="96" textAnchor="middle" fontSize="6" fontWeight="500" fontFamily="system-ui" fill="#5b21b6">2 PRs</text>
+
+                      {/* Card: Done */}
+                      <rect x="550" y="30" width="80" height="90" rx="8" fill="rgba(34,197,94,0.04)" stroke="#22c55e" strokeWidth="1.5" />
+                      <text x="566" y="54" fontSize="9" fontWeight="700" fontFamily="system-ui" fill="#166534">Done</text>
+                      <path d="M566 64 C568 62, 610 63, 614 64" stroke="#86efac" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                      <path d="M566 76 C568 74, 600 75, 606 76" stroke="#bbf7d0" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+
+                      {/* ── Arrow connectors between cards ── */}
+                      {/* Backlog → In Progress */}
+                      <path d="M190 75 L210 75" stroke="#64748b" strokeWidth="1.8" strokeLinecap="round" />
+                      <path d="M205 71 L212 75 L205 79" fill="#64748b" stroke="#64748b" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round" />
+                      {/* Snap dots */}
+                      <circle cx="190" cy="75" r="3" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" strokeWidth="1" />
+                      <circle cx="210" cy="75" r="3" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" strokeWidth="1" />
+
+                      {/* In Progress → Review */}
+                      <path d="M360 75 L380 75" stroke="#64748b" strokeWidth="1.8" strokeLinecap="round" />
+                      <path d="M375 71 L382 75 L375 79" fill="#64748b" stroke="#64748b" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round" />
+                      <circle cx="360" cy="75" r="3" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" strokeWidth="1" />
+                      <circle cx="380" cy="75" r="3" fill="rgba(139,92,246,0.15)" stroke="#8b5cf6" strokeWidth="1" />
+
+                      {/* Review → Done */}
+                      <path d="M530 75 L550 75" stroke="#64748b" strokeWidth="1.8" strokeLinecap="round" />
+                      <path d="M545 71 L552 75 L545 79" fill="#64748b" stroke="#64748b" strokeWidth="0.8" strokeLinecap="round" strokeLinejoin="round" />
+                      <circle cx="530" cy="75" r="3" fill="rgba(139,92,246,0.15)" stroke="#8b5cf6" strokeWidth="1" />
+                      <circle cx="550" cy="75" r="3" fill="rgba(34,197,94,0.15)" stroke="#22c55e" strokeWidth="1" />
+
+                      {/* ── Middle: Feature tree ── */}
+                      {/* Root node */}
+                      <rect x="240" y="160" width="160" height="56" rx="10" fill="rgba(59,130,246,0.05)" stroke="#3b82f6" strokeWidth="1.8" />
+                      <text x="260" y="184" fontSize="10" fontWeight="700" fontFamily="system-ui" fill="#1e40af">Feature: Auth</text>
+                      <text x="260" y="200" fontSize="7.5" fontFamily="system-ui" fill="#6b7280">User authentication system</text>
+                      {/* Selection handles on root */}
+                      <rect x="236" y="156" width="7" height="7" rx="2" fill="#3b82f6" />
+                      <rect x="396" y="156" width="7" height="7" rx="2" fill="#3b82f6" />
+                      <rect x="236" y="212" width="7" height="7" rx="2" fill="#3b82f6" />
+                      <rect x="396" y="212" width="7" height="7" rx="2" fill="#3b82f6" />
+                      <rect x="236" y="156" width="167" height="63" rx="12" fill="none" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="4 2" />
+
+                      {/* Child 1: Login */}
+                      <rect x="60" y="280" width="130" height="50" rx="8" fill="rgba(34,197,94,0.04)" stroke="#22c55e" strokeWidth="1.5" />
+                      <text x="76" y="302" fontSize="9" fontWeight="700" fontFamily="system-ui" fill="#166534">Login Page</text>
+                      <text x="76" y="316" fontSize="7" fontFamily="system-ui" fill="#6b7280">Email + password form</text>
+
+                      {/* Child 2: Signup */}
+                      <rect x="220" y="280" width="130" height="50" rx="8" fill="rgba(245,158,11,0.04)" stroke="#f59e0b" strokeWidth="1.5" />
+                      <text x="236" y="302" fontSize="9" fontWeight="700" fontFamily="system-ui" fill="#92400e">Sign Up</text>
+                      <text x="236" y="316" fontSize="7" fontFamily="system-ui" fill="#6b7280">Registration flow</text>
+
+                      {/* Child 3: OAuth */}
+                      <rect x="380" y="280" width="130" height="50" rx="8" fill="rgba(139,92,246,0.04)" stroke="#8b5cf6" strokeWidth="1.5" />
+                      <text x="396" y="302" fontSize="9" fontWeight="700" fontFamily="system-ui" fill="#5b21b6">OAuth</text>
+                      <text x="396" y="316" fontSize="7" fontFamily="system-ui" fill="#6b7280">Google, GitHub SSO</text>
+
+                      {/* Tree connectors — branching from root */}
+                      <path d="M320 216 L320 240 L125 240 L125 280" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                      <path d="M122 275 L125 281 L128 275" fill="#64748b" />
+
+                      <path d="M320 216 L320 280" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                      <path d="M317 275 L320 281 L323 275" fill="#64748b" />
+
+                      <path d="M320 216 L320 240 L515 240 L515 280" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                      <path d="M512 275 L515 281 L518 275" fill="#64748b" />
+
+                      {/* Branch snap points */}
+                      <circle cx="320" cy="240" r="3" fill="rgba(100,116,139,0.15)" stroke="#64748b" strokeWidth="1" />
+                      <circle cx="125" cy="240" r="3" fill="rgba(100,116,139,0.15)" stroke="#64748b" strokeWidth="1" />
+                      <circle cx="515" cy="240" r="3" fill="rgba(100,116,139,0.15)" stroke="#64748b" strokeWidth="1" />
+
+                      {/* ── Right side: Cross-reference arrows ── */}
+                      {/* Dashed reference arrow from Login to Review card */}
+                      <path d="M190 305 C190 260, 396 200, 396 120" stroke="#8b5cf6" strokeWidth="1.2" strokeLinecap="round" fill="none" strokeDasharray="5 3" />
+                      <path d="M393 125 L396 118 L399 125" fill="#8b5cf6" />
+                      <text x="280" y="210" fontSize="6.5" fontWeight="500" fontFamily="system-ui" fill="#8b5cf6" transform="rotate(-32, 280, 210)">depends on</text>
+
+                      {/* Solid reference arrow from OAuth to Done */}
+                      <path d="M510 305 C540 260, 580 200, 590 120" stroke="#22c55e" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+                      <path d="M587 125 L590 118 L593 125" fill="#22c55e" />
+                      <text x="560" y="210" fontSize="6.5" fontWeight="500" fontFamily="system-ui" fill="#22c55e" transform="rotate(-50, 560, 210)">shipped</text>
+
+                      {/* ── Bottom: Annotation area ── */}
+                      {/* Rough highlight circle around Login */}
+                      <path d="M90 268 C94 260, 176 259, 180 268 C184 277, 183 342, 180 350 C176 358, 94 359, 90 350 C86 342, 85 277, 90 268 Z"
+                        stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" fill="none" strokeDasharray="4 3" opacity="0.6" />
+
+                      {/* Arrow annotation */}
+                      <path d="M440 360 L500 360" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" />
+                      <path d="M495 357 L501 360 L495 363" fill="#64748b" />
+                      <text x="440" y="378" fontSize="7" fontWeight="500" fontFamily="system-ui" fill="#6b7280">drag to connect</text>
+
+                      {/* Label: snap hint */}
+                      <rect x="530" y="350" width="80" height="22" rx="4" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" strokeWidth="0.8" />
+                      <text x="570" y="365" textAnchor="middle" fontSize="6.5" fontWeight="500" fontFamily="system-ui" fill="#3b82f6">snaps to edge</text>
+
+                      {/* Cursor dragging */}
+                      <path d="M188 72 L188 88 L194 83 L200 92 L203 90 L197 81 L203 77Z" fill="var(--text)" />
+                    </svg>
+                  </div>
+                  <div className="doc-connectors-label">
+                    <span className="doc-connectors-label-text">Arrows snap to shape edges — drag from any handle to create connections</span>
+                  </div>
+                </div>
+              </div>
+              <div className="doc-editorial-text">
+                <span className="doc-editorial-label">Connect</span>
+                <h3 className="doc-editorial-heading">Link shapes with smart arrows</h3>
+                <ul className="doc-editorial-list">
+                  <li><strong>Press A</strong> or click the arrow tool to start connecting</li>
+                  <li><strong>Drag from a shape edge</strong> — arrows snap to connection points</li>
+                  <li><strong>Drop on another shape</strong> — the arrow stays linked when you move either end</li>
+                  <li><strong>Add labels</strong> — double-click an arrow to type a description</li>
+                  <li><strong>Curved paths</strong> — drag the midpoint to bend an arrow around obstacles</li>
+                  <li><strong>Style arrows</strong> — change color, thickness, and dash style in the panel</li>
+                  <li><strong>Branching trees</strong> — connect one parent to multiple children for org charts and mind maps</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
           <SectionBreak
             description="Move freely across your infinite canvas — zoom in for detail, pan to explore."
             illustration={<ZoomBreakIllustration />}
