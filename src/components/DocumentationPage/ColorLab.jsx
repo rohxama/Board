@@ -1,5 +1,7 @@
-/* Color Lab — rich visual playground for the Styling section.
-   All illustrations use actual Kanvas styling capabilities. */
+/* Color Lab — interactive style property demos for the Styling section.
+   Each demo isolates one property (fill, stroke width, stroke style,
+   opacity, corners, font size) and shows the before/after or range
+   of values so the reader understands the exact visual effect. */
 
 /* Actual Kanvas palette */
 const C = {
@@ -17,7 +19,11 @@ const C = {
   text: 'var(--text)',
 }
 
-/* ─── Section header illustration ──────────────────────────────── */
+/* ─── Section header illustration — shows styled shapes together ──
+   Blue rectangle, green circle, red rounded rect, yellow ellipse,
+   purple arrow, and blue line — all on one board to preview what
+   the Styling section covers. Selection handles on the red rect
+   show it's the active object. */
 export function ColorLabHero() {
   return (
     <svg viewBox="0 0 680 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-colorlab-hero" aria-hidden="true">
@@ -54,7 +60,9 @@ export function ColorLabHero() {
   )
 }
 
-/* ─── Color Swatches ───────────────────────────────────────────── */
+/* ─── Color Swatches — the 6 palette colors available ────────────
+   Shows each color with its name. These are the same swatches the
+   user sees in the Style panel when picking stroke or fill color. */
 export function SwatchDisplay() {
   const swatches = [
     { color: C.black, label: 'Black' },
@@ -77,7 +85,11 @@ export function SwatchDisplay() {
   )
 }
 
-/* ─── Fill Demo ────────────────────────────────────────────────── */
+/* ─── Fill Demo — transparent → red → green → blue ───────────────
+   Shows the action of clicking a fill swatch and the result:
+   the rectangle's background changes from transparent to the
+   selected color. Selection handles on the red fill show the
+   active object. Arrow between swatches shows the progression. */
 export function FillDemo() {
   return (
     <svg viewBox="0 0 520 160" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-colorlab-demo" aria-hidden="true">
@@ -134,7 +146,9 @@ export function FillDemo() {
   )
 }
 
-/* ─── Stroke Width Demo ────────────────────────────────────────── */
+/* ─── Stroke Width Demo — thin (1px) → medium (2px) → thick (4px)
+   Shows the effect of changing stroke width. The "Stacked" example
+   overlays all three widths on one rect so the difference is clear. */
 export function StrokeWidthDemo() {
   return (
     <svg viewBox="0 0 520 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-colorlab-demo" aria-hidden="true">
@@ -169,7 +183,10 @@ export function StrokeWidthDemo() {
   )
 }
 
-/* ─── Stroke Style Demo ────────────────────────────────────────── */
+/* ─── Stroke Style Demo — solid → dashed → dotted ────────────────
+   Shows how changing the stroke style affects both rectangles and
+   lines. The "Lines" column applies the same styles to open paths
+   so the user sees the difference on arrows and connectors too. */
 export function StrokeStyleDemo() {
   return (
     <svg viewBox="0 0 520 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-colorlab-demo" aria-hidden="true">
@@ -207,7 +224,10 @@ export function StrokeStyleDemo() {
   )
 }
 
-/* ─── Opacity Demo ─────────────────────────────────────────────── */
+/* ─── Opacity Demo — 100% → 75% → 50% → 25% ─────────────────────
+   Checkerboard background reveals how opacity lets the canvas show
+   through. The action is dragging the opacity slider; the result is
+   the shape becoming progressively more transparent. */
 export function OpacityDemo() {
   return (
     <svg viewBox="0 0 520 110" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-colorlab-demo" aria-hidden="true">
@@ -249,7 +269,11 @@ export function OpacityDemo() {
   )
 }
 
-/* ─── Corner Style Demo ────────────────────────────────────────── */
+/* ─── Corner Style Demo — sharp (rx=0) → rounded (rx=8) ──────────
+   Shows the action of toggling corner radius and the result: a
+   rectangle goes from sharp 90° corners to soft rounded ones.
+   The overlay compares both styles side-by-side. Only rectangles
+   support this — ellipses and diamonds are always smooth. */
 export function CornerStyleDemo() {
   return (
     <svg viewBox="0 0 520 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-colorlab-demo" aria-hidden="true">
@@ -283,7 +307,11 @@ export function CornerStyleDemo() {
   )
 }
 
-/* ─── Combined Styles Demo ─────────────────────────────────────── */
+/* ─── Combined Styles Demo — empty → fill → stroke → both ────────
+   Row 1: shows the four basic combinations (no style, fill only,
+   stroke only, fill+stroke) so the reader understands what each
+   property adds. Row 2: four realistic presets (Clean, Bold,
+   Note, Soft) that combine multiple properties into a look. */
 export function CombinedStylesDemo() {
   return (
     <svg viewBox="0 0 520 180" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-colorlab-demo" aria-hidden="true">
@@ -361,7 +389,10 @@ export function CombinedStylesDemo() {
   )
 }
 
-/* ─── Font Size Demo ───────────────────────────────────────────── */
+/* ─── Font Size Demo — 12px → 16px → 24px → 32px ─────────────────
+   Shows the action of changing font size on a text object and the
+   result: the text grows from small label size to large heading.
+   The bottom bar shows all available sizes as proportional chips. */
 export function FontSizeDemo() {
   return (
     <svg viewBox="0 0 520 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-colorlab-demo" aria-hidden="true">

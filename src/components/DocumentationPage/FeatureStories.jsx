@@ -1,5 +1,6 @@
 /* Feature story components — visual storytelling diagrams for key docs sections.
-   Each story depicts realistic canvas compositions a user would build in Kanvas. */
+   Each story shows a concrete action → result progression with labeled steps,
+   so the reader understands exactly what to do and what happens. */
 
 const A = {
   green: '#2f855a',
@@ -42,7 +43,11 @@ function FeatureStory({ heading, description, diagram, steps }) {
   )
 }
 
-/* ─── Getting Started: From Idea to Board ────────────────────────── */
+/* ─── Getting Started: empty → shapes → connect → style ──────────
+   Four-step progression: start with a blank dot-grid canvas,
+   add shapes (rectangles, circles, arrows), connect them with
+   arrows to show relationships, then apply colors and styles
+   to produce a polished board. Each arrow labels the action. */
 function GettingStartedDiagram() {
   return (
     <svg viewBox="0 0 520 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-feature-svg" aria-hidden="true">
@@ -103,6 +108,12 @@ function GettingStartedDiagram() {
         <rect x="430" y="16" width="80" height="84" rx="6" fill={A.surface} stroke={A.border} strokeWidth="0.8" />
         <rect x="440" y="26" width="56" height="18" rx="2" fill="rgba(47,133,90,0.08)" stroke={A.green} strokeWidth="1" />
         <text x="468" y="38" textAnchor="middle" fontSize="6" fontWeight="600" fontFamily="system-ui" fill={A.green}>Launch</text>
+        {/* Selection state on Launch rect */}
+        <rect x="436" y="22" width="64" height="26" rx="3" fill="none" stroke={A.accent} strokeWidth="1.5" strokeDasharray="4 2" />
+        <rect x="432" y="18" width="4" height="4" rx="1" fill={A.accent} />
+        <rect x="496" y="18" width="4" height="4" rx="1" fill={A.accent} />
+        <rect x="432" y="44" width="4" height="4" rx="1" fill={A.accent} />
+        <rect x="496" y="44" width="4" height="4" rx="1" fill={A.accent} />
         <path d="M468 46 L468 58" stroke={A.orange} strokeWidth="0.8" strokeLinecap="round" />
         <path d="M465 54 L468 60 L471 54" fill="none" stroke={A.orange} strokeWidth="0.8" strokeLinecap="round" />
         <rect x="444" y="64" width="48" height="24" rx="2" fill="rgba(139,92,246,0.06)" stroke={A.purple} strokeWidth="0.8" />
@@ -113,7 +124,11 @@ function GettingStartedDiagram() {
   )
 }
 
-/* ─── Styling Objects: From Plain to Polished ─────────────────────── */
+/* ─── Styling: plain → color → stroke → polished ─────────────────
+   Four-step progression: start with unstyled gray shapes,
+   add fill colors using the style panel, adjust stroke width
+   and dash style, then combine everything into a finished
+   composition with selection handles showing the final object. */
 function StylingStoryDiagram() {
   return (
     <svg viewBox="0 0 520 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-feature-svg" aria-hidden="true">
@@ -161,6 +176,12 @@ function StylingStoryDiagram() {
         <rect x="436" y="20" width="74" height="84" rx="6" fill={A.surface} stroke={A.border} strokeWidth="0.8" />
         <rect x="446" y="30" width="50" height="24" rx="2" fill="rgba(47,133,90,0.08)" stroke={A.green} strokeWidth="1" />
         <text x="471" y="46" textAnchor="middle" fontSize="6" fontWeight="600" fontFamily="system-ui" fill={A.green}>Styled</text>
+        {/* Selection state on Styled rect */}
+        <rect x="442" y="26" width="58" height="32" rx="3" fill="none" stroke={A.accent} strokeWidth="1.5" strokeDasharray="4 2" />
+        <rect x="438" y="22" width="4" height="4" rx="1" fill={A.accent} />
+        <rect x="496" y="22" width="4" height="4" rx="1" fill={A.accent} />
+        <rect x="438" y="54" width="4" height="4" rx="1" fill={A.accent} />
+        <rect x="496" y="54" width="4" height="4" rx="1" fill={A.accent} />
         <circle cx="471" cy="72" r="12" fill="rgba(139,92,246,0.06)" stroke={A.purple} strokeWidth="1" />
         <text x="471" y="75" textAnchor="middle" fontSize="6" fontWeight="500" fontFamily="system-ui" fill={A.purple}>Look</text>
         <path d="M471 56 L471 58" stroke={A.muted} strokeWidth="0.6" strokeLinecap="round" />
@@ -170,7 +191,11 @@ function StylingStoryDiagram() {
   )
 }
 
-/* ─── Export: From Canvas to File ─────────────────────────────────── */
+/* ─── Export: board → menu → format → file ───────────────────────
+   Four-step progression: start with a board containing shapes
+   and notes, click Export to open the dialog, pick a format
+   (PNG highlighted), then download the file (shown by the
+   download arrow). Each step shows the exact UI the user sees. */
 function ExportStoryDiagram() {
   return (
     <svg viewBox="0 0 520 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-feature-svg" aria-hidden="true">
@@ -238,7 +263,11 @@ function ExportStoryDiagram() {
   )
 }
 
-/* ─── Zoom & Navigation: Explore the Canvas ──────────────────────── */
+/* ─── Navigation: zoom in → pan → fit → overview ────────────────
+   Four-step progression: zoom in to see detail (150% badge),
+   pan to reveal more content, zoom to fit all objects in view
+   (corner brackets show the bounding box), then open the
+   minimap overview to navigate a large board. */
 function NavigationStoryDiagram() {
   return (
     <svg viewBox="0 0 520 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-feature-svg" aria-hidden="true">

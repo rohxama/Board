@@ -1,5 +1,7 @@
 /* Section transition components — chapter openers for major doc sections.
-   Each illustration depicts a mini canvas snapshot showing realistic content. */
+   Each illustration previews what the section teaches: tools show the
+   toolbar-to-canvas flow, zoom shows navigation controls, styling shows
+   shape properties, export shows format options, shortcuts shows key combos. */
 
 import { ToolbarFrag, ZoomFrag } from './KanvasUIFragments'
 

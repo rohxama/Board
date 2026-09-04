@@ -235,6 +235,10 @@ function useHeadingToc(contentRef) {
   return headings
 }
 
+/* Four-step workflow: Think → Choose → Draw → Ship.
+   Each step shows a realistic mini-board illustration so the
+   reader sees the action (what to do) and the result (what
+   the board looks like after doing it). */
 const WORKFLOW_STEPS = [
   {
     num: '01',
@@ -444,6 +448,10 @@ function BackToTop() {
   )
 }
 
+/* Interactive Styling Demo — the user clicks swatches and buttons
+   to change stroke color, fill, width, style, corners, and opacity.
+   The result is immediately visible on the canvas shape. This
+   teaches the action→result loop: pick a property → see the change. */
 function StylingDemo() {
   const [strokeColor, setStrokeColor] = useState('#3b82f6')
   const [fillColor, setFillColor] = useState('transparent')
@@ -589,6 +597,10 @@ function StylingDemo() {
   )
 }
 
+/* Interactive Theme Demo — the user clicks the toggle switch.
+   The action: flip from light to dark. The result: every surface,
+   stroke, and text color updates instantly. Same shapes, new
+   palette. Teaches that theming is global, not per-shape. */
 function ThemeToggleDemo() {
   const [isDark, setIsDark] = useState(false)
 
@@ -635,6 +647,10 @@ function ThemeToggleDemo() {
   )
 }
 
+/* Interactive Zoom Demo — the user scrolls to zoom, clicks and
+   drags to pan. The action: zoom in/out or drag. The result: the
+   canvas scales and shifts, revealing detail or overview. Teaches
+   the two core navigation gestures: scroll-to-zoom, drag-to-pan. */
 function ZoomDemo() {
   const [zoom, setZoom] = useState(100)
   const [pan, setPan] = useState({ x: 0, y: 0 })

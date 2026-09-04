@@ -23,7 +23,12 @@ const A = {
   accentSoft: 'var(--accent-soft)',
 }
 
-/* ─── Getting Started: product planning board ──────────────────── */
+/* ─── Getting Started: plan → draw → connect → annotate ──────────
+   A product roadmap board. Swimlanes organize tasks by timeline
+   (Now / Next). Connected boxes show a research → design → build
+   flow. A dashed arrow marks a blocker. A priority diamond (P0)
+   and status circle (OK) show annotations in action. The "Design"
+   box is selected, demonstrating click-to-edit. */
 export function GettingStartedIllustration() {
   return (
     <svg viewBox="0 0 400 180" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-illustration" aria-hidden="true">
@@ -97,7 +102,12 @@ export function GettingStartedIllustration() {
   )
 }
 
-/* ─── Tools ──────────────────────────────────────────────────────── */
+/* ─── Tools: shows toolbar → canvas action and result ────────────
+   The toolbar on the left lists shape tools. Clicking one (here:
+   Rectangle) activates it. On the canvas, the user draws a shape
+   (the green "Research" box). The selected "Design" box shows the
+   selection handles that appear after clicking a shape. A sticky
+   note and cursor illustrate freeform and pointer modes. */
 export function ToolsIllustration() {
   return (
     <div className="doc-illustration doc-illust-tools" role="presentation" aria-hidden="true">
@@ -106,21 +116,31 @@ export function ToolsIllustration() {
         <svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }}>
           <rect x="0" y="0" width="280" height="120" rx="6" fill="rgba(69,133,209,0.02)" stroke={A.border} strokeWidth="0.5" strokeDasharray="4 3" />
 
+          {/* Action: Rectangle tool selected → draw "Research" box */}
           <rect x="16" y="14" width="68" height="28" rx="3" fill="rgba(47,133,90,0.06)" stroke={A.green} strokeWidth="1" />
           <text x="50" y="32" textAnchor="middle" fontSize="7" fontWeight="500" fontFamily="system-ui" fill={A.green}>Research</text>
+          {/* Annotation: tool → shape */}
+          <path d="M4 8 L16 14" stroke={A.green} strokeWidth="0.6" strokeLinecap="round" strokeDasharray="2 1.5" />
+          <rect x="-2" y="0" width="30" height="10" rx="2" fill="rgba(47,133,90,0.08)" />
+          <text x="13" y="8" textAnchor="middle" fontSize="4" fontFamily="system-ui" fill={A.green}>Rectangle → draw</text>
 
           <path d="M90 28 L114 28" stroke={A.muted} strokeWidth="0.8" strokeLinecap="round" />
           <path d="M110 25 L116 28 L110 31" fill="none" stroke={A.muted} strokeWidth="0.8" strokeLinecap="round" />
 
+          {/* Result: "Design" box — selected state with handles */}
           <rect x="122" y="14" width="68" height="28" rx="3" fill="rgba(69,133,209,0.06)" stroke={A.blue} strokeWidth="1" />
           <text x="156" y="32" textAnchor="middle" fontSize="7" fontWeight="500" fontFamily="system-ui" fill={A.blue}>Design</text>
 
-          {/* Selection state on Design box */}
+          {/* Selection state on Design box — shows click result */}
           <rect x="118" y="10" width="76" height="36" rx="4" fill="none" stroke={A.accent} strokeWidth="1.5" strokeDasharray="4 2" />
           <rect x="114" y="6" width="5" height="5" rx="1" fill={A.accent} />
           <rect x="190" y="6" width="5" height="5" rx="1" fill={A.accent} />
           <rect x="114" y="42" width="5" height="5" rx="1" fill={A.accent} />
           <rect x="190" y="42" width="5" height="5" rx="1" fill={A.accent} />
+          {/* Annotation: click → select */}
+          <path d="M156 52 L156 58" stroke={A.accent} strokeWidth="0.6" strokeLinecap="round" />
+          <rect x="130" y="58" width="52" height="10" rx="2" fill={A.accentSoft} />
+          <text x="156" y="66" textAnchor="middle" fontSize="4" fontFamily="system-ui" fill={A.accent}>Click → selection handles</text>
 
           <path d="M196 28 L220 28" stroke={A.muted} strokeWidth="0.8" strokeLinecap="round" />
           <path d="M216 25 L222 28 L216 31" fill="none" stroke={A.muted} strokeWidth="0.8" strokeLinecap="round" />
@@ -128,16 +148,20 @@ export function ToolsIllustration() {
           <rect x="228" y="14" width="40" height="28" rx="3" fill="rgba(212,148,58,0.06)" stroke={A.orange} strokeWidth="1" />
           <text x="248" y="32" textAnchor="middle" fontSize="7" fontWeight="500" fontFamily="system-ui" fill={A.orange}>Build</text>
 
-          {/* Sticky note */}
+          {/* Sticky note — shows freeform annotation tool */}
           <rect x="16" y="56" width="80" height="36" rx="2" fill="#fefce8" stroke="#eab308" strokeWidth="0.8" />
           <text x="24" y="70" fontSize="6" fontFamily="system-ui" fill="#854d0e">Notes:</text>
           <text x="24" y="82" fontSize="6" fontFamily="system-ui" fill="#854d0e">- Sprint 1 tasks</text>
+          {/* Annotation: pen tool → sticky note */}
+          <path d="M100 72 L96 68" stroke="#eab308" strokeWidth="0.5" strokeLinecap="round" />
+          <rect x="102" y="66" width="32" height="8" rx="2" fill="rgba(234,179,8,0.1)" />
+          <text x="118" y="73" textAnchor="middle" fontSize="3.5" fontFamily="system-ui" fill="#854d0e">Pen → note</text>
 
-          {/* Arrow annotation */}
+          {/* Arrow annotation between shapes — shows connector tool */}
           <path d="M140 56 L176 44" stroke={A.muted} strokeWidth="0.8" strokeLinecap="round" />
           <text x="144" y="62" fontSize="6" fontFamily="system-ui" fill={A.muted}>needs review</text>
 
-          {/* Cursor */}
+          {/* Cursor — pointer mode */}
           <path d="M252 70 L252 82 L256 78 L260 84 L262 83 L258 77 L262 75Z" fill={A.text} />
         </svg>
       </div>
@@ -145,7 +169,11 @@ export function ToolsIllustration() {
   )
 }
 
-/* ─── Styling: dashboard mockup board ──────────────────────────── */
+/* ─── Styling: action → visual result on a dashboard ────────────
+   Selecting a shape (the bar chart, with selection handles) lets
+   you change its fill, stroke, and opacity. The result: a styled
+   dashboard with colored stat cards, a pie chart with legend, a
+   trend line, and an annotation pointing to data that needs review. */
 export function StylingIllustration() {
   return (
     <svg viewBox="0 0 400 160" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-illustration" aria-hidden="true">
@@ -196,11 +224,15 @@ export function StylingIllustration() {
       <rect x="240" y="110" width="6" height="6" rx="1" fill={A.orange} />
       <text x="250" y="116" fontSize="5" fontFamily="system-ui" fill={A.muted}>Referral 25%</text>
 
-      {/* Annotation */}
-      <path d="M330 86 L350 96" stroke={A.red} strokeWidth="0.6" strokeLinecap="round" strokeDasharray="2 2" />
-      <rect x="310" y="86" width="52" height="18" rx="2" fill="#fef3c7" stroke="#f59e0b" strokeWidth="0.5" />
-      <text x="316" y="96" fontSize="5" fontWeight="500" fontFamily="system-ui" fill="#92400e">Check this</text>
-      <text x="316" y="102" fontSize="5" fontFamily="system-ui" fill="#92400e">with finance</text>
+      {/* Annotation: selecting the chart lets you restyle it */}
+      <path d="M96 128 L96 138" stroke={A.accent} strokeWidth="0.6" strokeLinecap="round" />
+      <rect x="60" y="138" width="72" height="10" rx="2" fill={A.accentSoft} />
+      <text x="96" y="146" textAnchor="middle" fontSize="4" fontFamily="system-ui" fill={A.accent}>Select → Style panel → restyle</text>
+
+      {/* Annotation: fill colors make data scannable */}
+      <path d="M268 78 L268 86" stroke={A.muted} strokeWidth="0.5" strokeLinecap="round" />
+      <rect x="238" y="86" width="60" height="8" rx="2" fill="rgba(47,133,90,0.08)" />
+      <text x="268" y="93" textAnchor="middle" fontSize="3.5" fontFamily="system-ui" fill={A.green}>Fill → visual hierarchy</text>
 
       {/* Trend line */}
       <path d="M280 108 L292 100 L304 106 L316 94 L328 98" stroke={A.purple} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
@@ -209,7 +241,10 @@ export function StylingIllustration() {
   )
 }
 
-/* ─── Themes ─────────────────────────────────────────────────────── */
+/* ─── Themes: toggle action → palette result ─────────────────────
+   The same board content (shapes, arrows, sticky note) rendered in
+   light and dark themes side-by-side. Toggling the theme changes
+   every surface, stroke, and text color at once — no manual restyle. */
 export function ThemesIllustration() {
   return (
     <svg viewBox="0 0 400 160" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-illustration" aria-hidden="true">
@@ -249,11 +284,18 @@ export function ThemesIllustration() {
       </g>
 
       <line x1="200" y1="18" x2="200" y2="142" stroke={A.border} strokeWidth="1" strokeDasharray="4 3" />
+      {/* Annotation: toggle → instant palette swap */}
+      <path d="M200 152 L200 158" stroke={A.accent} strokeWidth="0.6" strokeLinecap="round" />
+      <rect x="168" y="158" width="64" height="10" rx="2" fill={A.accentSoft} />
+      <text x="200" y="166" textAnchor="middle" fontSize="4" fontFamily="system-ui" fill={A.accent}>Toggle → same shapes, new palette</text>
     </svg>
   )
 }
 
-/* ─── Export ──────────────────────────────────────────────────────── */
+/* ─── Export: click action → download result ─────────────────────
+   A flowchart on the canvas. The user clicks "Export" (shown by
+   the arrow), picks PNG from the dialog, and gets a downloadable
+   file. The selection handles on "Start" show the board is live. */
 export function ExportIllustration() {
   return (
     <svg viewBox="0 0 400 160" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-illustration" aria-hidden="true">
@@ -287,6 +329,9 @@ export function ExportIllustration() {
       <rect x="218" y="22" width="150" height="22" rx="6" fill={A.accentSoft} />
       <text x="293" y="37" textAnchor="middle" fontSize="8" fontWeight="600" fontFamily="system-ui" fill={A.accent}>Export board</text>
 
+      {/* Annotation: click Export → pick format → download */}
+      <rect x="230" y="116" width="130" height="10" rx="2" fill={A.accentSoft} />
+      <text x="295" y="124" textAnchor="middle" fontSize="4" fontFamily="system-ui" fill={A.accent}>Click Export → choose format → download</text>
       <rect x="230" y="52" width="60" height="24" rx="4" fill={A.accentSoft} stroke={A.accent} strokeWidth="1" />
       <text x="260" y="68" textAnchor="middle" fontSize="8" fontWeight="600" fontFamily="system-ui" fill={A.accent}>PNG</text>
       <rect x="298" y="52" width="60" height="24" rx="4" fill={A.surface} stroke={A.border} strokeWidth="0.8" />
@@ -299,7 +344,11 @@ export function ExportIllustration() {
   )
 }
 
-/* ─── Tips: scattered sticky notes board ───────────────────────── */
+/* ─── Tips: drag-and-annotate action → organized board ──────────
+   Sticky notes are dragged into columns (Went Well / To Improve /
+   Action Items) and slightly rotated for a hand-placed feel.
+   Connecting related items with arrows and grouping by category
+   turns scattered thoughts into an organized retrospective. */
 export function TipsIllustration() {
   return (
     <svg viewBox="0 0 400 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-illustration" aria-hidden="true">
@@ -366,13 +415,11 @@ export function TipsIllustration() {
   )
 }
 
-/* ─── FAQ: realistic help-center board ────────────────────────────
-   Depicts a Kanvas board organized as a help-center knowledge base.
-   Three color-coded category columns (Getting Started / Features /
-   Troubleshooting) each contain sticky notes with Q&A pairs. A dashed
-   connection arrow links related items across columns. One note shows
-   the selection state (dashed border + corner handles). A bottom row
-   of compact "popular questions" tags rounds out the layout. */
+/* ─── FAQ: organize questions → searchable board ────────────────
+   Sticky notes are grouped into category columns (Getting Started /
+   Features / Troubleshooting). Clicking one shows its selection
+   handles. Related items are linked with dashed arrows. Popular
+   questions appear as compact tags at the bottom for quick access. */
 export function FAQIllustration() {
   return (
     <svg viewBox="0 0 400 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-illustration" aria-hidden="true">
