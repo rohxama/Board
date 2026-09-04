@@ -162,7 +162,7 @@ export function ToolsIllustration() {
           <text x="144" y="62" fontSize="6" fontFamily="system-ui" fill={A.muted}>needs review</text>
 
           {/* Cursor — pointer mode */}
-          <path d="M252 70 L252 82 L256 78 L260 84 L262 83 L258 77 L262 75Z" fill={A.text} />
+          <path className="doc-demo-cursor" d="M252 70 L252 82 L256 78 L260 84 L262 83 L258 77 L262 75Z" fill={A.text} />
         </svg>
       </div>
     </div>

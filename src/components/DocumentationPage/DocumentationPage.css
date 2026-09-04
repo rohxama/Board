@@ -2473,6 +2473,26 @@ html[data-theme='dark'] .doc-colorlab-demo {
   max-width: 540px;
 }
 
+/* ─── Cursor animation ─────────────────────────────────────────── */
+@keyframes docCursorDrift {
+  0%, 100% { transform: translate(0, 0); }
+  25%      { transform: translate(1.5px, -1px); }
+  50%      { transform: translate(-0.5px, 1.5px); }
+  75%      { transform: translate(1px, 0.5px); }
+}
+.doc-demo-cursor {
+  animation: docCursorDrift 6s ease-in-out infinite;
+  will-change: transform;
+}
+.doc-demo-cursor--pencil {
+  animation-duration: 8s;
+  animation-delay: -2s;
+}
+.doc-demo-cursor--hover {
+  animation-duration: 5s;
+  animation-delay: -1s;
+}
+
 /* ─── Before & After demo ───────────────────────────────────────── */
 .doc-beforeafter-wrap {
   border: 1px solid var(--card-border);

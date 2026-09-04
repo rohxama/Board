@@ -1155,7 +1155,7 @@ export default function DocumentationPage() {
                   <rect x="288" y="234" width="6" height="6" rx="1.5" fill="var(--accent)" />
 
                   {/* Cursor */}
-                  <path d="M468 260 L468 276 L473 272 L478 280 L480 279 L475 271 L480 268Z" fill="var(--text)" />
+                  <path className="doc-demo-cursor" d="M468 260 L468 276 L473 272 L478 280 L480 279 L475 271 L480 268Z" fill="var(--text)" />
                 </svg>
               </div>
               <div className="doc-tool-showcase-panel">
@@ -1294,8 +1294,8 @@ export default function DocumentationPage() {
                   <text x="440" y="380" fontSize="14" fontWeight="800" fontFamily="system-ui" fill="var(--text)">Product Roadmap Q4</text>
                   <text x="440" y="398" fontSize="8" fontFamily="system-ui" fill="#9ca3af">Key milestones and deliverables</text>
 
-                  {/* Cursor pointer */}
-                  <path d="M380 370 L380 390 L387 384 L394 396 L397 394 L390 382 L397 378Z" fill="var(--text)" />
+                      {/* Cursor pointer */}
+                      <path className="doc-demo-cursor" d="M380 370 L380 390 L387 384 L394 396 L397 394 L390 382 L397 378Z" fill="var(--text)" />
                 </svg>
               </div>
               <div className="doc-shapes-label">
@@ -1439,9 +1439,11 @@ export default function DocumentationPage() {
                       <path d="M320 350 C322 348, 360 347, 364 350" stroke="#d1d5db" strokeWidth="1.2" strokeLinecap="round" fill="none" />
 
                       {/* Pencil cursor */}
-                      <path d="M520 340 L530 310 L534 312 L524 342 Z" fill="#374151" stroke="#374151" strokeWidth="1" strokeLinejoin="round" />
-                      <path d="M520 340 L518 348 L524 342 Z" fill="#f59e0b" />
-                      <path d="M530 310 L532 306 L536 308 L534 312 Z" fill="#9ca3af" />
+                      <g className="doc-demo-cursor doc-demo-cursor--pencil">
+                        <path d="M520 340 L530 310 L534 312 L524 342 Z" fill="#374151" stroke="#374151" strokeWidth="1" strokeLinejoin="round" />
+                        <path d="M520 340 L518 348 L524 342 Z" fill="#f59e0b" />
+                        <path d="M530 310 L532 306 L536 308 L534 312 Z" fill="#9ca3af" />
+                      </g>
 
                       {/* Pencil trail */}
                       <path d="M524 342 C520 350, 510 358, 498 362 C486 366, 470 364, 460 358"
@@ -1612,7 +1614,7 @@ export default function DocumentationPage() {
                       <text x="570" y="365" textAnchor="middle" fontSize="6.5" fontWeight="500" fontFamily="system-ui" fill="#3b82f6">snaps to edge</text>
 
                       {/* Cursor dragging */}
-                      <path d="M188 72 L188 88 L194 83 L200 92 L203 90 L197 81 L203 77Z" fill="var(--text)" />
+                      <path className="doc-demo-cursor" d="M188 72 L188 88 L194 83 L200 92 L203 90 L197 81 L203 77Z" fill="var(--text)" />
                     </svg>
                   </div>
                   <div className="doc-connectors-label">
@@ -1896,9 +1898,11 @@ export default function DocumentationPage() {
                       <path d="M579 336 L591 336" stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" />
 
                       {/* Cursor hovering over drop zone */}
-                      <path d="M562 348 L562 364 L568 359 L574 368 L577 366 L571 357 L577 353Z" fill="var(--text)" />
-                      {/* Drag ghost */}
-                      <rect x="558" y="344" width="30" height="22" rx="3" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" strokeWidth="1" strokeDasharray="3 2" opacity="0.6" />
+                      <g className="doc-demo-cursor doc-demo-cursor--hover">
+                        <path d="M562 348 L562 364 L568 359 L574 368 L577 366 L571 357 L577 353Z" fill="var(--text)" />
+                        {/* Drag ghost */}
+                        <rect x="558" y="344" width="30" height="22" rx="3" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" strokeWidth="1" strokeDasharray="3 2" opacity="0.6" />
+                      </g>
                     </svg>
                   </div>
                   <div className="doc-images-label">
