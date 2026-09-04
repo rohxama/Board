@@ -1090,11 +1090,13 @@ export default function DocumentationPage() {
               <div className="doc-tool-showcase-canvas">
                 <svg viewBox="0 0 640 320" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }} aria-hidden="true">
                   {/* Canvas dot grid */}
-                  {[0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640].map(x => (
-                    [0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320].map(y => (
-                      <circle key={`${x}-${y}`} cx={x} cy={y} r="0.8" fill="var(--dot)" />
-                    ))
-                  )).flat()}
+                  <g className="doc-parallax-grid">
+                    {[0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640].map(x => (
+                      [0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320].map(y => (
+                        <circle key={`${x}-${y}`} cx={x} cy={y} r="0.8" fill="var(--dot)" />
+                      ))
+                    )).flat()}
+                  </g>
 
                   {/* Rectangle tool — product planning cards */}
                   <rect x="40" y="30" width="140" height="80" rx="8" fill="rgba(47,133,90,0.05)" stroke="#22c55e" strokeWidth="1.5" />
@@ -1182,11 +1184,13 @@ export default function DocumentationPage() {
               <div className="doc-shapes-canvas">
                 <svg viewBox="0 0 720 420" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }} aria-hidden="true">
                   {/* Canvas dot grid */}
-                  {[0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640,660,680,700,720].map(x => (
-                    [0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420].map(y => (
-                      <circle key={`${x}-${y}`} cx={x} cy={y} r="0.7" fill="var(--dot)" />
-                    ))
-                  )).flat()}
+                  <g className="doc-parallax-grid">
+                    {[0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640,660,680,700,720].map(x => (
+                      [0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420].map(y => (
+                        <circle key={`${x}-${y}`} cx={x} cy={y} r="0.7" fill="var(--dot)" />
+                      ))
+                    )).flat()}
+                  </g>
 
                   {/* ── Row 1: Product roadmap cards ── */}
                   {/* Rectangle — large card */}
@@ -1347,11 +1351,13 @@ export default function DocumentationPage() {
                   <div className="doc-drawing-canvas">
                     <svg viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }} aria-hidden="true">
                       {/* Canvas dot grid */}
-                      {[0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600].map(x => (
-                        [0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400].map(y => (
-                          <circle key={`${x}-${y}`} cx={x} cy={y} r="0.6" fill="var(--dot)" />
-                        ))
-                      )).flat()}
+                      <g className="doc-parallax-grid">
+                        {[0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600].map(x => (
+                          [0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400].map(y => (
+                            <circle key={`${x}-${y}`} cx={x} cy={y} r="0.6" fill="var(--dot)" />
+                          ))
+                        )).flat()}
+                      </g>
 
                       {/* ── Rough wireframe sketch — hand-drawn look ── */}
                       {/* Phone outline — wobbly rectangle */}
