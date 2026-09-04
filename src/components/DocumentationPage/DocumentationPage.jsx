@@ -250,6 +250,33 @@ function useHeadingToc(contentRef) {
   return headings
 }
 
+/* Action demo: shows a realistic canvas action with before/after.
+   Used for important instructions that benefit from visual proof. */
+function ActionDemo({ action, result, label }) {
+  return (
+    <div className="doc-action-demo">
+      <div className="doc-action-demo-step">
+        <span className="doc-action-demo-badge">{action.badge}</span>
+        <div className="doc-action-demo-canvas">
+          {action.canvas}
+        </div>
+        <p className="doc-action-demo-caption">{action.caption}</p>
+      </div>
+      <div className="doc-action-demo-arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </div>
+      <div className="doc-action-demo-step">
+        <span className="doc-action-demo-badge doc-action-demo-badge--result">{result.badge}</span>
+        <div className="doc-action-demo-canvas">
+          {result.canvas}
+        </div>
+        <p className="doc-action-demo-caption">{result.caption}</p>
+      </div>
+      {label && <span className="doc-action-demo-label">{label}</span>}
+    </div>
+  )
+}
+
 /* Four-step workflow: Think → Choose → Draw → Ship.
    Each step shows a realistic mini-board illustration so the
    reader sees the action (what to do) and the result (what
@@ -1126,6 +1153,51 @@ export default function DocumentationPage() {
                 </ol>
               </div>
             </div>
+
+            <ActionDemo
+              label="Draw your first rectangle"
+              action={{
+                badge: 'Action',
+                caption: 'Select Rectangle tool, click and drag on canvas',
+                canvas: (
+                  <svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    {[0,14,28,42,56,70,84,98,112,126,140,154,168,182,196,210,224,238,252,266,280].map(x => [0,14,28,42,56,70,84,98,112,126,140].map(y => <circle key={`${x}-${y}`} cx={x} cy={y} r="0.5" fill="#d1d5db" />)).flat()}
+                    {/* Toolbar */}
+                    <rect x="4" y="4" width="16" height="80" rx="3" fill="rgba(255,255,255,0.85)" stroke="#e5e7eb" strokeWidth="0.5" />
+                    <rect x="7" y="8" width="10" height="8" rx="1.5" fill="rgba(59,130,246,0.12)" stroke="#3b82f6" strokeWidth="0.6" />
+                    {/* Rectangle being drawn — dashed outline */}
+                    <rect x="40" y="24" width="100" height="60" rx="4" fill="none" stroke="#3b82f6" strokeWidth="1" strokeDasharray="4 2" />
+                    {/* Cursor at corner */}
+                    <path d="M142 86 L142 96 L146 93 L150 100 L152 99 L148 92 L152 89Z" fill="#1e293b" />
+                    {/* Size indicator */}
+                    <text x="90" y="100" textAnchor="middle" fontSize="6" fontFamily="system-ui" fill="#3b82f6">100 × 60</text>
+                  </svg>
+                ),
+              }}
+              result={{
+                badge: 'Result',
+                caption: 'Shape appears with default style, ready to edit',
+                canvas: (
+                  <svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    {[0,14,28,42,56,70,84,98,112,126,140,154,168,182,196,210,224,238,252,266,280].map(x => [0,14,28,42,56,70,84,98,112,126,140].map(y => <circle key={`${x}-${y}`} cx={x} cy={y} r="0.5" fill="#d1d5db" />)).flat()}
+                    {/* Rectangle — created */}
+                    <rect x="40" y="24" width="100" height="60" rx="6" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" strokeWidth="1.2" />
+                    <text x="90" y="52" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill="#1e40af">My Shape</text>
+                    <text x="90" y="64" textAnchor="middle" fontSize="5" fontFamily="system-ui" fill="#6b7280">Click to select</text>
+                    {/* Selection handles */}
+                    <rect x="36" y="20" width="5" height="5" rx="1" fill="#3b82f6" />
+                    <rect x="139" y="20" width="5" height="5" rx="1" fill="#3b82f6" />
+                    <rect x="36" y="79" width="5" height="5" rx="1" fill="#3b82f6" />
+                    <rect x="139" y="79" width="5" height="5" rx="1" fill="#3b82f6" />
+                    <rect x="36" y="20" width="108" height="64" rx="8" fill="none" stroke="#3b82f6" strokeWidth="1" strokeDasharray="4 2" />
+                    {/* Select tool active */}
+                    <rect x="4" y="4" width="16" height="80" rx="3" fill="rgba(255,255,255,0.85)" stroke="#e5e7eb" strokeWidth="0.5" />
+                    <rect x="7" y="8" width="10" height="8" rx="1.5" fill="rgba(34,197,94,0.1)" stroke="#22c55e" strokeWidth="0.6" />
+                    <path d="M10 10 L10 15 L13 13" fill="none" stroke="#22c55e" strokeWidth="0.6" strokeLinecap="round" />
+                  </svg>
+                ),
+              }}
+            />
           </section>
 
           <WorkflowSection />
@@ -1650,6 +1722,71 @@ export default function DocumentationPage() {
               </div>
             </div>
 
+            <ActionDemo
+              label="Apply a fill color"
+              action={{
+                badge: 'Action',
+                caption: 'Select shape, open Style panel, click a fill swatch',
+                canvas: (
+                  <svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    {[0,14,28,42,56,70,84,98,112,126,140,154,168,182,196,210,224,238,252,266,280].map(x => [0,14,28,42,56,70,84,98,112,126,140].map(y => <circle key={`${x}-${y}`} cx={x} cy={y} r="0.5" fill="#d1d5db" />)).flat()}
+                    {/* Shape selected */}
+                    <rect x="40" y="20" width="100" height="60" rx="6" fill="none" stroke="#d1d5db" strokeWidth="1.2" />
+                    <rect x="36" y="16" width="5" height="5" rx="1" fill="#3b82f6" />
+                    <rect x="139" y="16" width="5" height="5" rx="1" fill="#3b82f6" />
+                    <rect x="36" y="79" width="5" height="5" rx="1" fill="#3b82f6" />
+                    <rect x="139" y="79" width="5" height="5" rx="1" fill="#3b82f6" />
+                    <rect x="36" y="16" width="108" height="68" rx="8" fill="none" stroke="#3b82f6" strokeWidth="1" strokeDasharray="4 2" />
+                    {/* Style panel */}
+                    <rect x="160" y="8" width="112" height="100" rx="6" fill="rgba(255,255,255,0.85)" stroke="#e5e7eb" strokeWidth="0.5" />
+                    <text x="168" y="22" fontSize="6" fontWeight="600" fontFamily="system-ui" fill="#374151">Style</text>
+                    {/* Fill swatches */}
+                    <rect x="168" y="30" width="12" height="12" rx="2" fill="none" stroke="#e5e7eb" strokeWidth="0.4" />
+                    <rect x="184" y="30" width="12" height="12" rx="2" fill="none" stroke="#e5e7eb" strokeWidth="0.4" />
+                    <rect x="200" y="30" width="12" height="12" rx="2" fill="#fde68a" stroke="#f59e0b" strokeWidth="1.2" />
+                    <rect x="216" y="30" width="12" height="12" rx="2" fill="none" stroke="#e5e7eb" strokeWidth="0.4" />
+                    <rect x="232" y="30" width="12" height="12" rx="2" fill="none" stroke="#e5e7eb" strokeWidth="0.4" />
+                    {/* Cursor clicking yellow swatch */}
+                    <path d="M208 44 L208 50 L211 48 L214 54 L216 53 L213 47 L217 44Z" fill="#1e293b" />
+                    {/* Click ring */}
+                    <circle cx="208" cy="46" r="5" fill="none" stroke="#f59e0b" strokeWidth="0.8" opacity="0.6">
+                      <animate attributeName="r" values="3;8;3" dur="1.5s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="0.6;0;0.6" dur="1.5s" repeatCount="indefinite" />
+                    </circle>
+                    <text x="168" y="58" fontSize="5" fontFamily="system-ui" fill="#6b7280">Fill</text>
+                  </svg>
+                ),
+              }}
+              result={{
+                badge: 'Result',
+                caption: 'Shape fills with the selected color instantly',
+                canvas: (
+                  <svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    {[0,14,28,42,56,70,84,98,112,126,140,154,168,182,196,210,224,238,252,266,280].map(x => [0,14,28,42,56,70,84,98,112,126,140].map(y => <circle key={`${x}-${y}`} cx={x} cy={y} r="0.5" fill="#d1d5db" />)).flat()}
+                    {/* Shape filled */}
+                    <rect x="40" y="20" width="100" height="60" rx="6" fill="#fef3c7" stroke="#f59e0b" strokeWidth="1.2" />
+                    <text x="90" y="50" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill="#92400e">My Shape</text>
+                    <text x="90" y="62" textAnchor="middle" fontSize="5" fontFamily="system-ui" fill="#b45309">Fill: Yellow</text>
+                    {/* Selection handles */}
+                    <rect x="36" y="16" width="5" height="5" rx="1" fill="#3b82f6" />
+                    <rect x="139" y="16" width="5" height="5" rx="1" fill="#3b82f6" />
+                    <rect x="36" y="79" width="5" height="5" rx="1" fill="#3b82f6" />
+                    <rect x="139" y="79" width="5" height="5" rx="1" fill="#3b82f6" />
+                    <rect x="36" y="16" width="108" height="68" rx="8" fill="none" stroke="#3b82f6" strokeWidth="1" strokeDasharray="4 2" />
+                    {/* Style panel with swatch highlighted */}
+                    <rect x="160" y="8" width="112" height="100" rx="6" fill="rgba(255,255,255,0.85)" stroke="#e5e7eb" strokeWidth="0.5" />
+                    <text x="168" y="22" fontSize="6" fontWeight="600" fontFamily="system-ui" fill="#374151">Style</text>
+                    <rect x="168" y="30" width="12" height="12" rx="2" fill="none" stroke="#e5e7eb" strokeWidth="0.4" />
+                    <rect x="184" y="30" width="12" height="12" rx="2" fill="none" stroke="#e5e7eb" strokeWidth="0.4" />
+                    <rect x="200" y="30" width="12" height="12" rx="2" fill="#fde68a" stroke="#f59e0b" strokeWidth="1.5" />
+                    <rect x="216" y="30" width="12" height="12" rx="2" fill="none" stroke="#e5e7eb" strokeWidth="0.4" />
+                    <rect x="232" y="30" width="12" height="12" rx="2" fill="none" stroke="#e5e7eb" strokeWidth="0.4" />
+                    <text x="168" y="58" fontSize="5" fontFamily="system-ui" fill="#6b7280">Fill</text>
+                  </svg>
+                ),
+              }}
+            />
+
             {/* Color Palette */}
             <h3 className="doc-section-subtitle">Color Palette</h3>
             <p className="doc-section-intro">Kanvas provides six curated stroke colors and five fill colors. Select any shape and pick a swatch from the Style panel.</p>
@@ -1757,6 +1894,67 @@ export default function DocumentationPage() {
                 </ul>
               </div>
             </div>
+
+            <ActionDemo
+              label="Export as PNG"
+              action={{
+                badge: 'Action',
+                caption: 'Click Export button, select PNG from dropdown',
+                canvas: (
+                  <svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    {[0,14,28,42,56,70,84,98,112,126,140,154,168,182,196,210,224,238,252,266,280].map(x => [0,14,28,42,56,70,84,98,112,126,140].map(y => <circle key={`${x}-${y}`} cx={x} cy={y} r="0.5" fill="#d1d5db" />)).flat()}
+                    {/* Board content */}
+                    <rect x="40" y="20" width="70" height="40" rx="4" fill="#fef3c7" stroke="#f59e0b" strokeWidth="0.8" />
+                    <text x="75" y="38" textAnchor="middle" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#92400e">Card 1</text>
+                    <rect x="120" y="20" width="70" height="40" rx="4" fill="#ede9fe" stroke="#8b5cf6" strokeWidth="0.8" />
+                    <text x="155" y="38" textAnchor="middle" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#7c3aed">Card 2</text>
+                    <rect x="80" y="70" width="70" height="40" rx="4" fill="#dcfce7" stroke="#22c55e" strokeWidth="0.8" />
+                    <text x="115" y="88" textAnchor="middle" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#166534">Card 3</text>
+                    {/* Export button in top right */}
+                    <rect x="220" y="8" width="52" height="18" rx="4" fill="#3b82f6" />
+                    <text x="246" y="20" textAnchor="middle" fontSize="6" fontWeight="600" fontFamily="system-ui" fill="white">Export</text>
+                    {/* Export menu open */}
+                    <rect x="196" y="30" width="76" height="72" rx="5" fill="rgba(255,255,255,0.95)" stroke="#e5e7eb" strokeWidth="0.5" />
+                    <rect x="200" y="36" width="68" height="10" rx="2" fill="rgba(59,130,246,0.08)" />
+                    <text x="206" y="44" fontSize="5.5" fontFamily="system-ui" fill="#1e40af">PNG</text>
+                    <text x="260" y="44" fontSize="5" fontFamily="system-ui" fill="#9ca3af">⌘P</text>
+                    <rect x="200" y="48" width="68" height="10" rx="2" fill="none" />
+                    <text x="206" y="56" fontSize="5.5" fontFamily="system-ui" fill="#374151">PDF</text>
+                    <rect x="200" y="60" width="68" height="10" rx="2" fill="none" />
+                    <text x="206" y="68" fontSize="5.5" fontFamily="system-ui" fill="#374151">SVG</text>
+                    <rect x="200" y="72" width="68" height="10" rx="2" fill="none" />
+                    <text x="206" y="80" fontSize="5.5" fontFamily="system-ui" fill="#374151">JSON</text>
+                    <rect x="200" y="84" width="68" height="10" rx="2" fill="none" />
+                    <text x="206" y="92" fontSize="5.5" fontFamily="system-ui" fill="#374151">Copy Image</text>
+                    {/* Cursor on PNG */}
+                    <path d="M210 42 L210 48 L213 46 L216 52 L218 51 L215 45 L219 42Z" fill="#1e293b" />
+                  </svg>
+                ),
+              }}
+              result={{
+                badge: 'Result',
+                caption: 'File downloads to your computer',
+                canvas: (
+                  <svg viewBox="0 0 280 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    {[0,14,28,42,56,70,84,98,112,126,140,154,168,182,196,210,224,238,252,266,280].map(x => [0,14,28,42,56,70,84,98,112,126,140].map(y => <circle key={`${x}-${y}`} cx={x} cy={y} r="0.5" fill="#d1d5db" />)).flat()}
+                    {/* Board content */}
+                    <rect x="40" y="20" width="70" height="40" rx="4" fill="#fef3c7" stroke="#f59e0b" strokeWidth="0.8" />
+                    <text x="75" y="38" textAnchor="middle" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#92400e">Card 1</text>
+                    <rect x="120" y="20" width="70" height="40" rx="4" fill="#ede9fe" stroke="#8b5cf6" strokeWidth="0.8" />
+                    <text x="155" y="38" textAnchor="middle" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#7c3aed">Card 2</text>
+                    <rect x="80" y="70" width="70" height="40" rx="4" fill="#dcfce7" stroke="#22c55e" strokeWidth="0.8" />
+                    <text x="115" y="88" textAnchor="middle" fontSize="5" fontWeight="600" fontFamily="system-ui" fill="#166534">Card 3</text>
+                    {/* Download notification */}
+                    <rect x="160" y="80" width="100" height="32" rx="6" fill="rgba(255,255,255,0.95)" stroke="#e5e7eb" strokeWidth="0.5" />
+                    <rect x="164" y="84" width="20" height="20" rx="4" fill="#dcfce7" />
+                    <path d="M170 98 L174 94 L178 98" fill="none" stroke="#22c55e" strokeWidth="1.2" strokeLinecap="round" />
+                    <path d="M174 93 L174 100" stroke="#22c55e" strokeWidth="1.2" strokeLinecap="round" />
+                    <text x="188" y="91" fontSize="5.5" fontWeight="600" fontFamily="system-ui" fill="#374151">Downloaded</text>
+                    <text x="188" y="98" fontSize="5" fontFamily="system-ui" fill="#6b7280">board.png</text>
+                  </svg>
+                ),
+              }}
+            />
 
             <FeatureStory
               heading="Share Your Work"
