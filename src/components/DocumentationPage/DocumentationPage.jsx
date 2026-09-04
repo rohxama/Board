@@ -3,7 +3,6 @@ import { useTheme } from '../../context/ThemeContext'
 import siteIcon from '../../assets/images/site-logo-removebg-preview.png'
 import {
   GettingStartedIllustration,
-  ToolsIllustration,
   ThemesIllustration,
   ExportIllustration,
   TipsIllustration,
@@ -33,6 +32,7 @@ import {
   ExportBreakIllustration,
   ShortcutsBreakIllustration,
 } from './SectionBreaks'
+import { ToolbarFrag, StylePanelFrag, KanvasIcon } from './KanvasUIFragments'
 
 const NAV = [
   {
@@ -1053,28 +1053,146 @@ export default function DocumentationPage() {
           <section id="tools" className="doc-section">
             <h2 className="doc-section-title"><NavIcon name="cursor" /> Tools</h2>
 
-            <div className="doc-editorial doc-editorial--reversed">
-              <div className="doc-editorial-visual">
-                <ToolsIllustration />
+            {/* Realistic product showcase — full Kanvas board */}
+            <div className="doc-tool-showcase">
+              <div className="doc-tool-showcase-toolbar">
+                <ToolbarFrag activeTool="rectangle" />
               </div>
-              <div className="doc-editorial-text">
-                <span className="doc-editorial-label">Toolbar</span>
-                <h3 className="doc-editorial-heading">Every tool, one click away</h3>
-                <ul className="doc-editorial-list">
-                  <li><strong>Select (V)</strong> — select, move, resize, rotate</li>
-                  <li><strong>Pan (H)</strong> — navigate the infinite canvas</li>
-                  <li><strong>Rectangle (R)</strong> — fill, stroke, rounded corners</li>
-                  <li><strong>Ellipse (O)</strong> — circles and ellipses</li>
-                  <li><strong>Diamond (D)</strong> — diamond shapes</li>
-                  <li><strong>Arrow (A)</strong> — connect shapes, snap to edges</li>
-                  <li><strong>Line (L)</strong> — straight lines at any angle</li>
-                  <li><strong>Pencil (P)</strong> — freehand sketching</li>
-                  <li><strong>Text (T)</strong> — labels, notes, headings</li>
-                  <li><strong>Eraser (E)</strong> — click to remove any shape</li>
-                  <li><strong>Laser (K)</strong> — temporary pointer for presentations</li>
-                  <li><strong>Image (9)</strong> — upload PNG, JPEG, SVG, WebP</li>
-                </ul>
+              <div className="doc-tool-showcase-canvas">
+                <svg viewBox="0 0 640 320" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }} aria-hidden="true">
+                  {/* Canvas dot grid */}
+                  {[0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640].map(x => (
+                    [0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320].map(y => (
+                      <circle key={`${x}-${y}`} cx={x} cy={y} r="0.8" fill="var(--dot)" />
+                    ))
+                  )).flat()}
+
+                  {/* Rectangle tool — product planning cards */}
+                  <rect x="40" y="30" width="140" height="80" rx="8" fill="rgba(47,133,90,0.05)" stroke="#22c55e" strokeWidth="1.5" />
+                  <text x="52" y="52" fontSize="10" fontWeight="700" fontFamily="system-ui" fill="#166534">User Research</text>
+                  <text x="52" y="68" fontSize="8" fontFamily="system-ui" fill="#6b7280">Interviews, surveys, analytics</text>
+                  <rect x="52" y="80" width="40" height="16" rx="4" fill="#dcfce7" stroke="#22c55e" strokeWidth="0.8" />
+                  <text x="72" y="91" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill="#166534">Done</text>
+
+                  <rect x="200" y="30" width="140" height="80" rx="8" fill="rgba(59,130,246,0.05)" stroke="#3b82f6" strokeWidth="1.5" />
+                  <text x="212" y="52" fontSize="10" fontWeight="700" fontFamily="system-ui" fill="#1e40af">Wireframes</text>
+                  <text x="212" y="68" fontSize="8" fontFamily="system-ui" fill="#6b7280">Low-fidelity layout drafts</text>
+                  <rect x="212" y="80" width="52" height="16" rx="4" fill="#dbeafe" stroke="#3b82f6" strokeWidth="0.8" />
+                  <text x="238" y="91" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill="#1e40af">In Progress</text>
+
+                  <rect x="360" y="30" width="140" height="80" rx="8" fill="rgba(139,92,246,0.05)" stroke="#8b5cf6" strokeWidth="1.5" />
+                  <text x="372" y="52" fontSize="10" fontWeight="700" fontFamily="system-ui" fill="#5b21b6">Prototype</text>
+                  <text x="372" y="68" fontSize="8" fontFamily="system-ui" fill="#6b7280">Interactive mockup flow</text>
+                  <rect x="372" y="80" width="44" height="16" rx="4" fill="#ede9fe" stroke="#8b5cf6" strokeWidth="0.8" />
+                  <text x="394" y="91" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill="#5b21b6">Review</text>
+
+                  {/* Ellipse tool — status indicators */}
+                  <ellipse cx="560" cy="50" r="30" ry="24" fill="rgba(245,158,11,0.06)" stroke="#f59e0b" strokeWidth="1.5" />
+                  <text x="560" y="47" textAnchor="middle" fontSize="9" fontWeight="700" fontFamily="system-ui" fill="#92400e">Sprint</text>
+                  <text x="560" y="60" textAnchor="middle" fontSize="8" fontWeight="600" fontFamily="system-ui" fill="#f59e0b">3</text>
+
+                  {/* Arrow tool — connecting cards */}
+                  <path d="M180 70 L200 70" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M195 67 L201 70 L195 73" fill="#64748b" stroke="#64748b" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M340 70 L360 70" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M355 67 L361 70 L355 73" fill="#64748b" stroke="#64748b" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+
+                  {/* Line tool — separator */}
+                  <line x1="40" y1="136" x2="600" y2="136" stroke="#e5e7eb" strokeWidth="1" strokeDasharray="6 4" />
+
+                  {/* Diamond tool — decision node */}
+                  <path d="M80 180 L110 200 L80 220 L50 200 Z" fill="rgba(236,72,153,0.06)" stroke="#ec4899" strokeWidth="1.5" />
+                  <text x="80" y="203" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill="#be185d">Go?</text>
+
+                  {/* Arrow from diamond */}
+                  <path d="M110 200 L160 200" stroke="#64748b" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M155 197 L161 200 L155 203" fill="#64748b" stroke="#64748b" strokeWidth="1" strokeLinecap="round" />
+                  <text x="135" y="194" textAnchor="middle" fontSize="6" fontFamily="system-ui" fill="#9ca3af">yes</text>
+
+                  {/* Rectangle — approval card */}
+                  <rect x="168" y="180" width="120" height="52" rx="6" fill="rgba(47,133,90,0.04)" stroke="#22c55e" strokeWidth="1.2" />
+                  <text x="180" y="200" fontSize="8" fontWeight="600" fontFamily="system-ui" fill="#166534">Ship It</text>
+                  <text x="180" y="214" fontSize="7" fontFamily="system-ui" fill="#6b7280">Deploy to production</text>
+
+                  {/* Pencil tool — freehand sketch */}
+                  <path d="M340 170 C360 155, 390 180, 410 165 C430 150, 450 175, 470 160 C490 145, 510 170, 530 158" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.7" />
+                  <text x="340" y="165" fontSize="7" fontWeight="500" fontFamily="system-ui" fill="#3b82f6">Trend line</text>
+
+                  {/* Text tool — heading */}
+                  <text x="340" y="220" fontSize="16" fontWeight="800" fontFamily="system-ui" fill="var(--text)">Product Roadmap Q4</text>
+                  <text x="340" y="240" fontSize="9" fontFamily="system-ui" fill="#6b7280">Key milestones and deliverables for the next quarter</text>
+
+                  {/* Sticky note — pen tool */}
+                  <rect x="500" y="160" width="110" height="72" rx="3" fill="#fefce8" stroke="#eab308" strokeWidth="1" />
+                  <text x="510" y="178" fontSize="8" fontWeight="600" fontFamily="system-ui" fill="#854d0e">Meeting Notes</text>
+                  <text x="510" y="194" fontSize="7" fontFamily="system-ui" fill="#854d0e">- Review wireframes</text>
+                  <text x="510" y="206" fontSize="7" fontFamily="system-ui" fill="#854d0e">- Finalize copy</text>
+                  <text x="510" y="218" fontSize="7" fontFamily="system-ui" fill="#854d0e">- Schedule dev handoff</text>
+
+                  {/* Line tool — connectors */}
+                  <line x1="288" y1="206" x2="336" y2="212" stroke="#94a3b8" strokeWidth="1" strokeLinecap="round" strokeDasharray="4 3" />
+
+                  {/* Selection state on a shape */}
+                  <rect x="164" y="176" width="128" height="60" rx="8" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeDasharray="4 2" />
+                  <rect x="160" y="172" width="6" height="6" rx="1.5" fill="var(--accent)" />
+                  <rect x="288" y="172" width="6" height="6" rx="1.5" fill="var(--accent)" />
+                  <rect x="160" y="234" width="6" height="6" rx="1.5" fill="var(--accent)" />
+                  <rect x="288" y="234" width="6" height="6" rx="1.5" fill="var(--accent)" />
+
+                  {/* Cursor */}
+                  <path d="M468 260 L468 276 L473 272 L478 280 L480 279 L475 271 L480 268Z" fill="var(--text)" />
+                </svg>
               </div>
+              <div className="doc-tool-showcase-panel">
+                <StylePanelFrag />
+              </div>
+            </div>
+
+            {/* Individual tool cards — real icons + mini canvas examples */}
+            <div className="doc-tool-grid">
+              {[
+                { icon: 'cursor', name: 'Select', key: 'V', desc: 'Select, move, resize, rotate shapes', color: '#3b82f6', bg: 'rgba(59,130,246,0.05)',
+                  canvas: <><rect x="12" y="10" width="44" height="30" rx="4" fill="rgba(59,130,246,0.08)" stroke="#3b82f6" strokeWidth="1.5" /><rect x="8" y="6" width="5" height="5" rx="1" fill="#3b82f6" /><rect x="55" y="6" width="5" height="5" rx="1" fill="#3b82f6" /><rect x="8" y="37" width="5" height="5" rx="1" fill="#3b82f6" /><rect x="55" y="37" width="5" height="5" rx="1" fill="#3b82f6" /><path d="M34 4 L34 10" stroke="#3b82f6" strokeWidth="1" strokeLinecap="round" /><circle cx="34" cy="2" r="2.5" fill="#3b82f6" /></> },
+                { icon: 'hand', name: 'Pan', key: 'H', desc: 'Navigate the infinite canvas', color: '#8b5cf6', bg: 'rgba(139,92,246,0.05)',
+                  canvas: <><rect x="10" y="12" width="24" height="18" rx="2" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" strokeWidth="1" /><rect x="38" y="8" width="20" height="14" rx="2" fill="rgba(245,158,11,0.06)" stroke="#f59e0b" strokeWidth="1" /><rect x="18" y="34" width="28" height="16" rx="2" fill="rgba(34,197,94,0.06)" stroke="#22c55e" strokeWidth="1" /><path d="M50 20 L58 20" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" /><path d="M55 17 L60 20 L55 23" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" /></> },
+                { icon: 'square', name: 'Rectangle', key: 'R', desc: 'Draw rectangles with fill and stroke', color: '#3b82f6', bg: 'rgba(59,130,246,0.05)',
+                  canvas: <><rect x="12" y="10" width="48" height="32" rx="4" fill="rgba(59,130,246,0.08)" stroke="#3b82f6" strokeWidth="1.5" /><rect x="12" y="48" width="48" height="24" rx="12" fill="rgba(139,92,246,0.06)" stroke="#8b5cf6" strokeWidth="1.2" strokeDasharray="4 2" /><rect x="28" y="16" width="20" height="14" rx="2" fill="rgba(34,197,94,0.1)" stroke="#22c55e" strokeWidth="1" opacity="0.7" /></> },
+                { icon: 'circle', name: 'Ellipse', key: 'O', desc: 'Draw circles and ellipses', color: '#8b5cf6', bg: 'rgba(139,92,246,0.05)',
+                  canvas: <><ellipse cx="32" cy="28" rx="22" ry="16" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" strokeWidth="1.5" /><circle cx="52" cy="48" r="12" fill="rgba(245,158,11,0.06)" stroke="#f59e0b" strokeWidth="1.2" /><ellipse cx="20" cy="52" rx="14" ry="8" fill="rgba(34,197,94,0.05)" stroke="#22c55e" strokeWidth="1" opacity="0.7" /></> },
+                { icon: 'diamond', name: 'Diamond', key: 'D', desc: 'Draw diamond shapes', color: '#ec4899', bg: 'rgba(236,72,153,0.05)',
+                  canvas: <><path d="M32 8 L52 28 L32 48 L12 28 Z" fill="rgba(236,72,153,0.06)" stroke="#ec4899" strokeWidth="1.5" /><path d="M52 42 L62 52 L52 62 L42 52 Z" fill="rgba(59,130,246,0.05)" stroke="#3b82f6" strokeWidth="1" /></> },
+                { icon: 'arrow', name: 'Arrow', key: 'A', desc: 'Connect shapes with snappable arrows', color: '#ef4444', bg: 'rgba(239,68,68,0.05)',
+                  canvas: <><rect x="6" y="18" width="24" height="18" rx="3" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" strokeWidth="1" /><rect x="44" y="18" width="24" height="18" rx="3" fill="rgba(34,197,94,0.06)" stroke="#22c55e" strokeWidth="1" /><path d="M32 27 L42 27" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" /><path d="M39 24 L44 27 L39 30" fill="#ef4444" stroke="#ef4444" strokeWidth="0.8" strokeLinecap="round" /><circle cx="32" cy="27" r="2.5" fill="rgba(59,130,246,0.1)" stroke="#ef4444" strokeWidth="1" /></> },
+                { icon: 'line', name: 'Line', key: 'L', desc: 'Draw straight lines at any angle', color: '#f59e0b', bg: 'rgba(245,158,11,0.05)',
+                  canvas: <><line x1="8" y1="50" x2="58" y2="14" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" /><line x1="8" y1="30" x2="58" y2="30" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" /><line x1="20" y1="8" x2="48" y2="56" stroke="#22c55e" strokeWidth="1.2" strokeLinecap="round" strokeDasharray="4 2" /></> },
+                { icon: 'pen', name: 'Pencil', key: 'P', desc: 'Freehand sketching on the canvas', color: '#22c55e', bg: 'rgba(34,197,94,0.05)',
+                  canvas: <><path d="M8 44 C16 14, 28 50, 40 28 C52 6, 58 36, 64 22" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" fill="none" /><path d="M10 56 C22 48, 34 58, 48 50" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.6" /></> },
+                { icon: 'text', name: 'Text', key: 'T', desc: 'Add labels, notes, and headings', color: '#f59e0b', bg: 'rgba(245,158,11,0.05)',
+                  canvas: <><text x="10" y="28" fontSize="16" fontWeight="800" fontFamily="system-ui" fill="var(--text)">Aa</text><line x1="10" y1="34" x2="50" y2="34" stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" /><rect x="10" y="42" width="48" height="16" rx="3" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" strokeWidth="1" /><text x="34" y="53" textAnchor="middle" fontSize="7" fontWeight="600" fontFamily="system-ui" fill="#3b82f6">Label</text></> },
+                { icon: 'eraser', name: 'Eraser', key: 'E', desc: 'Click to remove any shape', color: '#ef4444', bg: 'rgba(239,68,68,0.05)',
+                  canvas: <><rect x="10" y="14" width="28" height="18" rx="3" fill="rgba(59,130,246,0.04)" stroke="#3b82f6" strokeWidth="1" opacity="0.3" /><circle cx="50" cy="24" r="12" fill="rgba(245,158,11,0.04)" stroke="#f59e0b" strokeWidth="1" opacity="0.3" /><path d="M22 44 L38 60" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" /><path d="M38 44 L22 60" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" /></> },
+                { icon: 'laser', name: 'Laser', key: 'K', desc: 'Temporary pointer for presentations', color: '#ef4444', bg: 'rgba(239,68,68,0.05)',
+                  canvas: <><path d="M8 50 C18 10, 36 54, 52 18 C60 0, 64 30, 68 14" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" fill="none" /><circle cx="68" cy="14" r="4" fill="#ef4444" /><text x="34" y="66" textAnchor="middle" fontSize="6" fontFamily="system-ui" fill="#9ca3af">temporary</text></> },
+                { icon: 'image', name: 'Image', key: '9', desc: 'Upload PNG, JPEG, SVG, WebP', color: '#8b5cf6', bg: 'rgba(139,92,246,0.05)',
+                  canvas: <><rect x="8" y="8" width="48" height="36" rx="4" fill="rgba(59,130,246,0.06)" stroke="#3b82f6" strokeWidth="1.2" /><circle cx="20" cy="20" r="5" fill="rgba(59,130,246,0.3)" /><path d="M8 34 L24 22 L36 30 L44 24 L56 32 L56 44 L8 44 Z" fill="rgba(59,130,246,0.15)" /><rect x="18" y="50" width="36" height="18" rx="3" fill="rgba(245,158,11,0.06)" stroke="#f59e0b" strokeWidth="1" /><path d="M18 60 L30 52 L38 58 L44 52 L54 60 L54 68 L18 68 Z" fill="rgba(245,158,11,0.12)" /></> },
+              ].map(tool => (
+                <div key={tool.name} className="doc-tool-card" style={{ '--tool-color': tool.color, '--tool-bg': tool.bg }}>
+                  <div className="doc-tool-card-canvas">
+                    <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <rect x="0" y="0" width="72" height="72" rx="6" fill="var(--surface-muted)" />
+                      {tool.canvas}
+                    </svg>
+                  </div>
+                  <div className="doc-tool-card-info">
+                    <div className="doc-tool-card-header">
+                      <span className="doc-tool-card-icon" style={{ color: tool.color }}><KanvasIcon name={tool.icon} size={18} /></span>
+                      <span className="doc-tool-card-name">{tool.name}</span>
+                      <kbd className="doc-tool-card-key">{tool.key}</kbd>
+                    </div>
+                    <p className="doc-tool-card-desc">{tool.desc}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </section>
 
