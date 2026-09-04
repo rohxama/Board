@@ -2432,7 +2432,24 @@ html[data-theme='dark'] .doc-export-compact {
   margin: 0 0 20px;
   max-width: 600px;
 }
-.doc-colorlab-hero,
+.doc-colorlab-canvas-wrap {
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  background: var(--surface-solid);
+  overflow: hidden;
+  margin-bottom: 28px;
+  box-shadow: 0 2px 4px rgba(39, 45, 70, .04), 0 8px 24px rgba(39, 45, 70, .06);
+}
+html[data-theme='dark'] .doc-colorlab-canvas-wrap {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 8px 24px rgba(0, 0, 0, .2);
+}
+.doc-colorlab-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
 .doc-colorlab-swatch-row,
 .doc-colorlab-demo {
   display: block;
@@ -2445,14 +2462,9 @@ html[data-theme='dark'] .doc-export-compact {
   pointer-events: none;
   user-select: none;
 }
-html[data-theme='dark'] .doc-colorlab-hero,
 html[data-theme='dark'] .doc-colorlab-swatch-row,
 html[data-theme='dark'] .doc-colorlab-demo {
   box-shadow: 0 1px 3px rgba(0, 0, 0, .15), 0 6px 16px rgba(0, 0, 0, .2);
-}
-.doc-colorlab-hero {
-  max-width: 680px;
-  margin-bottom: 36px;
 }
 .doc-colorlab-swatch-row {
   max-width: 400px;
@@ -2688,7 +2700,7 @@ html[data-theme='dark'] .doc-colorlab-demo {
     max-width: 100%;
     margin-bottom: 16px;
   }
-  .doc-colorlab-hero {
+  .doc-colorlab-canvas-wrap {
     max-width: 100%;
   }
   .doc-colorlab-swatch-row {

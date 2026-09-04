@@ -11,6 +11,7 @@ const C = {
   yellow: '#eab308',
   green: '#22c55e',
   blue: '#3b82f6',
+  purple: '#8b5cf6',
   surface: 'var(--surface-solid)',
   muted: 'var(--text-muted)',
   border: 'var(--border)',
@@ -19,44 +20,129 @@ const C = {
   text: 'var(--text)',
 }
 
-/* ─── Section header illustration — shows styled shapes together ──
-   Blue rectangle, green circle, red rounded rect, yellow ellipse,
-   purple arrow, and blue line — all on one board to preview what
-   the Styling section covers. Selection handles on the red rect
-   show it's the active object. */
+/* ─── Color Lab Hero — realistic canvas with styled shapes ────────
+   Shows a clean board with shapes in different fill/stroke combinations,
+   a color palette strip, and selection handles. Looks like a designer
+   is actively experimenting with colors on a real canvas. */
 export function ColorLabHero() {
   return (
-    <svg viewBox="0 0 680 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-colorlab-hero" aria-hidden="true">
-      <rect x="0" y="0" width="680" height="120" rx="12" fill={C.surface} stroke={C.border} strokeWidth="0.8" />
-      {Array.from({ length: 6 }, (_, row) =>
-        Array.from({ length: 34 }, (_, col) => (
-          <circle key={`${row}-${col}`} cx={16 + col * 20} cy={16 + row * 20} r="0.6" fill={C.muted} opacity="0.12" />
-        ))
-      )}
+    <div className="doc-colorlab-canvas-wrap">
+      <svg viewBox="0 0 680 380" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-colorlab-canvas" aria-hidden="true">
+        {/* Canvas dot grid */}
+        {Array.from({ length: 19 }, (_, row) =>
+          Array.from({ length: 34 }, (_, col) => (
+            <circle key={`${row}-${col}`} cx={16 + col * 20} cy={16 + row * 20} r="0.6" fill={C.muted} opacity="0.1" />
+          ))
+        )}
 
-      {/* A realistic canvas composition — styled shapes on a board */}
-      <rect x="30" y="20" width="80" height="55" rx="4" fill="rgba(59,130,246,0.08)" stroke={C.blue} strokeWidth="1" />
-      <text x="70" y="52" textAnchor="middle" fontSize="8" fontWeight="500" fontFamily="system-ui" fill={C.blue}>Card</text>
+        {/* ── Color palette strip ── */}
+        <text x="40" y="28" fontSize="8" fontWeight="600" fontFamily="system-ui" fill={C.muted} letterSpacing="1.2">PALETTE</text>
+        {[
+          { color: '#111111', x: 40 },
+          { color: '#ef4444', x: 72 },
+          { color: '#f97316', x: 104 },
+          { color: '#eab308', x: 136 },
+          { color: '#22c55e', x: 168 },
+          { color: '#3b82f6', x: 200 },
+        ].map(({ color, x }) => (
+          <g key={color}>
+            <rect x={x} y="36" width="24" height="24" rx="6" fill={color} stroke={C.border} strokeWidth="0.8" />
+            {color === '#3b82f6' && <rect x={x - 2} y="34" width="28" height="28" rx="8" fill="none" stroke={C.accent} strokeWidth="1.5" strokeDasharray="3 2" />}
+          </g>
+        ))}
+        <text x="240" y="52" fontSize="8" fontFamily="system-ui" fill={C.muted}>6 curated colors</text>
 
-      <circle cx="180" cy="48" r="28" fill="rgba(34,197,94,0.06)" stroke={C.green} strokeWidth="1" />
-      <text x="180" y="51" textAnchor="middle" fontSize="8" fontWeight="500" fontFamily="system-ui" fill={C.green}>Status</text>
+        {/* ── Row 1: Filled shapes with different colors ── */}
+        {/* Blue filled rectangle */}
+        <rect x="40" y="80" width="120" height="72" rx="8" fill="rgba(59,130,246,0.12)" stroke={C.blue} strokeWidth="2" />
+        <text x="100" y="112" textAnchor="middle" fontSize="10" fontWeight="600" fontFamily="system-ui" fill={C.blue}>Blue Fill</text>
+        <text x="100" y="128" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill={C.muted}>opacity 12%</text>
 
-      <rect x="240" y="24" width="70" height="48" rx="6" fill="rgba(239,68,68,0.06)" stroke={C.red} strokeWidth="1" />
-      <text x="275" y="52" textAnchor="middle" fontSize="8" fontWeight="500" fontFamily="system-ui" fill={C.red}>Alert</text>
+        {/* Green filled circle */}
+        <circle cx="220" cy="116" r="40" fill="rgba(34,197,94,0.1)" stroke={C.green} strokeWidth="2" />
+        <text x="220" y="113" textAnchor="middle" fontSize="10" fontWeight="600" fontFamily="system-ui" fill={C.green}>Green</text>
+        <text x="220" y="127" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill={C.muted}>circle</text>
 
-      <ellipse cx="400" cy="48" rx="38" ry="26" fill="rgba(234,179,8,0.06)" stroke={C.yellow} strokeWidth="1" />
-      <text x="400" y="51" textAnchor="middle" fontSize="8" fontWeight="500" fontFamily="system-ui" fill={C.yellow}>Note</text>
+        {/* Red filled rounded rect */}
+        <rect x="290" y="80" width="110" height="72" rx="16" fill="rgba(239,68,68,0.1)" stroke={C.red} strokeWidth="2" />
+        <text x="345" y="112" textAnchor="middle" fontSize="10" fontWeight="600" fontFamily="system-ui" fill={C.red}>Red</text>
+        <text x="345" y="128" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill={C.muted}>rounded rect</text>
 
-      <path d="M480 30 L560 48 L480 66" fill="none" stroke="#8b5cf6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        {/* Orange filled diamond */}
+        <path d="M470 82 L510 116 L470 150 L430 116 Z" fill="rgba(249,115,22,0.1)" stroke={C.orange} strokeWidth="2" strokeLinejoin="round" />
+        <text x="470" y="113" textAnchor="middle" fontSize="10" fontWeight="600" fontFamily="system-ui" fill={C.orange}>Orange</text>
+        <text x="470" y="127" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill={C.muted}>diamond</text>
 
-      <line x1="480" y1="85" x2="570" y2="85" stroke={C.blue} strokeWidth="1.5" strokeLinecap="round" />
+        {/* Yellow filled ellipse */}
+        <ellipse cx="580" cy="116" rx="50" ry="34" fill="rgba(234,179,8,0.1)" stroke={C.yellow} strokeWidth="2" />
+        <text x="580" y="113" textAnchor="middle" fontSize="10" fontWeight="600" fontFamily="system-ui" fill={C.yellow}>Yellow</text>
+        <text x="580" y="127" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill={C.muted}>ellipse</text>
 
-      {/* Selection handles on the red rect */}
-      <rect x="236" y="20" width="6" height="6" rx="1.5" fill={C.red} />
-      <rect x="306" y="20" width="6" height="6" rx="1.5" fill={C.red} />
-      <rect x="236" y="66" width="6" height="6" rx="1.5" fill={C.red} />
-      <rect x="306" y="66" width="6" height="6" rx="1.5" fill={C.red} />
-    </svg>
+        {/* ── Row 2: Stroke variations ── */}
+        <text x="40" y="182" fontSize="8" fontWeight="600" fontFamily="system-ui" fill={C.muted} letterSpacing="1.2">STROKE WIDTH</text>
+
+        {/* Thin stroke */}
+        <rect x="40" y="194" width="80" height="50" rx="6" fill="none" stroke={C.blue} strokeWidth="1" />
+        <text x="80" y="223" textAnchor="middle" fontSize="8" fontWeight="500" fontFamily="system-ui" fill={C.blue}>1px thin</text>
+
+        {/* Medium stroke */}
+        <rect x="140" y="194" width="80" height="50" rx="6" fill="none" stroke={C.green} strokeWidth="2.5" />
+        <text x="180" y="223" textAnchor="middle" fontSize="8" fontWeight="500" fontFamily="system-ui" fill={C.green}>3px medium</text>
+
+        {/* Thick stroke */}
+        <rect x="240" y="194" width="80" height="50" rx="6" fill="none" stroke={C.red} strokeWidth="4" />
+        <text x="280" y="223" textAnchor="middle" fontSize="8" fontWeight="500" fontFamily="system-ui" fill={C.red}>6px thick</text>
+
+        <text x="360" y="182" fontSize="8" fontWeight="600" fontFamily="system-ui" fill={C.muted} letterSpacing="1.2">STROKE STYLE</text>
+
+        {/* Solid */}
+        <rect x="360" y="194" width="80" height="50" rx="6" fill="none" stroke={C.blue} strokeWidth="2" strokeDasharray="none" />
+        <text x="400" y="223" textAnchor="middle" fontSize="8" fontWeight="500" fontFamily="system-ui" fill={C.blue}>Solid</text>
+
+        {/* Dashed */}
+        <rect x="460" y="194" width="80" height="50" rx="6" fill="none" stroke={C.orange} strokeWidth="2" strokeDasharray="8 4" />
+        <text x="500" y="223" textAnchor="middle" fontSize="8" fontWeight="500" fontFamily="system-ui" fill={C.orange}>Dashed</text>
+
+        {/* Dotted */}
+        <rect x="560" y="194" width="80" height="50" rx="6" fill="none" stroke={C.purple} strokeWidth="2" strokeDasharray="2 4" strokeLinecap="round" />
+        <text x="600" y="223" textAnchor="middle" fontSize="8" fontWeight="500" fontFamily="system-ui" fill={C.purple}>Dotted</text>
+
+        {/* ── Row 3: Opacity + combined ── */}
+        <text x="40" y="270" fontSize="8" fontWeight="600" fontFamily="system-ui" fill={C.muted} letterSpacing="1.2">OPACITY</text>
+
+        {[100, 75, 50, 25].map((op, i) => (
+          <g key={op}>
+            <rect x={40 + i * 72} y="280" width="56" height="40" rx="6" fill={`rgba(59,130,246,${op / 100 * 0.2})`} stroke={C.blue} strokeWidth="1.5" opacity={op / 100} />
+            <text x={68 + i * 72} y="305" textAnchor="middle" fontSize="8" fontWeight="500" fontFamily="system-ui" fill={C.blue} opacity={op / 100}>{op}%</text>
+          </g>
+        ))}
+
+        <text x="360" y="270" fontSize="8" fontWeight="600" fontFamily="system-ui" fill={C.muted} letterSpacing="1.2">FILL + STROKE COMBO</text>
+
+        {/* Filled + stroked rectangle */}
+        <rect x="360" y="280" width="70" height="40" rx="6" fill="rgba(34,197,94,0.15)" stroke={C.green} strokeWidth="2" />
+        <text x="395" y="305" textAnchor="middle" fontSize="7" fontWeight="500" fontFamily="system-ui" fill={C.green}>fill+stroke</text>
+
+        {/* Filled only */}
+        <rect x="442" y="280" width="70" height="40" rx="6" fill="rgba(239,68,68,0.15)" stroke="none" />
+        <text x="477" y="305" textAnchor="middle" fontSize="7" fontWeight="500" fontFamily="system-ui" fill={C.red}>fill only</text>
+
+        {/* Stroke only */}
+        <rect x="524" y="280" width="70" height="40" rx="6" fill="none" stroke={C.blue} strokeWidth="2" />
+        <text x="559" y="305" textAnchor="middle" fontSize="7" fontWeight="500" fontFamily="system-ui" fill={C.blue}>stroke only</text>
+
+        {/* No fill, no stroke — ghost */}
+        <rect x="606" y="280" width="70" height="40" rx="6" fill="none" stroke={C.border} strokeWidth="1" strokeDasharray="4 3" />
+        <text x="641" y="305" textAnchor="middle" fontSize="7" fontWeight="500" fontFamily="system-ui" fill={C.muted}>none</text>
+
+        {/* ── Bottom: Selection handles on the green circle ── */}
+        <rect x="176" y="72" width="7" height="7" rx="2" fill={C.accent} />
+        <rect x="256" y="72" width="7" height="7" rx="2" fill={C.accent} />
+        <rect x="176" y="152" width="7" height="7" rx="2" fill={C.accent} />
+        <rect x="256" y="152" width="7" height="7" rx="2" fill={C.accent} />
+        <circle cx="220" cy="116" r="44" fill="none" stroke={C.accent} strokeWidth="1.5" strokeDasharray="4 2" />
+      </svg>
+    </div>
   )
 }
 
