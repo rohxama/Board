@@ -179,7 +179,7 @@ export function SwatchDisplay() {
 export function FillDemo() {
   return (
     <svg viewBox="0 0 520 160" fill="none" xmlns="http://www.w3.org/2000/svg" className="doc-colorlab-demo" aria-hidden="true">
-      <text x="0" y="14" fontSize="9" fontWeight="600" letterSpacing="0.06em" fill={C.muted} textTransform="uppercase" fontFamily="system-ui, sans-serif">SHAPE → FILL</text>
+      <text x="0" y="14" fontSize="9" fontWeight="600" letterSpacing="0.06em" fill={C.muted} fontFamily="system-ui, sans-serif">SHAPE → FILL</text>
 
       {/* No Fill */}
       <g transform="translate(0, 28)">
@@ -531,7 +531,7 @@ export function BeforeAfterDemo() {
         <rect x="62" y="50" width="50" height="4" rx="2" fill={C.muted} opacity="0.12" />
         <rect x="62" y="60" width="60" height="3" rx="1.5" fill={C.muted} opacity="0.08" />
         <rect x="62" y="68" width="40" height="3" rx="1.5" fill={C.muted} opacity="0.08" />
-        <rect x="62" y="80" width="36" height="12" rx="2" fill={C.muted} opacity="0.06" stroke={C.muted} strokeWidth="0.5" opacity="0.15" />
+          <rect x="62" y="80" width="36" height="12" rx="2" fill={C.muted} stroke={C.muted} strokeWidth="0.5" opacity="0.15" />
 
         <text x="100" y="118" textAnchor="middle" fontSize="8" fontFamily="system-ui" fill={C.muted}>Plain rectangle</text>
         <text x="100" y="130" textAnchor="middle" fontSize="7" fontFamily="system-ui" fill={C.muted}>no fill, no style</text>

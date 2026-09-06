@@ -124,8 +124,8 @@ function CookiePreferencesPanel({ onSave, onCancel }) {
 
   return (
     <div className="cookie-preferences-overlay">
-      <div className="cookie-preferences-panel">
-        <h3>Cookie Preferences</h3>
+      <div className="cookie-preferences-panel" role="dialog" aria-modal="true" aria-labelledby="cookie-preferences-title">
+        <h3 id="cookie-preferences-title">Cookie Preferences</h3>
         <div className="cookie-preferences-options">
           <label className="cookie-preference-item">
             <input

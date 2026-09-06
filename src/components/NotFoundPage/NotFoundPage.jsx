@@ -1,6 +1,3 @@
-/* 404 page shown for the temporary placeholder routes (Home → '#/home',
-   Learn → '#/docs') until the real pages exist. When building the real
-   Home / Documentation pages, swap the route rendering in App.jsx. */
 export default function NotFoundPage({ message = "Oops! The page you're looking for can't be found. It might have been moved or the URL could be incorrect." }) {
   return (
     <div className="not-found-page">
@@ -21,6 +18,10 @@ export default function NotFoundPage({ message = "Oops! The page you're looking 
         <span className="not-found-digit" aria-hidden="true">4</span>
       </h1>
       <p className="not-found-message">{message}</p>
+      <div className="page-actions" aria-label="Continue">
+        <a className="page-action-primary" href="#/">Go home</a>
+        <a className="page-action-secondary" href="#/board">Open whiteboard</a>
+      </div>
       <div className="not-found-tag not-found-tag-bottom" aria-hidden="true">404</div>
       <div className="not-found-bottom-line" aria-hidden="true" />
     </div>

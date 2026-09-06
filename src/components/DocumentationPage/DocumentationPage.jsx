@@ -1044,7 +1044,7 @@ export default function DocumentationPage() {
             <span className="doc-brand">Kanvas</span>
             <span className="doc-tagline">Think. Draw. Create.</span>
           </div>
-          <a href="#/" className="doc-back-btn">
+          <a href="#/board" className="doc-back-btn">
             <NavIcon name="board" />
             <span>Open Whiteboard</span>
           </a>
@@ -2576,7 +2576,7 @@ export default function DocumentationPage() {
         <div className="doc-footer-content">
           <h2 className="doc-footer-title">Ready to create?</h2>
           <p className="doc-footer-desc">Open Kanvas and start turning your ideas into something visual.</p>
-          <a href="#/" className="doc-footer-btn">
+          <a href="#/board" className="doc-footer-btn">
             <NavIcon name="board" />
             <span>Open Whiteboard</span>
           </a>

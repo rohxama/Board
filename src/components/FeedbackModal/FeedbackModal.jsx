@@ -35,6 +35,7 @@ export default function FeedbackModal({ onClose }) {
   return (
     <div className="feedback-dialog-backdrop" onPointerDown={onClose}>
       <div className="feedback-dialog" role="dialog" aria-modal="true" aria-labelledby="feedback-title" onPointerDown={e => e.stopPropagation()}>
+        <button type="button" className="dialog-close" onClick={onClose} aria-label="Close feedback dialog">×</button>
         <h2 id="feedback-title">Send Feedback</h2>
         <p className="feedback-desc">We&rsquo;d love to hear your thoughts. Your feedback helps us improve.</p>
         <textarea

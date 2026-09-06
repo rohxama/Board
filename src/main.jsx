@@ -3,5 +3,6 @@ import App from './App'
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary'
 import './styles/global.css'
 import './styles/layout.css'
+import './styles/design-system.css'
 
 createRoot(document.getElementById('root')).render(<ErrorBoundary><App /></ErrorBoundary>)
