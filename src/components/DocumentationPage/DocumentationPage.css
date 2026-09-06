@@ -2863,35 +2863,6 @@ html[data-theme='dark'] .doc-section-break-svg {
 
 /* ─── Visual Art Direction ──────────────────────────────────────── */
 
-/* Section accent color assignments */
-.doc-section--purple .doc-section-title,
-.doc-section--purple .doc-tool-icon-wrap {
-  color: var(--accent-purple);
-}
-.doc-section--blue .doc-section-title,
-.doc-section--blue .doc-tool-icon-wrap {
-  color: var(--accent-blue);
-}
-.doc-section--coral .doc-section-title,
-.doc-section--coral .doc-tool-icon-wrap {
-  color: var(--accent-coral);
-}
-.doc-section--yellow .doc-section-title,
-.doc-section--yellow .doc-tool-icon-wrap {
-  color: var(--accent-yellow);
-}
-.doc-section--pink .doc-section-title,
-.doc-section--pink .doc-tool-icon-wrap {
-  color: var(--accent-pink);
-}
-
-/* Accent-colored section border (bottom) */
-.doc-section--accent-purple { border-bottom: 2px solid var(--accent-purple); padding-bottom: 24px; }
-.doc-section--accent-blue   { border-bottom: 2px solid var(--accent-blue); padding-bottom: 24px; }
-.doc-section--accent-coral  { border-bottom: 2px solid var(--accent-coral); padding-bottom: 24px; }
-.doc-section--accent-yellow { border-bottom: 2px solid var(--accent-yellow); padding-bottom: 24px; }
-.doc-section--accent-pink   { border-bottom: 2px solid var(--accent-pink); padding-bottom: 24px; }
-
 /* Tool card accent variants */
 .doc-tool-card--green .doc-tool-icon-wrap  { background: var(--accent-soft); color: var(--accent); }
 .doc-tool-card--purple .doc-tool-icon-wrap { background: var(--accent-purple-soft); color: var(--accent-purple); }
@@ -2946,13 +2917,6 @@ html[data-theme='dark'] .doc-section-break-svg {
 .doc-hero-sub-accent {
   color: var(--accent-purple);
 }
-
-/* Dark mode visual art direction */
-html[data-theme='dark'] .doc-section--accent-purple { border-bottom-color: var(--accent-purple); }
-html[data-theme='dark'] .doc-section--accent-blue   { border-bottom-color: var(--accent-blue); }
-html[data-theme='dark'] .doc-section--accent-coral  { border-bottom-color: var(--accent-coral); }
-html[data-theme='dark'] .doc-section--accent-yellow { border-bottom-color: var(--accent-yellow); }
-html[data-theme='dark'] .doc-section--accent-pink   { border-bottom-color: var(--accent-pink); }
 
 /* ─── Showcase: Play with Kanvas ──────────────────────────────── */
 .doc-showcase {
