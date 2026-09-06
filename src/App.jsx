@@ -43,7 +43,18 @@ function Workspace({ splashDone, active = true, onStartupReady, beginProcessing,
   const clipboard = useRef([])
   const [view, setView] = useState({ x: 0, y: 0, scale: 1 })
   const { state, dispatch } = useAppState()
-  const { shapes, commit, replace, undo, redo } = useHistory()
+  const { shapes, commit, replace, undo, redo, error, rejectedShapeCount, historyLimit } = useHistory()
+
+  useEffect(() => {
+    if (error !== 'shape-limit') return
+    const count = Number.isFinite(rejectedShapeCount) ? rejectedShapeCount.toLocaleString() : 'This many'
+    showUserMessage?.(`${count} shapes exceeds the 10,000-shape board limit. Your current board was left unchanged.`)
+  }, [error, rejectedShapeCount, showUserMessage])
+
+  useEffect(() => {
+    if (shapes.length < 1000 || historyLimit >= 200) return
+    showUserMessage?.(`Undo history is limited to ${historyLimit} steps on large boards to keep drawing responsive.`)
+  }, [historyLimit, shapes.length, showUserMessage])
 
   useEffect(() => {
     if (active) onStartupReady?.()
