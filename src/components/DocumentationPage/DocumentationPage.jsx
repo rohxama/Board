@@ -37,7 +37,7 @@ import {
   Maximize2, ChevronRight, ChevronDown, Menu, X, MousePointer2, Hand, Square, Circle,
   Diamond, ArrowUpRight, Minus, Pencil, Crosshair, Type, Eraser, Image,
   Download, ZoomIn, Undo2, Redo2, Palette, Sun, Moon, File, Code, Copy,
-  Printer, Camera, FileText, Layers, Info, Play, Zap, ArrowUp,
+  Printer, Camera, FileText, Layers, Info, Play, Zap, ArrowUp, Search,
 } from 'lucide-react'
 
 const NAV = [
@@ -871,6 +871,7 @@ export default function DocumentationPage() {
   const [activeSection, setActiveSection] = useState('')
   const [activeTocId, setActiveTocId] = useState('')
   const [tocOpen, setTocOpen] = useState(false)
+  const [navQuery, setNavQuery] = useState('')
   const [collapsed, setCollapsed] = useState(() => {
     const init = {}
     NAV.forEach(cat => { init[cat.id] = true })
@@ -881,6 +882,11 @@ export default function DocumentationPage() {
   const sidebarRef = useRef(null)
   const { darkMode } = useTheme()
   const tocHeadings = useHeadingToc(contentRef)
+  const normalizedNavQuery = navQuery.trim().toLowerCase()
+  const filteredNav = NAV.map(category => {
+    const categoryMatches = category.label.toLowerCase().includes(normalizedNavQuery)
+    return { ...category, items: categoryMatches ? category.items : category.items.filter(item => item.label.toLowerCase().includes(normalizedNavQuery)) }
+  }).filter(category => !normalizedNavQuery || category.items.length)
 
   const toggleCategory = useCallback(catId => {
     setCollapsed(prev => ({ ...prev, [catId]: !prev[catId] }))
@@ -1039,10 +1045,13 @@ export default function DocumentationPage() {
       </a>
       <header className="doc-header">
         <div className="doc-header-inner">
-          <div className="doc-header-left">
-            <img className="doc-logo-icon" src={siteIcon} alt="Kanvas" />
-            <span className="doc-brand">Kanvas</span>
-            <span className="doc-tagline">Think. Draw. Create.</span>
+          <div>
+            <div className="doc-header-left">
+              <img className="doc-logo-icon" src={siteIcon} alt="Kanvas" />
+              <span className="doc-brand">Kanvas</span>
+              <span className="doc-tagline">Think. Draw. Create.</span>
+            </div>
+            <nav className="doc-breadcrumbs" aria-label="Breadcrumb"><a href="#/">Kanvas</a><span aria-hidden="true">/</span><span aria-current="page">Documentation</span></nav>
           </div>
           <a href="#/board" className="doc-back-btn">
             <NavIcon name="board" />
@@ -1067,8 +1076,13 @@ export default function DocumentationPage() {
           onKeyDown={handleSidebarKeyDown}
         >
           <div className="doc-sidebar-scroll">
+            <label className="doc-nav-search">
+              <Search size={15} strokeWidth={2} aria-hidden="true" />
+              <span className="sr-only">Find a section</span>
+              <input value={navQuery} onChange={event => setNavQuery(event.target.value)} placeholder="Find a section" type="search" />
+            </label>
             <nav className="doc-sidebar-nav">
-              {NAV.map(cat => {
+              {filteredNav.map(cat => {
                 const isCollapsed = collapsed[cat.id]
                 const hasActiveChild = cat.items.some(item => item.id === activeSection)
                 return (

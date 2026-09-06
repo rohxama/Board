@@ -3,22 +3,14 @@ export default function Hero() {
     <section className="lp-hero lp-bg-lavender">
       <div className="lp-hero__inner">
         <div className="lp-hero__content">
-          <h1 className="lp-hero__title">Your ideas<br />deserve a<br />canvas.</h1>
+          <p className="lp-hero__eyebrow">A calm place for visual thinking</p>
+          <h1 className="lp-hero__title">Make the next<br />step visible.</h1>
           <p className="lp-hero__copy">
-            Kanvas is an infinite online whiteboard for thinking, sketching, planning and creating — individually or together in real time.
+            Kanvas is a browser-based whiteboard for sketching ideas, arranging shapes, writing notes, and exporting the work when it is ready.
           </p>
           <div className="lp-hero__ctas">
-            <a href="#/board" className="lp-btn lp-btn-primary">Start creating free</a>
-            <a href="#/board" className="lp-btn lp-btn-secondary">Explore the canvas</a>
-          </div>
-          <div className="lp-hero__social-proof">
-            <div className="lp-hero__avatars">
-              <span className="lp-hero__avatar" style={{ background: '#F3A9B9' }}>A</span>
-              <span className="lp-hero__avatar" style={{ background: '#CDB6E8' }}>M</span>
-              <span className="lp-hero__avatar" style={{ background: '#BBDDBF' }}>J</span>
-              <span className="lp-hero__avatar" style={{ background: '#F7DF78' }}>K</span>
-            </div>
-            <span className="lp-hero__social-text">Loved by creators and teams around the world</span>
+            <a href="#/board" className="lp-btn lp-btn-primary">Open a blank board</a>
+            <a href="#features" className="lp-btn lp-btn-secondary">See what it does</a>
           </div>
         </div>
 
@@ -90,21 +82,13 @@ export default function Hero() {
                 <span>+</span>
               </div>
 
-              {/* Share button */}
-              <div className="lp-mockup__share">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                  <path d="M8 1L11 4L8 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M11 4H5C3 4 1 5.5 1 8V11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <span>Share</span>
-              </div>
             </div>
           </div>
 
           {/* Floating labels */}
           <div className="lp-hero__label lp-hero__label--top-right">
-            <span className="lp-hero__label-icon">✨</span>
-            Real-time collaboration
+            <span className="lp-hero__label-icon">↗</span>
+            Shapes, text & images
           </div>
           <div className="lp-hero__label lp-hero__label--bottom-left">
             <span className="lp-hero__label-icon">∞</span>
@@ -112,7 +96,7 @@ export default function Hero() {
           </div>
           <div className="lp-hero__label lp-hero__label--bottom-right">
             <span className="lp-hero__label-icon">↗</span>
-            Export anywhere
+            Export PNG, SVG, PDF or JSON
           </div>
           <div className="lp-hero__label lp-hero__label--mid-left">
             <span className="lp-hero__label-icon">✧</span>

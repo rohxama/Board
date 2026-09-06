@@ -1,7 +1,7 @@
 const benefits = [
   {
-    title: 'Clean & simple',
-    desc: 'A clutter-free interface that helps you focus.',
+    title: 'Made for the blank page',
+    desc: 'A focused canvas leaves room for the thought, not the interface.',
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
         <circle cx="10" cy="10" r="7"/>
@@ -10,8 +10,8 @@ const benefits = [
     ),
   },
   {
-    title: 'Blazing fast',
-    desc: 'Built for smooth visual work.',
+    title: 'Edit without fear',
+    desc: 'Undo and redo let you explore different directions as you go.',
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M10 2L4 12H10L8 18L16 8H10L12 2"/>
@@ -19,8 +19,8 @@ const benefits = [
     ),
   },
   {
-    title: 'Works anywhere',
-    desc: 'Your workspace is ready when inspiration hits.',
+    title: 'Start with what fits',
+    desc: 'Use a pencil, basic shapes, arrows, text, or an image reference.',
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
         <circle cx="10" cy="10" r="7"/>
@@ -31,8 +31,8 @@ const benefits = [
     ),
   },
   {
-    title: 'Privacy first',
-    desc: 'Your ideas should remain yours.',
+    title: 'Saved on this device',
+    desc: 'Your current board is kept in local browser storage between sessions.',
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <rect x="4" y="9" width="12" height="9" rx="2"/>
@@ -41,8 +41,8 @@ const benefits = [
     ),
   },
   {
-    title: 'Designed for teams',
-    desc: 'Collaborate visually when your workflow requires it.',
+    title: 'Take it with you',
+    desc: 'Export the finished board in the file format your next step needs.',
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
         <circle cx="7" cy="7" r="3"/>
@@ -53,8 +53,8 @@ const benefits = [
     ),
   },
   {
-    title: 'Always improving',
-    desc: 'A product that evolves around real user feedback.',
+    title: 'Large canvas, close control',
+    desc: 'Zoom out for the whole picture or in to refine the small details.',
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M10 2V18"/>
@@ -71,11 +71,11 @@ export default function Benefits() {
       <div className="lp-section">
         <div className="lp-benefits__card">
           <div className="lp-benefits__header">
-            <h2 className="lp-benefits__title">Everything you need.<br />Nothing you don't.</h2>
+            <h2 className="lp-benefits__title">The board stays out of your way.</h2>
             <p className="lp-benefits__copy">
-              Kanvas is fast, simple and delightful to use — so you can focus on your ideas, not the tool.
+              Start rough, change your mind, and leave with a clear visual you can keep or export.
             </p>
-            <a href="#/board" className="lp-btn lp-btn-primary">Start creating free</a>
+            <a href="#/board" className="lp-btn lp-btn-primary">Open the board</a>
           </div>
           <div className="lp-benefits__grid">
             {benefits.map(b => (

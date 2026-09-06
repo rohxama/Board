@@ -4,34 +4,15 @@ const footerColumns = [
     links: [
       { label: 'Features', href: '#features' },
       { label: 'Use Cases', href: '#use-cases' },
-      { label: 'Pricing', href: '#pricing' },
-      { label: 'Changelog', href: '#/' },
+      { label: 'How it works', href: '#how-it-works' },
+      { label: 'Open board', href: '#/board' },
     ],
   },
   {
-    title: 'Company',
+    title: 'Learn',
     links: [
-      { label: 'About', href: '#/' },
-      { label: 'Careers', href: '#/' },
-      { label: 'Blog', href: '#/' },
-      { label: 'Contact', href: '#/' },
-    ],
-  },
-  {
-    title: 'Resources',
-    links: [
-      { label: 'Help Center', href: '#/' },
-      { label: 'Tutorials', href: '#/' },
-      { label: 'Community', href: '#/' },
       { label: 'Documentation', href: '#/docs' },
-    ],
-  },
-  {
-    title: 'Legal',
-    links: [
-      { label: 'Privacy Policy', href: '#/' },
-      { label: 'Terms of Service', href: '#/' },
-      { label: 'Cookie Policy', href: '#/' },
+      { label: 'Keyboard shortcuts', href: '#/docs' },
     ],
   },
 ]
@@ -50,7 +31,7 @@ export default function Footer() {
               <span>Kanvas</span>
             </a>
             <p className="lp-footer__tagline">
-              The infinite whiteboard for thinking, creating and planning visually.
+              A focused whiteboard for turning loose ideas into clear visuals.
             </p>
           </div>
           {footerColumns.map(col => (

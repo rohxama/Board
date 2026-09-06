@@ -24,8 +24,8 @@ const features = [
     color: '#FFF6E6',
   },
   {
-    title: 'Smart Arrows',
-    desc: 'Connect ideas with clean arrows and visual relationships.',
+    title: 'Arrows & connections',
+    desc: 'Draw arrows and keep related ideas visually connected.',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M5 19L19 5"/>
@@ -71,8 +71,8 @@ const features = [
     color: '#CDB6E8',
   },
   {
-    title: 'Export Anywhere',
-    desc: 'Export your work for sharing, presenting or continuing elsewhere.',
+    title: 'Export your work',
+    desc: 'Download the board as PNG, JPG, PDF, SVG, or JSON.',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 3V15M12 3L8 7M12 3L16 7"/>
@@ -80,19 +80,6 @@ const features = [
       </svg>
     ),
     color: '#BBDDBF',
-  },
-  {
-    title: 'Ready to Share',
-    desc: 'Designed for team workflows and sharing with others.',
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="7" r="4"/>
-        <path d="M5 21C5 17 8 14 12 14C16 14 19 17 19 21"/>
-        <circle cx="19" cy="8" r="3"/>
-        <path d="M20 17C21 16 22 15.5 23 15.5"/>
-      </svg>
-    ),
-    color: '#F5C7A8',
   },
 ]
 

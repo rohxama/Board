@@ -2,19 +2,19 @@ const steps = [
   {
     num: '1',
     title: 'Start with a blank canvas',
-    desc: 'Open a flexible infinite canvas and choose the tools you need.',
+    desc: 'Open the board and choose a drawing, shape, text, or image tool.',
     color: '#EBC9E8',
   },
   {
     num: '2',
-    title: 'Build your idea',
-    desc: 'Add shapes, text, drawings, images, arrows and connections.',
+    title: 'Build and arrange',
+    desc: 'Add marks, shapes, text, images, and arrows. Pan and zoom as the idea grows.',
     color: '#FFF6E6',
   },
   {
     num: '3',
-    title: 'Share or export',
-    desc: 'Save, export, or share your finished visual work.',
+    title: 'Keep or export it',
+    desc: 'Your current board saves locally. Export a PNG, JPG, PDF, SVG, or JSON file when needed.',
     color: '#E8F1E8',
   },
 ]

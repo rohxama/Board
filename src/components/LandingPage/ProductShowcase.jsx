@@ -5,13 +5,13 @@ const annotations = [
     position: 'top-left',
   },
   {
-    title: 'Infinite canvas',
-    desc: 'Unlimited space for ideas.',
+    title: 'Canvas',
+    desc: 'Pan and zoom around a spacious dot-grid work area.',
     position: 'bottom-left',
   },
   {
     title: 'Export',
-    desc: 'Save or share your finished work.',
+    desc: 'Download an image, PDF, SVG, or JSON copy of the board.',
     position: 'top-right',
   },
   {
@@ -25,7 +25,8 @@ export default function ProductShowcase() {
   return (
     <section className="lp-showcase lp-bg-cream" id="showcase">
       <div className="lp-section">
-        <h2 className="lp-section-title">A closer look at Kanvas</h2>
+        <p className="lp-section-kicker">The actual workspace</p>
+        <h2 className="lp-section-title">A whiteboard with the essentials in reach.</h2>
         <div className="lp-showcase__visual">
           <div className="lp-showcase__mockup">
             <div className="lp-showcase__mockup-toolbar">

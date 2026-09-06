@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react'
 
 const navLinks = [
-  { label: 'Product', href: '#features' },
   { label: 'Features', href: '#features' },
+  { label: 'How it works', href: '#how-it-works' },
   { label: 'Use Cases', href: '#use-cases' },
-  { label: 'Pricing', href: '#pricing' },
-  { label: 'Resources', href: '#footer', hasChevron: true },
+  { label: 'Documentation', href: '#/docs' },
 ]
 
 export default function Header() {
@@ -47,8 +46,7 @@ export default function Header() {
         </nav>
 
         <div className="lp-header__actions">
-          <a href="#/board" className="lp-header__login">Log in</a>
-          <a href="#/board" className="lp-btn lp-btn-primary lp-header__cta">Start creating</a>
+          <a href="#/board" className="lp-btn lp-btn-primary lp-header__cta">Open board</a>
         </div>
 
         <button
@@ -77,8 +75,7 @@ export default function Header() {
             </a>
           ))}
           <div className="lp-header__mobile-actions">
-            <a href="#/board" className="lp-header__mobile-link">Log in</a>
-            <a href="#/board" className="lp-btn lp-btn-primary" style={{ width: '100%', textAlign: 'center' }}>Start creating</a>
+            <a href="#/board" className="lp-btn lp-btn-primary" style={{ width: '100%', textAlign: 'center' }}>Open board</a>
           </div>
         </div>
       )}

@@ -1,27 +1,27 @@
 const useCases = [
   {
-    title: 'Brainstorming',
-    desc: 'Capture ideas, cluster thoughts and connect different perspectives.',
+    title: 'Untangle an idea',
+    desc: 'Put rough thoughts on the page, group them, and draw the links between them.',
     color: '#EBC9E8',
   },
   {
-    title: 'Wireframing',
-    desc: 'Map flows and design interfaces from rough concepts to clearer structures.',
+    title: 'Map a flow',
+    desc: 'Sketch screens, steps, and decision points before committing them to a build.',
     color: '#FFF6E6',
   },
   {
-    title: 'Teaching',
-    desc: 'Explain concepts visually and keep students engaged.',
+    title: 'Explain a concept',
+    desc: 'Use shapes, labels, and arrows to make a complex thought easier to follow.',
     color: '#E8F1E8',
   },
   {
-    title: 'Planning',
-    desc: 'Break down projects, prioritize tasks and stay aligned.',
+    title: 'Plan on one page',
+    desc: 'Lay out a lightweight plan, prioritise the pieces, and keep the whole picture in view.',
     color: '#F7DF78',
   },
   {
-    title: 'Presentations',
-    desc: 'Turn a canvas into a visual story people remember.',
+    title: 'Collect references',
+    desc: 'Drop in images, add annotations, and keep visual references beside your working notes.',
     color: '#F3A9B9',
   },
 ]
@@ -30,7 +30,7 @@ export default function UseCases() {
   return (
     <section className="lp-use-cases lp-bg-white" id="use-cases">
       <div className="lp-section">
-        <h2 className="lp-section-title">Built for every way you work</h2>
+        <h2 className="lp-section-title">Useful before the work is polished</h2>
         <div className="lp-use-cases__grid">
           {useCases.map(uc => (
             <div key={uc.title} className="lp-use-cases__card">
