@@ -3760,69 +3760,131 @@ html[data-theme='dark'] .doc-tryit-step {
   }
 }
 
-/* ─── Example Boards: realistic user-created work ────────────── */
-.doc-example-board {
-  margin: 16px 0;
-  border: 1px solid var(--doc-border, rgba(0,0,0,0.06));
+/* ─── Example Gallery: curated collection of real boards ──────── */
+.doc-gallery {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 20px 0;
+}
+.doc-gallery-item {
+  position: relative;
   border-radius: 10px;
   overflow: hidden;
-  background: var(--doc-surface, rgba(0,0,0,0.02));
-}
-html[data-theme='dark'] .doc-example-board {
-  border-color: rgba(255,255,255,0.06);
-  background: rgba(255,255,255,0.02);
-}
-.doc-example-canvas {
-  width: 100%;
-  aspect-ratio: 680/380;
   background: var(--doc-bg, #fff);
-  border-bottom: 1px solid var(--doc-border, rgba(0,0,0,0.06));
+  border: 1px solid var(--doc-border, rgba(0,0,0,0.08));
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+html[data-theme='dark'] .doc-gallery-item {
+  background: #0b0f14;
+  border-color: rgba(255,255,255,0.08);
+}
+.doc-gallery-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+html[data-theme='dark'] .doc-gallery-item:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.doc-gallery-item--wide {
+  grid-column: 1 / -1;
+}
+.doc-gallery-item--featured .doc-gallery-canvas {
+  aspect-ratio: 680/340;
+}
+.doc-gallery-item--medium .doc-gallery-canvas {
+  aspect-ratio: 680/380;
+}
+.doc-gallery-item--large {
+  flex: 1.4;
+}
+.doc-gallery-item--large .doc-gallery-canvas {
+  aspect-ratio: 680/380;
+}
+.doc-gallery-item--small {
+  flex: 1;
+}
+.doc-gallery-item--small .doc-gallery-canvas {
+  aspect-ratio: 680/320;
+}
+.doc-gallery-canvas {
+  width: 100%;
   overflow: hidden;
 }
-html[data-theme='dark'] .doc-example-canvas {
-  background: #0b0f14;
-  border-bottom-color: rgba(255,255,255,0.06);
-}
-.doc-example-canvas svg {
+.doc-gallery-canvas svg {
   width: 100%;
   height: 100%;
+  display: block;
 }
-.doc-example-meta {
+.doc-gallery-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 28px 16px 12px;
+  background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.3) 60%, transparent 100%);
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
+  flex-direction: column;
+  gap: 2px;
+  pointer-events: none;
 }
-.doc-example-type {
-  flex-shrink: 0;
-  font-size: 10px;
+html[data-theme='dark'] .doc-gallery-overlay {
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+}
+.doc-gallery-type {
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: rgba(59,130,246,0.1);
-  color: #2563eb;
+  color: rgba(255,255,255,0.7);
   font-family: var(--doc-font);
 }
-html[data-theme='dark'] .doc-example-type {
-  background: rgba(59,130,246,0.2);
-  color: #60a5fa;
+.doc-gallery-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  font-family: var(--doc-font);
+  line-height: 1.2;
 }
-.doc-example-desc {
-  font-size: 12px;
-  color: var(--doc-muted, #6b7280);
-  line-height: 1.4;
+.doc-gallery-desc {
+  font-size: 11px;
+  color: rgba(255,255,255,0.7);
+  margin: 0;
+  line-height: 1.3;
   font-family: var(--doc-font);
 }
-@media (max-width: 640px) {
-  .doc-example-canvas {
+.doc-gallery-row-split {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 14px;
+  align-items: stretch;
+}
+.doc-gallery-stack {
+  flex: 0.6;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+@media (max-width: 768px) {
+  .doc-gallery {
+    grid-template-columns: 1fr;
+  }
+  .doc-gallery-row-split {
+    flex-direction: column;
+  }
+  .doc-gallery-stack {
+    flex: none;
+    flex-direction: row;
+  }
+  .doc-gallery-item--small .doc-gallery-canvas {
     aspect-ratio: 4/3;
   }
-  .doc-example-meta {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
+  .doc-gallery-overlay {
+    padding: 20px 12px 10px;
+  }
+  .doc-gallery-title {
+    font-size: 12px;
   }
 }
 

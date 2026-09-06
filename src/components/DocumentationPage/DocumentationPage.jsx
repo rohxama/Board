@@ -2233,51 +2233,78 @@ export default function DocumentationPage() {
             <h2 className="doc-section-title"><NavIcon name="layout" /> What You Can Create</h2>
             <p className="doc-section-intro">Real boards people build with Kanvas — from quick sketches to polished diagrams.</p>
 
-            <div className="doc-example-board" data-reveal>
-              <div className="doc-example-canvas"><MindMapExample /></div>
-              <div className="doc-example-meta">
-                <span className="doc-example-type">Mind Map</span>
-                <span className="doc-example-desc">Product launch planning — branches for marketing, engineering, design, and launch day. Sticky notes for open questions.</span>
+            <div className="doc-gallery">
+              {/* Row 1: Feature highlight — full width */}
+              <div className="doc-gallery-item doc-gallery-item--wide doc-gallery-item--featured" data-reveal>
+                <div className="doc-gallery-card">
+                  <div className="doc-gallery-canvas"><MindMapExample /></div>
+                  <div className="doc-gallery-overlay">
+                    <span className="doc-gallery-type">Mind Map</span>
+                    <h3 className="doc-gallery-title">Product Launch Planning</h3>
+                    <p className="doc-gallery-desc">Branches for marketing, engineering, design, and launch day. Sticky notes for open questions.</p>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div className="doc-example-board" data-reveal>
-              <div className="doc-example-canvas"><WireframeExample /></div>
-              <div className="doc-example-meta">
-                <span className="doc-example-type">Wireframe</span>
-                <span className="doc-example-desc">Mobile learning app — three-screen flow from course browser to lesson player with notes.</span>
+              {/* Row 2: Two medium cards */}
+              <div className="doc-gallery-item doc-gallery-item--medium" data-reveal>
+                <div className="doc-gallery-card">
+                  <div className="doc-gallery-canvas"><WireframeExample /></div>
+                  <div className="doc-gallery-overlay">
+                    <span className="doc-gallery-type">Wireframe</span>
+                    <h3 className="doc-gallery-title">Mobile Learning App</h3>
+                    <p className="doc-gallery-desc">Three-screen flow from course browser to lesson player.</p>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div className="doc-example-board" data-reveal>
-              <div className="doc-example-canvas"><FlowchartExample /></div>
-              <div className="doc-example-meta">
-                <span className="doc-example-type">Flowchart</span>
-                <span className="doc-example-desc">User onboarding flow — sign up, email verification, profile setup, 4-step guided tour, and dashboard landing.</span>
+              <div className="doc-gallery-item doc-gallery-item--medium" data-reveal>
+                <div className="doc-gallery-card">
+                  <div className="doc-gallery-canvas"><FlowchartExample /></div>
+                  <div className="doc-gallery-overlay">
+                    <span className="doc-gallery-type">Flowchart</span>
+                    <h3 className="doc-gallery-title">User Onboarding</h3>
+                    <p className="doc-gallery-desc">Sign up → verify → profile → tour → dashboard.</p>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div className="doc-example-board" data-reveal>
-              <div className="doc-example-canvas"><StudyNotesExample /></div>
-              <div className="doc-example-meta">
-                <span className="doc-example-type">Study Notes</span>
-                <span className="doc-example-desc">CS201 data structures — BST and min-heap diagrams with properties, comparison table, and exam reminder.</span>
-              </div>
-            </div>
+              {/* Row 3: One large + one small stacked */}
+              <div className="doc-gallery-row-split">
+                <div className="doc-gallery-item doc-gallery-item--large" data-reveal>
+                  <div className="doc-gallery-card">
+                    <div className="doc-gallery-canvas"><BrainstormExample /></div>
+                    <div className="doc-gallery-overlay">
+                      <span className="doc-gallery-type">Brainstorming</span>
+                      <h3 className="doc-gallery-title">Feature Prioritization</h3>
+                      <p className="doc-gallery-desc">Impact vs. effort matrix with voted sticky notes and sprint assignments.</p>
+                    </div>
+                  </div>
+                </div>
 
-            <div className="doc-example-board" data-reveal>
-              <div className="doc-example-canvas"><BrainstormExample /></div>
-              <div className="doc-example-meta">
-                <span className="doc-example-type">Brainstorming Board</span>
-                <span className="doc-example-desc">Feature prioritization matrix — impact vs. effort with voted sticky notes, sprint assignments, and dropped items.</span>
-              </div>
-            </div>
+                <div className="doc-gallery-stack">
+                  <div className="doc-gallery-item doc-gallery-item--small" data-reveal>
+                    <div className="doc-gallery-card">
+                      <div className="doc-gallery-canvas"><StudyNotesExample /></div>
+                      <div className="doc-gallery-overlay">
+                        <span className="doc-gallery-type">Study Notes</span>
+                        <h3 className="doc-gallery-title">Data Structures</h3>
+                        <p className="doc-gallery-desc">BST, min-heap, comparison table.</p>
+                      </div>
+                    </div>
+                  </div>
 
-            <div className="doc-example-board" data-reveal>
-              <div className="doc-example-canvas"><ArchitectureExample /></div>
-              <div className="doc-example-meta">
-                <span className="doc-example-type">System Architecture</span>
-                <span className="doc-example-desc">Full-stack board app — client, API gateway, three microservices, databases, S3 storage, and monitoring dashboard.</span>
+                  <div className="doc-gallery-item doc-gallery-item--small" data-reveal>
+                    <div className="doc-gallery-card">
+                      <div className="doc-gallery-canvas"><ArchitectureExample /></div>
+                      <div className="doc-gallery-overlay">
+                        <span className="doc-gallery-type">Architecture</span>
+                        <h3 className="doc-gallery-title">System Design</h3>
+                        <p className="doc-gallery-desc">Full-stack with microservices and monitoring.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
