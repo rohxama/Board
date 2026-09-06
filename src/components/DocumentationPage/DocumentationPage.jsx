@@ -158,6 +158,22 @@ function NavIcon({ name }) {
   )
 }
 
+/* On this page — right-side scroll spy navigation */
+const PAGE_SECTIONS = [
+  { id: 'getting-started', label: 'Getting Started' },
+  { id: 'tools', label: 'Tools' },
+  { id: 'drawing', label: 'Drawing' },
+  { id: 'zoom', label: 'Zoom & Navigation' },
+  { id: 'undo-redo', label: 'Undo & Redo' },
+  { id: 'styling', label: 'Color & Styling' },
+  { id: 'themes', label: 'Light & Dark Mode' },
+  { id: 'export', label: 'Export' },
+  { id: 'shortcuts', label: 'Keyboard Shortcuts' },
+  { id: 'tips', label: 'Tips' },
+  { id: 'examples', label: 'Examples' },
+  { id: 'faq', label: 'FAQ' },
+]
+
 function ToolCard({ icon, name, shortcut, description, howToUse, tips, visual, className }) {
   return (
     <div className={`doc-tool-card${className ? ' ' + className : ''}`}>
@@ -228,36 +244,6 @@ function FAQItem({ question, answer, index }) {
   )
 }
 
-function useHeadingToc(contentRef) {
-  const [headings, setHeadings] = useState([])
-
-  useEffect(() => {
-    if (!contentRef.current) return
-    const els = contentRef.current.querySelectorAll('h2[id], h3[id]')
-    const items = Array.from(els).map(el => ({
-      id: el.id,
-      text: el.textContent.trim(),
-      level: parseInt(el.tagName[1], 10),
-    }))
-    const tree = []
-    let currentH2 = null
-    for (const item of items) {
-      if (item.level === 2) {
-        currentH2 = { ...item, children: [] }
-        tree.push(currentH2)
-      } else if (item.level === 3 && currentH2) {
-        currentH2.children.push(item)
-      } else if (item.level === 3) {
-        currentH2 = { ...item, children: [] }
-        tree.push(currentH2)
-      }
-    }
-    setHeadings(tree)
-  }, [contentRef])
-
-  return headings
-}
-
 /* Action demo: shows a realistic canvas action with before/after.
    Used for important instructions that benefit from visual proof. */
 function ActionDemo({ action, result, label }) {
@@ -303,6 +289,180 @@ function TryItBlock({ title, steps, canvas }) {
             </li>
           ))}
         </ol>
+      </div>
+    </div>
+  )
+}
+
+/* Interactive Canvas Demo — clickable shapes with live style panel */
+function InteractiveCanvasDemo() {
+  const [selected, setSelected] = useState(null)
+  const [shapes, setShapes] = useState([
+    { id: 1, type: 'rect', x: 40, y: 30, w: 120, h: 70, fill: 'rgba(59,130,246,0.08)', stroke: '#3b82f6', label: 'Research', rx: 6 },
+    { id: 2, type: 'rect', x: 200, y: 30, w: 120, h: 70, fill: 'rgba(139,92,246,0.08)', stroke: '#8b5cf6', label: 'Design', rx: 6 },
+    { id: 3, type: 'rect', x: 360, y: 30, w: 120, h: 70, fill: 'rgba(34,197,94,0.08)', stroke: '#22c55e', label: 'Build', rx: 6 },
+    { id: 4, type: 'ellipse', x: 540, y: 45, rx: 50, ry: 35, fill: 'rgba(245,158,11,0.08)', stroke: '#f59e0b', label: 'Ship', isEllipse: true },
+    { id: 5, type: 'diamond', x: 260, y: 150, w: 80, h: 60, fill: 'rgba(236,72,153,0.08)', stroke: '#ec4899', label: 'Review?', isDiamond: true },
+    { id: 6, type: 'rect', x: 40, y: 150, w: 100, h: 50, fill: '#fefce8', stroke: '#eab308', label: 'Sprint 1', rx: 3 },
+    { id: 7, type: 'rect', x: 420, y: 150, w: 100, h: 50, fill: '#dcfce7', stroke: '#22c55e', label: 'Done', rx: 3 },
+  ])
+
+  const fillColors = [
+    { name: 'None', value: 'transparent', stroke: '#d1d5db' },
+    { name: 'Blue', value: 'rgba(59,130,246,0.12)', stroke: '#3b82f6' },
+    { name: 'Green', value: 'rgba(34,197,94,0.12)', stroke: '#22c55e' },
+    { name: 'Red', value: 'rgba(239,68,68,0.12)', stroke: '#ef4444' },
+    { name: 'Yellow', value: 'rgba(234,179,8,0.12)', stroke: '#eab308' },
+    { name: 'Purple', value: 'rgba(139,92,246,0.12)', stroke: '#8b5cf6' },
+  ]
+
+  const selectedShape = shapes.find(s => s.id === selected)
+
+  const handleShapeClick = (id) => {
+    setSelected(selected === id ? null : id)
+  }
+
+  const handleFillChange = (fillValue) => {
+    if (!selected) return
+    setShapes(shapes.map(s => s.id === selected ? { ...s, fill: fillValue } : s))
+  }
+
+  const renderShape = (s) => {
+    const isSelected = s.id === selected
+    const commonProps = {
+      key: s.id,
+      onClick: () => handleShapeClick(s.id),
+      style: { cursor: 'pointer' },
+    }
+
+    if (s.isEllipse) {
+      return (
+        <g {...commonProps}>
+          <ellipse cx={s.x} cy={s.y} rx={s.rx} ry={s.ry} fill={s.fill} stroke={s.stroke} strokeWidth={isSelected ? 2 : 1.5} />
+          <text x={s.x} y={s.y + 4} textAnchor="middle" fontSize="9" fontWeight="600" fontFamily="system-ui" fill={s.stroke}>{s.label}</text>
+          {isSelected && (
+            <>
+              <rect x={s.x - s.rx - 4} y={s.y - s.ry - 4} width="6" height="6" rx="1" fill={s.stroke} />
+              <rect x={s.x + s.rx - 2} y={s.y - s.ry - 4} width="6" height="6" rx="1" fill={s.stroke} />
+              <rect x={s.x - s.rx - 4} y={s.y + s.ry - 2} width="6" height="6" rx="1" fill={s.stroke} />
+              <rect x={s.x + s.rx - 2} y={s.y + s.ry - 2} width="6" height="6" rx="1" fill={s.stroke} />
+              <ellipse cx={s.x} cy={s.y} rx={s.rx + 4} ry={s.ry + 4} fill="none" stroke={s.stroke} strokeWidth="1.5" strokeDasharray="4 2" />
+            </>
+          )}
+        </g>
+      )
+    }
+
+    if (s.isDiamond) {
+      const cx = s.x + s.w / 2, cy = s.y + s.h / 2
+      const pts = `${cx},${s.y} ${s.x + s.w},${cy} ${cx},${s.y + s.h} ${s.x},${cy}`
+      return (
+        <g {...commonProps}>
+          <polygon points={pts} fill={s.fill} stroke={s.stroke} strokeWidth={isSelected ? 2 : 1.5} />
+          <text x={cx} y={cy + 4} textAnchor="middle" fontSize="9" fontWeight="600" fontFamily="system-ui" fill={s.stroke}>{s.label}</text>
+          {isSelected && (
+            <>
+              <rect x={s.x - 4} y={s.y - 4} width="6" height="6" rx="1" fill={s.stroke} />
+              <rect x={s.x + s.w - 2} y={s.y - 4} width="6" height="6" rx="1" fill={s.stroke} />
+              <rect x={s.x - 4} y={s.y + s.h - 2} width="6" height="6" rx="1" fill={s.stroke} />
+              <rect x={s.x + s.w - 2} y={s.y + s.h - 2} width="6" height="6" rx="1" fill={s.stroke} />
+              <polygon points={pts} fill="none" stroke={s.stroke} strokeWidth="1.5" strokeDasharray="4 2" transform="translate(0,-0)" style={{transform: `translate(0,0)`}} />
+            </>
+          )}
+        </g>
+      )
+    }
+
+    return (
+      <g {...commonProps}>
+        <rect x={s.x} y={s.y} width={s.w} height={s.h} rx={s.rx || 4} fill={s.fill} stroke={s.stroke} strokeWidth={isSelected ? 2 : 1.5} />
+        <text x={s.x + s.w / 2} y={s.y + s.h / 2 + 4} textAnchor="middle" fontSize="9" fontWeight="600" fontFamily="system-ui" fill={s.stroke}>{s.label}</text>
+        {isSelected && (
+          <>
+            <rect x={s.x - 4} y={s.y - 4} width="6" height="6" rx="1" fill={s.stroke} />
+            <rect x={s.x + s.w - 2} y={s.y - 4} width="6" height="6" rx="1" fill={s.stroke} />
+            <rect x={s.x - 4} y={s.y + s.h - 2} width="6" height="6" rx="1" fill={s.stroke} />
+            <rect x={s.x + s.w - 2} y={s.y + s.h - 2} width="6" height="6" rx="1" fill={s.stroke} />
+            <rect x={s.x - 4} y={s.y - 4} width={s.w + 8} height={s.h + 8} rx={s.rx ? s.rx + 2 : 6} fill="none" stroke={s.stroke} strokeWidth="1.5" strokeDasharray="4 2" />
+          </>
+        )}
+      </g>
+    )
+  }
+
+  return (
+    <div className="doc-interactive-demo">
+      <div className="doc-interactive-canvas-wrap">
+        <div className="doc-interactive-canvas">
+          <svg viewBox="0 0 640 220" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }} aria-hidden="true">
+            {/* Dot grid */}
+            <g className="doc-parallax-grid">
+              {[0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340,360,380,400,420,440,460,480,500,520,540,560,580,600,620,640].map(x => (
+                [0,20,40,60,80,100,120,140,160,180,200,220].map(y => (
+                  <circle key={`${x}-${y}`} cx={x} cy={y} r="0.6" fill="var(--dot)" />
+                ))
+              )).flat()}
+            </g>
+            {/* Arrows between shapes */}
+            <path d="M164 65 L196 65" stroke="#9ca3af" strokeWidth="1.2" strokeLinecap="round" />
+            <path d="M192 62 L198 65 L192 68" fill="none" stroke="#9ca3af" strokeWidth="1.2" strokeLinecap="round" />
+            <path d="M324 65 L356 65" stroke="#9ca3af" strokeWidth="1.2" strokeLinecap="round" />
+            <path d="M352 62 L358 65 L352 68" fill="none" stroke="#9ca3af" strokeWidth="1.2" strokeLinecap="round" />
+            <path d="M484 65 L486 65 L488 67 L490 65 L492 67" stroke="#9ca3af" strokeWidth="1" strokeLinecap="round" />
+            {/* Shapes */}
+            {shapes.map(renderShape)}
+            {/* Annotation */}
+            <text x="320" y="210" textAnchor="middle" fontSize="9" fontFamily="system-ui" fill="var(--muted)">Click a shape to select it — change color from the panel</text>
+          </svg>
+        </div>
+      </div>
+
+      <div className="doc-interactive-panel">
+        <div className="doc-interactive-panel-header">
+          <span className="doc-interactive-panel-title">Style</span>
+          <span className="doc-interactive-panel-tab">Style</span>
+          <span className="doc-interactive-panel-tab">Arrange</span>
+        </div>
+
+        {selectedShape ? (
+          <>
+            <div className="doc-interactive-panel-section">
+              <span className="doc-interactive-panel-label">Selected</span>
+              <span className="doc-interactive-panel-value">{selectedShape.label}</span>
+            </div>
+
+            <div className="doc-interactive-panel-section">
+              <span className="doc-interactive-panel-label">Fill</span>
+              <div className="doc-interactive-swatch-row">
+                {fillColors.map(c => (
+                  <button
+                    key={c.name}
+                    className={`doc-interactive-swatch${selectedShape.fill === c.value ? ' doc-interactive-swatch--active' : ''}`}
+                    style={{ background: c.value === 'transparent' ? 'repeating-conic-gradient(#e5e7eb 0% 25%, #fff 0% 50%) 50% / 8px 8px' : c.value, borderColor: c.stroke }}
+                    onClick={() => handleFillChange(c.value)}
+                    title={c.name}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="doc-interactive-panel-section">
+              <span className="doc-interactive-panel-label">Stroke</span>
+              <div className="doc-interactive-panel-row">
+                <span className="doc-interactive-panel-chip" style={{ borderColor: selectedShape.stroke, color: selectedShape.stroke }}>● {selectedShape.stroke}</span>
+              </div>
+            </div>
+
+            <div className="doc-interactive-panel-section">
+              <span className="doc-interactive-panel-label">Type</span>
+              <span className="doc-interactive-panel-value">{selectedShape.isEllipse ? 'Ellipse' : selectedShape.isDiamond ? 'Diamond' : 'Rectangle'}</span>
+            </div>
+          </>
+        ) : (
+          <div className="doc-interactive-panel-empty">
+            <span>Click a shape on the canvas to edit its style</span>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -877,7 +1037,6 @@ function ZoomDemo() {
 export default function DocumentationPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('')
-  const [activeTocId, setActiveTocId] = useState('')
   const [tocOpen, setTocOpen] = useState(false)
   const [navQuery, setNavQuery] = useState('')
   const [collapsed, setCollapsed] = useState(() => {
@@ -889,7 +1048,6 @@ export default function DocumentationPage() {
   const contentRef = useRef(null)
   const sidebarRef = useRef(null)
   const { darkMode } = useTheme()
-  const tocHeadings = useHeadingToc(contentRef)
   const normalizedNavQuery = navQuery.trim().toLowerCase()
   const filteredNav = NAV.map(category => {
     const categoryMatches = category.label.toLowerCase().includes(normalizedNavQuery)
@@ -993,34 +1151,6 @@ export default function DocumentationPage() {
     sections?.forEach(s => observer.observe(s))
     return () => observer.disconnect()
   }, [])
-
-  useEffect(() => {
-    const tocIds = new Set()
-    tocHeadings.forEach(h => {
-      tocIds.add(h.id)
-      h.children.forEach(c => tocIds.add(c.id))
-    })
-    if (tocIds.size === 0) return
-
-    const observer = new IntersectionObserver(
-      entries => {
-        const visible = entries.filter(e => e.isIntersecting)
-        if (visible.length > 0) {
-          const top = visible.reduce((a, b) =>
-            a.boundingClientRect.top < b.boundingClientRect.top ? a : b
-          )
-          setActiveTocId(top.target.id)
-        }
-      },
-      { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
-    )
-    const el = contentRef.current
-    if (!el) return
-    el.querySelectorAll('h2[id], h3[id]').forEach(h => {
-      if (tocIds.has(h.id)) observer.observe(h)
-    })
-    return () => observer.disconnect()
-  }, [tocHeadings])
 
   useEffect(() => {
     if (!activeSection) return
@@ -1145,32 +1275,18 @@ export default function DocumentationPage() {
           <span>On this page</span>
         </button>
 
-        {tocOpen && tocHeadings.length > 0 && (
+        {tocOpen && (
           <div className="doc-mobile-toc-panel" role="navigation" aria-label="On this page">
             <nav className="doc-mobile-toc-nav">
-              {tocHeadings.map(item => (
-                <div key={item.id} className="doc-mobile-toc-group">
+              {PAGE_SECTIONS.map(s => (
+                <div key={s.id} className="doc-mobile-toc-group">
                   <button
-                    className={`doc-mobile-toc-item doc-mobile-toc-item--h2${activeTocId === item.id ? ' active' : ''}`}
-                    onClick={() => { scrollTo(item.id); setTocOpen(false) }}
+                    className={`doc-mobile-toc-item doc-mobile-toc-item--h2${activeSection === s.id ? ' active' : ''}`}
+                    onClick={() => { scrollTo(s.id); setTocOpen(false) }}
                     type="button"
                   >
-                    {item.text}
+                    {s.label}
                   </button>
-                  {item.children.length > 0 && (
-                    <div className="doc-mobile-toc-children">
-                      {item.children.map(child => (
-                        <button
-                          key={child.id}
-                          className={`doc-mobile-toc-item doc-mobile-toc-item--h3${activeTocId === child.id ? ' active' : ''}`}
-                          onClick={() => { scrollTo(child.id); setTocOpen(false) }}
-                          type="button"
-                        >
-                          {child.text}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
               ))}
             </nav>
@@ -1534,6 +1650,14 @@ export default function DocumentationPage() {
                 </svg>
               }
             />
+          </section>
+
+          {/* Interactive Demo */}
+          <section className="doc-section" data-reveal>
+            <h2 className="doc-section-title"><NavIcon name="mouse-pointer" /> Try It Live</h2>
+            <p className="doc-section-intro">Click any shape on the canvas to select it. Change its color from the style panel. This is how Kanvas feels.</p>
+
+            <InteractiveCanvasDemo />
           </section>
 
           <section id="drawing" className="doc-section" data-reveal>
@@ -2587,46 +2711,24 @@ export default function DocumentationPage() {
         </main>
 
         <aside className="doc-toc" aria-label="On this page">
-          {tocHeadings.length > 0 && (
-            <>
-              <span className="doc-toc-label">ON THIS PAGE</span>
-              <nav className="doc-toc-nav">
-                {tocHeadings.map(item => {
-                  const isActive = activeTocId === item.id
-                  return (
-                    <div key={item.id} className="doc-toc-group">
-                      <button
-                        className={`doc-toc-item doc-toc-item--h2${isActive ? ' active' : ''}`}
-                        onClick={() => scrollTo(item.id)}
-                        type="button"
-                      >
-                        <span className={`doc-toc-dot doc-toc-dot--h2${isActive ? ' active' : ''}`} />
-                        <span className="doc-toc-text">{item.text}</span>
-                      </button>
-                      {item.children.length > 0 && (
-                        <div className="doc-toc-children">
-                          {item.children.map(child => {
-                            const isChildActive = activeTocId === child.id
-                            return (
-                              <button
-                                key={child.id}
-                                className={`doc-toc-item doc-toc-item--h3${isChildActive ? ' active' : ''}`}
-                                onClick={() => scrollTo(child.id)}
-                                type="button"
-                              >
-                                <span className={`doc-toc-dot doc-toc-dot--h3${isChildActive ? ' active' : ''}`} />
-                                <span className="doc-toc-text">{child.text}</span>
-                              </button>
-                            )
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </nav>
-            </>
-          )}
+          <span className="doc-toc-label">On this page</span>
+          <nav className="doc-toc-nav">
+            {PAGE_SECTIONS.map(s => {
+              const isActive = activeSection === s.id
+              return (
+                <div key={s.id} className="doc-toc-group">
+                  <button
+                    className={`doc-toc-item doc-toc-item--h2${isActive ? ' active' : ''}`}
+                    onClick={() => scrollTo(s.id)}
+                    type="button"
+                  >
+                    <span className={`doc-toc-dot doc-toc-dot--h2${isActive ? ' active' : ''}`} />
+                    <span className="doc-toc-text">{s.label}</span>
+                  </button>
+                </div>
+              )
+            })}
+          </nav>
         </aside>
       </div>
 
