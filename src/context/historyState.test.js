@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createInitialHistoryState, historyReducer } from './historyState.js'
+import { createInitialHistoryState, historyLimitForShapeCount, historyReducer, MAX_SHAPES } from './historyState.js'
 
 const apply = (state, type, shapes) => historyReducer(state, { type, shapes })
 
@@ -77,4 +77,33 @@ test('replacing the board resets history safely and preserves revision semantics
   assert.equal(state.redoStack.length, 0)
   assert.equal(state.revision, revision + 1)
   assert.strictEqual(apply(state, 'UNDO'), state)
+})
+
+test('oversized commits preserve the current board and expose a recoverable limit error', () => {
+  const initial = apply(createInitialHistoryState(), 'COMMIT', [rectangle])
+  const tooMany = Array.from({ length: MAX_SHAPES + 1 }, (_, index) => ({ ...rectangle, id: `shape-${index}` }))
+  const next = apply(initial, 'COMMIT', tooMany)
+
+  assert.deepEqual(next.shapes, initial.shapes)
+  assert.equal(next.error, 'shape-limit')
+  assert.equal(next.rejectedShapeCount, MAX_SHAPES + 1)
+  assert.equal(next.revision, initial.revision)
+})
+
+test('large boards retain a bounded, usable history without cloning frames on undo and redo', () => {
+  assert.equal(historyLimitForShapeCount(1000), 100)
+  assert.equal(historyLimitForShapeCount(5000), 20)
+  assert.equal(historyLimitForShapeCount(10000), 10)
+
+  const board = Array.from({ length: 5000 }, (_, index) => ({ ...rectangle, id: `shape-${index}` }))
+  let state = apply(createInitialHistoryState(), 'COMMIT', board)
+  for (let index = 1; index <= 30; index++) state = apply(state, 'COMMIT', shapes => shapes.map((shape, shapeIndex) => shapeIndex === 0 ? { ...shape, x: index } : shape))
+
+  assert.equal(state.undoStack.length, 20)
+  const previous = state.undoStack[state.undoStack.length - 1]
+  state = apply(state, 'UNDO')
+  assert.strictEqual(state.shapes, previous)
+  const redo = state.redoStack[0]
+  state = apply(state, 'REDO')
+  assert.strictEqual(state.shapes, redo)
 })

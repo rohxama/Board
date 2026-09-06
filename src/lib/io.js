@@ -6,6 +6,10 @@ import { getCanvas2DContext, readFileAsText } from './browser'
 import { getThemeAwareColor, getCurrentTheme, THEME_PAPER } from './themeColors'
 const MAX_IMPORT_BYTES = 25 * 1024 * 1024
 const MAX_IMPORT_SHAPES = 10000
+// Rasterizing a whole Konva stage at 2x can lock up lower-memory browsers long
+// before the board itself reaches its 10k editing limit. Vector/JSON exports
+// remain available for larger boards.
+export const MAX_RASTER_EXPORT_SHAPES = 5000
 export const exportJSON = (shapes, fileName = 'diagram') => download(new Blob([JSON.stringify({ version: 1, shapes }, null, 2)], { type: 'application/json' }), sanitize(fileName) + '.json')
 export async function importJSON(file) {
   if (!file) throw new Error('Choose a diagram file first.')
@@ -57,6 +61,10 @@ function loadImage(src) {
 // clipboard, print) reuses the same capture path.
 async function renderBoardCanvas(stage) {
   if (!stage) return null
+  const shapeCount = stage.find(node => Boolean(node.getAttr?.('shapeId'))).length
+  if (shapeCount > MAX_RASTER_EXPORT_SHAPES) {
+    throw new Error(`Raster export is limited to ${MAX_RASTER_EXPORT_SHAPES.toLocaleString()} shapes. Export SVG or JSON for this board instead.`)
+  }
   const overlay = stage.findOne('.overlay')
   if (overlay) { overlay.hide(); stage.draw() }
   try {
@@ -65,7 +73,7 @@ async function renderBoardCanvas(stage) {
     return await withPaper(url)
   } catch (error) {
     console.error('Board render failed:', error)
-    return null
+    throw error instanceof Error ? error : new Error('The board could not be rendered for export.')
   } finally {
     if (overlay) { overlay.show(); stage.draw() }
   }
