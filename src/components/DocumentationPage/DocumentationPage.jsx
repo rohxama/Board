@@ -1494,6 +1494,24 @@ export default function DocumentationPage() {
                 </div>
               ))}
             </div>
+
+            <TryItBlock
+              title="Draw a rectangle"
+              steps={[
+                'Press R or click the Rectangle tool in the toolbar',
+                'Click and drag on the canvas to set the size',
+                'Release to create the shape',
+                'Press V to switch to Select and move it',
+              ]}
+              canvas={
+                <svg viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  {[0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200].map(x => [0,10,20,30,40,50,60,70,80,90,100].map(y => <circle key={`${x}-${y}`} cx={x} cy={y} r="0.4" fill="#d1d5db" />)).flat()}
+                  <rect x="40" y="20" width="80" height="40" rx="4" fill="none" stroke="#3b82f6" strokeWidth="1" strokeDasharray="3 2" />
+                  <path d="M122 62 L122 66 L124 64 L126 68 L127 67.5 L125 63.5 L128 61Z" fill="#1e293b" />
+                  <text x="80" y="78" textAnchor="middle" fontSize="5" fontFamily="system-ui" fill="#6b7280">Drag to draw</text>
+                </svg>
+              }
+            />
           </section>
 
           <section id="drawing" className="doc-section" data-reveal>
@@ -1640,6 +1658,35 @@ export default function DocumentationPage() {
                 </ul>
               </div>
             </div>
+
+            <TryItBlock
+              title="Sketch a quick wireframe"
+              steps={[
+                'Press P to activate the Pencil tool',
+                'Draw a rough phone outline — no need to be precise',
+                'Add a header bar, image block, and text lines inside',
+                'Press V, select a shape, and change its color in the Style panel',
+              ]}
+              canvas={
+                <svg viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  {[0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200].map(x => [0,10,20,30,40,50,60,70,80,90,100].map(y => <circle key={`${x}-${y}`} cx={x} cy={y} r="0.4" fill="#d1d5db" />)).flat()}
+                  {/* Phone outline — sketchy */}
+                  <path d="M50 12 C52 10, 98 9, 100 12 C102 14, 103 86, 100 88 C98 90, 52 91, 50 88 C48 86, 48 14, 50 12 Z" stroke="#374151" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                  {/* Header */}
+                  <path d="M56 22 L94 21" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" />
+                  {/* Image block */}
+                  <path d="M56 30 C58 28, 88 27, 90 30 C92 32, 93 48, 90 50 C88 52, 58 53, 56 50 C54 48, 54 32, 56 30 Z" stroke="#9ca3af" strokeWidth="1" fill="rgba(156,163,175,0.06)" />
+                  {/* Mountain sketch */}
+                  <path d="M60 48 L68 36 L74 42 L82 32 L88 48" stroke="#d1d5db" strokeWidth="1" fill="none" />
+                  {/* Text lines */}
+                  <path d="M56 58 L90 57" stroke="#6b7280" strokeWidth="1.2" strokeLinecap="round" />
+                  <path d="M56 64 L80 63" stroke="#d1d5db" strokeWidth="1" strokeLinecap="round" />
+                  <path d="M56 70 L72 69" stroke="#d1d5db" strokeWidth="0.8" strokeLinecap="round" />
+                  {/* Cursor */}
+                  <path d="M104 50 L104 56 L107 54 L110 58 L111 57.5 L108 53.5 L111 51Z" fill="#1e293b" />
+                </svg>
+              }
+            />
           </section>
 
           <SectionBreak
@@ -2058,6 +2105,38 @@ export default function DocumentationPage() {
           <section id="shortcuts" className="doc-section" data-reveal>
             <h2 className="doc-section-title"><NavIcon name="code" /> Keyboard Shortcuts</h2>
             <p className="doc-section-intro">Speed up your workflow with keyboard shortcuts. Shortcuts are disabled while editing text.</p>
+
+            <TryItBlock
+              title="Quick shape flow with shortcuts"
+              steps={[
+                'Press R — Rectangle tool activates',
+                'Click and drag to draw a rectangle',
+                'Press O — switch to Ellipse tool',
+                'Draw a circle next to it',
+                'Press V — Switch to Select',
+                'Click the rectangle, press Delete to remove it',
+              ]}
+              canvas={
+                <svg viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  {[0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200].map(x => [0,10,20,30,40,50,60,70,80,90,100].map(y => <circle key={`${x}-${y}`} cx={x} cy={y} r="0.4" fill="#d1d5db" />)).flat()}
+                  {/* Rectangle — being deleted */}
+                  <rect x="30" y="24" width="50" height="36" rx="3" fill="none" stroke="#ef4444" strokeWidth="1" strokeDasharray="3 2" opacity="0.5" />
+                  <text x="55" y="68" textAnchor="middle" fontSize="5" fontFamily="system-ui" fill="#ef4444">Delete</text>
+                  {/* X mark on it */}
+                  <path d="M42 36 L62 52 M62 36 L42 52" stroke="#ef4444" strokeWidth="1.2" strokeLinecap="round" />
+                  {/* Ellipse — active */}
+                  <ellipse cx="130" cy="42" rx="32" ry="24" fill="rgba(139,92,246,0.06)" stroke="#8b5cf6" strokeWidth="1.2" />
+                  <rect x="94" y="14" width="5" height="5" rx="1" fill="#8b5cf6" />
+                  <rect x="161" y="14" width="5" height="5" rx="1" fill="#8b5cf6" />
+                  <rect x="94" y="65" width="5" height="5" rx="1" fill="#8b5cf6" />
+                  <rect x="161" y="65" width="5" height="5" rx="1" fill="#8b5cf6" />
+                  <rect x="94" y="14" width="72" height="56" rx="6" fill="none" stroke="#8b5cf6" strokeWidth="1" strokeDasharray="3 2" />
+                  {/* Key hint */}
+                  <rect x="116" y="78" width="28" height="14" rx="3" fill="rgba(255,255,255,0.9)" stroke="#e5e7eb" strokeWidth="0.5" />
+                  <text x="130" y="88" textAnchor="middle" fontSize="7" fontWeight="700" fontFamily="system-ui" fill="#374151">O</text>
+                </svg>
+              }
+            />
 
             <div className="doc-shortcut-section">
               <h3 className="doc-shortcut-heading">Tools</h3>
