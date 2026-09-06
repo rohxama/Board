@@ -277,6 +277,29 @@ function ActionDemo({ action, result, label }) {
   )
 }
 
+/* TryItBlock: compact "Try it yourself" with mini canvas + instruction */
+function TryItBlock({ title, steps, canvas }) {
+  return (
+    <div className="doc-tryit">
+      <div className="doc-tryit-header">
+        <span className="doc-tryit-badge">Try it yourself</span>
+        <span className="doc-tryit-title">{title}</span>
+      </div>
+      <div className="doc-tryit-body">
+        <div className="doc-tryit-canvas">{canvas}</div>
+        <ol className="doc-tryit-steps">
+          {steps.map((step, i) => (
+            <li key={i} className="doc-tryit-step">
+              <span className="doc-tryit-step-num">{i + 1}</span>
+              <span>{step}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  )
+}
+
 /* Four-step workflow: Think → Choose → Draw → Ship.
    Each step shows a realistic mini-board illustration so the
    reader sees the action (what to do) and the result (what
