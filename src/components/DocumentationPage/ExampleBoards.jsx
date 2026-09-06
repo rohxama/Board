@@ -234,7 +234,7 @@ export function FlowchartExample() {
       <text x="510" y="124" fontSize="5" fontFamily="system-ui" fill="#9ca3af">complete onboarding</text>
       {/* Completion badge */}
       <circle cx="548" cy="164" r="20" fill="rgba(34,197,94,0.06)" stroke="#22c55e" strokeWidth="1" />
-      <text x="548" y="168" textAnchor="middle" fontSize="14">🎉</text>
+      <path d="M540 164 L546 170 L558 158" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M612 300 L612 312 L617 308 L622 316 L624 315 L619 307 L624 303Z" fill="var(--text)" />
     </svg>
   )
