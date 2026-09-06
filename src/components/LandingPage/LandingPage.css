@@ -16,6 +16,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.landing-page main {
+  height: auto;
+  overflow: visible;
+  display: block;
+}
+
 /* Color tokens */
 :root {
   --lp-lavender: #EBC9E8;
