@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Two-column sequential marketing-layout scaffold." />
+    <title>Officely layout pattern</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="poster" aria-label="Officely flexible-work marketing layout">
+      <!-- This offset stripe belongs to the full composition, not either column. -->
+      <i class="background-stripe stripe-one" aria-hidden="true"></i>
+      <i class="background-stripe stripe-two" aria-hidden="true"></i>
+
+      <div class="page-grid">
+        <div class="column column-left">
+          <section class="panel hero-panel" aria-labelledby="hero-title">
+            <header class="panel-header">
+              <a class="wordmark" href="#hero" aria-label="Officely home">officely</a>
+              <nav class="header-actions" aria-label="Primary">
+                <a class="demo-link" href="#integrations">▣&nbsp; Book a demo</a>
+                <button class="menu-button" type="button" aria-label="Open menu">Ⅲ&nbsp; Menu</button>
+              </nav>
+            </header>
+            <p class="intro">The integrated stack app for all<br />your flexible working needs.</p>
+            <div class="status-chip chip-home">⌂ <span>HOME:</span> Adele Deris <b class="avatar avatar-a"></b></div>
+            <div class="status-chip chip-office">▥ <span>OFFICE:</span> Reese Williams <b class="avatar avatar-b"></b></div>
+            <h1 id="hero-title" class="display hero-title">MAKE <span class="portrait">◕</span> FLEXIBLE<br />WORK, REALLY WORK</h1>
+            <span class="scribble underline" aria-hidden="true"></span>
+            <a class="slack-button" href="#solution">✣&nbsp; Add to Slack</a>
+            <span class="doodle down-arrow" aria-hidden="true">↙</span>
+            <div class="bottom-statuses" aria-hidden="true">
+              <span class="status-chip tiny">▥ <small>OFFICE:</small> Sienna Bell</span>
+              <span class="status-chip tiny">⌂ <small>HOME:</small> Olivia Carter</span>
+            </div>
+          </section>
+
+          <section class="panel sky problem-panel" aria-labelledby="problem-title">
+            <h2 id="problem-title" class="display problem-title">FLEXIBLE<br />WORK IS<br />GREAT <span class="cream-sticker">BUT</span></h2>
+            <span class="doodle small-loop" aria-hidden="true">⌁</span>
+            <div class="problem-grid" data-problem-cards></div>
+          </section>
+
+          <section class="panel cream product-panel" id="solution" aria-labelledby="left-solution-title">
+            <div class="product-lockup">
+              <span class="yellow-sticker">THAT'S WHERE</span>
+              <h2 id="left-solution-title" class="wordmark wordmark-large">officely</h2>
+              <span class="yellow-sticker comes-in">COMES IN</span>
+            </div>
+            <div class="ui-stage ui-stage-large"><div class="callout c-one">◉&nbsp; Hey Marc, are in the office on Monday?</div><div class="callout c-two">◉&nbsp; Perfect! I'll join them.</div><div class="callout c-three">◉&nbsp; Great! I'll book a desk.</div><div class="workspace" aria-label="Illustrative workplace booking interface"><aside>●<br />■<br />▣<br />●<br />●</aside><div class="workspace-main"><b>Perfect! I'll join them.</b><p>● Available &nbsp; ● In Office &nbsp; ● Working from Home</p><div class="workspace-lines"></div></div></div></div>
+            <div class="benefit-grid" data-benefit-cards></div>
+          </section>
+        </div>
+
+        <div class="column column-right">
+          <section class="panel sky solution-panel" aria-labelledby="right-solution-title">
+            <div class="product-lockup right-lockup">
+              <span class="yellow-sticker">THAT'S WHERE</span>
+              <h2 id="right-solution-title" class="wordmark wordmark-large">officely</h2>
+              <span class="yellow-sticker comes-in">COMES IN</span>
+            </div>
+            <div class="ui-stage ui-stage-top"><div class="callout c-one">◉&nbsp; Hey Marc, are in the office on Monday?</div><div class="callout c-two">◉&nbsp; Perfect! I'll join them.</div><div class="callout c-three">◉&nbsp; Great! I'll book a desk.</div><div class="workspace"><aside>●<br />■<br />▣<br />●<br />●</aside><div class="workspace-main"><b>Perfect! I'll join them.</b><p>● Available &nbsp; ● In Office</p><div class="workspace-lines"></div></div></div></div>
+            <span class="doodle right-arrow" aria-hidden="true">↘</span>
+            <div class="benefit-grid" data-benefit-cards></div>
+
+            <div class="proof" aria-labelledby="proof-title">
+              <h2 id="proof-title" class="display proof-title">HELPING <mark>1,000'S</mark><br />FLEXIBLE COMPANIES<br />AVOID OFFICE MANDATES</h2>
+              <!-- Text marks keep the scaffold licensing-safe. Replace only with permitted SVG logo assets. -->
+              <div class="logo-grid" aria-label="Customer logo placeholders"><span>● Adeqvist</span><span>▣ marshmallow</span><span>♛ wifo mojo</span><span>Lemonade</span><span>Bold</span><span>Paramount</span></div>
+            </div>
+          </section>
+
+          <section class="panel cream integrations-panel" id="integrations" aria-labelledby="integrations-title">
+            <h2 id="integrations-title" class="display integrations-title">OFFICELY WILL<br />INTEGRATE WITH<br />YOUR WORK<br />SEAMLESSLY.</h2>
+            <a class="integration-pill" href="#steps">＋ Integrations &amp; partners</a>
+            <div class="integration-body">
+              <div class="photo-placeholder" aria-label="Team photo placeholder"><span>TEAM<br />AT WORK</span></div>
+              <ol class="integration-list"><li>See who's in and what's going on in the Office</li><li>Effortless Collaboration through smart Suggestions</li><li>Revitalise your Office Culture</li><li>Understand how your Office is being used</li></ol>
+            </div>
+          </section>
+
+          <section class="panel beige steps-panel" id="steps" aria-labelledby="steps-title">
+            <div><h2 id="steps-title" class="display steps-title">THREE<br />SIMPLE<br />STEPS</h2><span class="doodle tiny-arrow" aria-hidden="true">↙</span><p class="step-copy"><b>1.</b><br /><strong>Add Officely on Slack</strong><br />Get started in seconds — no complex setup, just a quick add.</p></div>
+            <div class="phone-ui" aria-label="Illustrative Slack mobile interface"><aside>●<br />■<br />▣<br />●</aside><div><b>●</b><p></p><p></p><p></p><p></p></div></div>
+          </section>
+        </div>
+      </div>
+    </main>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
