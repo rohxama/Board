@@ -1,205 +1,136 @@
-# Cleanup Report — Kanvas Whiteboard (D:\Board)
+# Cleanup Report — Kanvas Whiteboard (Round 2)
 
-Date: 2026-09-23 · Branch: `main` · Scope: dead code, unused assets, temp/debug files,
-folder reorganization. No features added, no redesign; UI/behavior kept identical
-(apart from restoring functionality that had regressed — see *Issues found & fixed*).
+Date: 2026-09-23 · Branch: `main` · Scope: full audit (files, imports, variables,
+dependencies, media/assets, tooling). No features added, no redesign; UI, behavior and
+routing are identical.
 
-Verification: `npm test` 10/10 pass · `npm run build` succeeds · 32/32 headless
-feature checks pass (incl. "Board actions menu opens with Undo/Redo/Import") ·
-pixel-diff of all routes before/after shows 0 px differences on landing, thankyou,
-waitlist, notfound and board (aside from the restored ⋯ button region) · docs pages
-behaviorally verified with a scroll-reveal check.
+Verification: `npm test` 10/10 pass · `npm run build` succeeds (CSS bundle 177.06 kB,
+JS 828.89 kB — chunk-size warning is pre-existing) · 22/22 headless feature checks pass
+(landing, board draw/undo/redo/copy/paste/zoom/rename/export/autosave/dark-mode, docs,
+404) · font check confirms only the two `Factor A @800` faces load and the headline
+still renders in Factor A · og/twitter meta images, boot-splash logo, hero image and
+doodles all return 200 · zero 404s and zero failed requests across routes.
+
+This project was already cleaned once (see git history `245a405`). This pass audited
+what remained, completed an in-progress follow-up cleanup that was sitting uncommitted
+in the working tree, and verified everything end-to-end.
 
 ---
 
 ## 1. Files removed
 
-### Source (dead code / duplicate modules)
 | Path | Why it was safe to remove |
 |---|---|
-| `src/components/Toolbar/DesignToolbar.jsx` | Duplicate of `Toolbar.jsx`; `App.jsx` now imports `Toolbar`. |
-| `src/components/OfficelyLanding/OfficelyLanding.jsx` + `.css` | Old landing replaced by `LandingPage`; no longer routed. |
-| `src/components/LandingPage/{Header,Hero,ProductShowcase,HowItWorks,UseCases,Benefits,Testimonials,Pricing,TrustStrip,FinalCTA,Footer}.jsx` | Previous-generation landing sections; not imported anywhere (current landing is a single-file page). |
-| `src/components/LandingPage/LandingPageMvp.css` | Unreferenced stylesheet variant. |
-| `src/lib/theme.js` | Unused; theme logic lives in `src/lib/themeColors.js` + `ThemeContext`. |
-| Dead helpers in `src/lib/browser.js` | `hasTouchEvents`, `canUseCanvas`, `canUseClipboardWrite`, `writeTextToClipboard`, `isPrimaryModifier`, `readFileAsText` — no importers after `io.js` switched off `readFileAsText`. |
-| `fitViewToContent` inside `ZoomControls.jsx` | Moved to `src/lib/viewport.js` (single home for viewport math); same code, same behavior. |
-| `action()` helper in `Toolbar.jsx` | Defined but never called (dead code). |
-| Unused `Chip` component in `LandingPage.jsx` | Never rendered. |
-| Dead `useVisitorStatus` re-export | File renamed `src/hooks/useVisitorStatus.js` → `src/hooks/usePreviousBoard.js`; internal helper is no longer exported under the old name. |
+| `tests/_round2-check.mjs` | Throwaway puppeteer verification helper from the round-2 work; checks were run and captured below, then the file deleted. |
+| `tests/_verify-round2.tmp.mjs` | Same as above (created and deleted during this pass). |
+| `logs/cleanup-vite.log`, `logs/vite.pid` | Dev-server log/pid generated during this pass's verification; already git-ignored. |
 
-### Debug / one-off scripts (`scripts/`)
-`analyze.cjs`, `comps.cjs`, `dbg-drag{,2,3,4}.cjs`, `dbg-geom.cjs`, `dbg-probe{2,3,4}.cjs`,
-`dots.cjs`, `map.cjs`, `map2.cjs`, `pix.cjs`, `probe.cjs`, `probe2.cjs`, `probe3.cjs`,
-`shotcheck.cjs`, `smoke-tools.cjs`, `test-viewport.cjs`, `pnglib.cjs` — throwaway
-probes from earlier debugging rounds; outputs already captured in `docs/`.
+No source file was deleted: every component, hook, context, lib module, page and asset
+in `src/` and `public/` was reference-checked and is used (details in §4).
 
-### Temp / debug files
-- `tests/.import-test.json`, `tests/.inv1.json`, `tests/.inv2.json`, `tests/_extract.mjs`,
-  `tests/debug-draw.cjs`, `tests/export-import.log` — artifacts of test runs.
-- `docpage-head.tmp.css` (repo root), and all `tests/_*.mjs` verification helpers
-  (`_feature-check`, `_capture-shots`, `_pixdiff`, `_audit-css`, `_audit-result.txt`,
-  `_reveal-check`, `_header-geo`, `_debug1/2`) — created during this cleanup and deleted
-  again before committing.
-- `.audit-backup/` (`.bak` copies, `.ps1` patch scripts) and `.commandcode/` — backup and
-  tooling leftovers that were tracked by accident.
-- `dist/` build output and all of `node_modules/` — were tracked in git; now removed from
-  the index and ignored (see §4).
+## 2. Completed in-progress round-2 changes (verified, not redesigned)
 
-### Dead CSS (~745+ lines net, built CSS 196.75 kB → 177.57 kB)
-- `src/components/DocumentationPage/DocumentationPage.css`
-- `src/components/LandingPage/LandingPage.css` (incl. `.ol-tape*`, `.ol-chip*`,
-  `.ol-lower-chips`, `.ol-type-flexible` — all dead once the `Chip` component and its
-  decorations went away)
-- `src/styles/design-system.css` (all `.landing-page` / `.lp-*` rules, dropped classes
-  from group selectors only after proving the class appears nowhere in source)
-- `src/styles/layout.css`
-Only class names that provably never appear in `src/`, `public/`, `index.html` or tests
-were pruned; every route was then visually re-verified via screenshots.
+The working tree contained staged-but-uncommitted changes from a partial earlier pass.
+They were audited, verified and are included in this commit:
 
-## 2. Assets removed
-- `public/fonts/factor-a/TRIALFactorA-Extrabold65-BF6476bc2feca7f.otf` — trial font file
-  with no `@font-face` or reference anywhere.
-- `public/assets/hero/slack-icon.svg` — referenced only by the removed `Chip` component.
+1. **`site-logo.png` moved** `src/assets/images/` → `public/assets/`.
+   - It was only referenced from `index.html` by absolute production URL
+     (`https://board-app.vercel.app/src/...`), which is wrong for a `public/`-style
+     meta asset and leaked a source-tree path into production metadata.
+   - `index.html` `og:image` / `twitter:image` now point to `/assets/site-logo.png`
+     (verified: fetches return 200, works from any deploy root).
+   - The header/splash logo (`site-logo-removebg-preview.png`) is imported through
+     Vite and stays in `src/assets/images/` — untouched.
+2. **Three unused font weights removed** from `public/fonts/factor-a/`
+   (`TRIALFactorA-Regular100`, `-Medium100`, `-Bold100`).
+   - The app uses Factor A exclusively at weight 800 (`.ol-headline`,
+     `.ol-type-focused`, `.ol-glyph-flexible`, the `.ol-wordmark` inline style).
+     The four removed `@font-face` rules had no render path (everything on the
+     landing page that sets Factor A also sets weight 800).
+   - `LandingPage.css` `@font-face` block updated to keep only the Extrabold file;
+     font check confirms `Factor A|800|loaded` and no requests to removed files.
+   - License file `Befonts-License.txt` and the Extrabold OTF remain.
+3. **`scripts/analyze-reference.mjs` removed.**
+   - One-off PNG-palette analyzer for `docs/reference/reference-design.png`; outputs
+     were already consumed during design work and are not reproducible artifacts of
+     the app. The reference image itself is intentionally kept (§6).
 
-## 3. Reorganization
-| Before | After |
+## 3. Folder structure
+
+The structure already matched a clean convention after the first pass, so no moves
+were needed this time:
+
+```
+├── index.html            # single-page shell: meta/SEO, CSP, boot splash
+├── src/
+│   ├── App.jsx           # hash router: landing / board / docs / thankyou / waitlist / 404
+│   ├── main.jsx          # entry; mounts ErrorBoundary + App + global styles
+│   ├── assets/images/    # logo imported via Vite (header, splash, docs)
+│   ├── components/       # one folder per UI concern (Canvas, Toolbar, StylePanel,
+│   │                     #   ZoomControls, modals, public pages, ErrorBoundary, …)
+│   ├── context/          # app state, undo/redo history (+ unit tests), theme
+│   ├── hooks/            # keyboard shortcuts, page-refresh, previous-board, image cache
+│   ├── lib/              # pure helpers: geometry, io/export, storage, viewport,
+│   │                     #   snapping, shortcuts, browser, images (+ unit tests)
+│   └── styles/           # global.css, layout.css, design-system.css
+├── public/               # verbatim static files: favicon, robots, sitemap,
+│   ├── assets/           #   site-logo.png (og/twitter), hero icons + image, doodles
+│   └── fonts/factor-a/   #   trial webfont (800 only) + license
+├── tests/                # e2e/perf/repro scripts (puppeteer) + fixtures + pnglib
+├── docs/                 # PRD, UX audits, reference design material
+├── scripts/              # (empty after cleanup — placeholder for future tooling)
+└── vite.config.js
+```
+
+## 4. Assets / dependencies audited and kept
+
+Everything below was checked for references and is genuinely used:
+
+- **All 13 `public/` files**: `favicon.png`, `robots.txt`, `sitemap.xml`,
+  `assets/site-logo.png` (og/twitter meta), `assets/hero/{demo,menu}-icon.svg`,
+  `assets/hero/hero-img1.jpg`, `assets/doodles/{hero-cta-arrow,hero-double-underline}.svg`
+  (LandingPage), 2 font files (`@font-face` in `LandingPage.css`), license txt.
+- **All runtime dependencies are imported**: `react`, `react-dom`, `konva`,
+  `react-konva` (canvas), `lucide-react` (DocumentationPage + KanvasUIFragments icons).
+- **All 53 `src/` files** are reachable from `main.jsx`; no orphan components,
+  no duplicate/legacy modules, no unused imports or exports found. (A handful of
+  exported constants such as `EXPORT_BACKGROUND`/`SHAPE_TYPES` are only used within
+  their own module — kept as they are part of the module's public surface, not dead.)
+- **`window.__app` / `__stage` / `__setView` / `__commit` hooks** in `CanvasStage.jsx`
+  look like debug code but are the interface the e2e tests drive the app with — kept.
+
+## 5. Issues found & fixed
+
+- **`tests/_round2-check.mjs` hard-coded a personal Chrome path** and was a leftover
+  from the interrupted pass; removed (its assertions were re-run and pass).
+- **`package.json` `test` script omits `src/lib/...` duplicates**: none found — all
+  three test files (`historyState`, `eventListeners`, `userMessages`) are listed and
+  pass. (Previous report's fix is still in place.)
+- **Pre-existing, not changed**: `puppeteer`/`puppeteer-core`/`zod` remain "extraneous"
+  (installed ad-hoc, not in `package.json`). The e2e scripts need them; adding them as
+  devDependencies would be a dependency change outside cleanup scope. Noted for a
+  future decision.
+- **Pre-existing, not changed**: JS bundle is 828 kB (Konva is large) and Vite warns
+  about it; also `canvas-empty-state` hint says "Press ? for shortcuts" while no `?`
+  handler exists. Both are product decisions, not cleanup regressions.
+
+## 6. Intentionally kept even though not currently used
+
+| Item | Why it is kept |
 |---|---|
-| `officely-layout-scaffold/` (repo root) | `docs/reference/officely-layout-scaffold/` |
-| `public/assets/reference design.png` (shipped to production for no reason) | `docs/reference/reference-design.png` |
-| `scripts/pnglib.cjs` (deleted) | helper now lives with its only consumer: `tests/pnglib.cjs`; `tests/export-import.mjs` import updated. |
-| `Toolbar.jsx` (380+ lines, inline modal) | `SaveAsModal` extracted to `src/components/SaveAsModal/SaveAsModal.jsx` (pure code move, identical markup/logic). |
+| `docs/reference/` (reference-design.png, officely-layout-scaffold/) | Design reference material, deliberately preserved in round 1. |
+| `tests/*.mjs` e2e/perf/repro scripts + `tests/fixtures/` | Only regression coverage for export/import, panning, image handling, perf; not wired into `npm test` because they need puppeteer. |
+| `logs/`, `artifacts/`, `.tmp-shots/`, `dist/`, `node_modules/`, `.vercel/`, `excalidraw/` | Generated/local-only, git-ignored, harmless on disk. |
+| `src/assets/images/site-logo-removebg-preview.png` | Used by header, splash screen, docs header (Vite import). |
+| `scripts/` (now empty) | Conventional location for future project tooling; kept as a folder placeholder. |
 
-### Remaining folders and their responsibilities
-- `src/` — application code: `components/` (Canvas, Toolbar, StylePanel, ZoomControls,
-  modals, public pages: LandingPage, DocumentationPage, Waitlist/ThankYou/NotFound),
-  `context/` (app state, history, theme), `hooks/`, `lib/` (geometry, io, storage,
-  viewport, browser helpers), `styles/` (design-system + layout CSS),
-  `assets/images/` (logo used by header + og/twitter meta).
-- `public/` — static files copied verbatim: fonts (`fonts/factor-a/`), icons
-  (`assets/hero/*-icon.svg`), favicon, robots/sitemap, og image.
-- `tests/` — test suites run by `npm test` (`*.test.js` live next to source in `src/`)
-  plus puppeteer e2e/perf scripts (`*-e2e.mjs`, `*-repro*.mjs`, `export-import.mjs`,
-  `invalid-actions.mjs`, `redo-integrity.mjs`, `smoke-after-cleanup.mjs`) and
-  `fixtures/` input diagrams.
-- `scripts/` — *(removed in round 2; only held one-off analysis scripts)*
-- `docs/` — `PRD.md`, audit/review docs (`frontend-ux-audit.md`,
-  `performance-reference-review.md`, `whiteboard-ux-audit.md`) and `docs/reference/`
-  (reference design image + static scaffold).
-- `.vercel/` — deploy config. `dist/`, `node_modules/`, `logs/`, `artifacts/`,
-  `.tmp-shots/` — generated, git-ignored.
+## 7. Verification summary
 
-## 4. Intentionally kept (unused today, but useful later / required)
-- **e2e & performance scripts + `tests/fixtures/`** — not part of `npm test`, but they
-  are the only regression coverage for export/import, panning, dropdowns and perf;
-  organized in `tests/`, kept.
-- **`docs/reference/`** — reference design PNG and layout scaffold moved here instead of
-  deleted, per decision to keep reference material.
-- **`src/assets/images/site-logo*.png`** — logo is used in headers and as the
-  `og:image` / `twitter:image` meta image.
-- **Git-ignored generated dirs**: `logs/`, `artifacts/`, `.tmp-shots/` (screenshot
-  comparisons), `dist/`, `node_modules/`, `node_modules/.vite/`, `.vercel`,
-  `excalidraw/` — kept on disk, ignored by git (`.gitignore` updated and organized with
-  section comments).
-- **`package.json` test script extended** with `src/lib/userMessages.test.js` (test file
-  exists and passes; was missing from the script).
-- **All 5 runtime dependencies are used**: `konva`, `react-konva`, `react`,
-  `react-dom`, `lucide-react`.
-
-## 5. Issues found & fixed during cleanup
-1. **"Board actions" menu was unopenable (pre-existing regression).** Git archaeology
-   showed the overflow menu markup (`Undo`, `Redo`, `Import diagram`, quick exports,
-   light/dark toggle) has had no trigger button since commits `8ea1422`/`9524d3a`, which
-   stranded JSON import with no UI entry point. *Fix:* restored the `⋯` button
-   (`.overflow-trigger`, title/aria "Board actions") inside `.overflow-menu-wrap` and
-   restored its CSS in `layout.css` byte-identical to the original rule; removed the
-   never-called `action()` helper. Verified by feature check and header geometry
-   (trigger sits inside the 100 px toolbar, menu drops below it).
-2. **Docs scroll-reveal breakage found and repaired while pruning.** The CSS prune had
-   cut the base selector mid-token (`veal] {`) and removed `@keyframes docRevealUp`,
-   leaving 12 rules referencing a missing animation — the showcase gallery stayed at
-   `opacity: 0` forever. *Fix:* restored the `[data-reveal]` base rule, the
-   `docRevealUp` keyframes and the section comment; removed genuinely dead keyframes
-   (`docDraw`, `docPop`, `docPulse`, `docPulseBorder`); normalized stray indentation.
-   Verified: braces balanced (681/681), no `veal]` fragments, group-selector bodies
-   byte-match HEAD, and a behavioral reveal check passes (first section reveals on
-   load, off-screen items stay pending, gallery items end at `opacity: 1`).
-   *Note:* baseline screenshots captured mid-bug are not a valid reference for docs
-   pages; the behavioral check + visual inspection are authoritative there.
-3. **`tests/_pixdiff.mjs` bug (verification tooling, since deleted):** it hardcoded its
-   two comparison directories and ignored CLI arguments, so earlier "pairwise" runs were
-   all baseline-vs-after. Fixed and rerun; the real pairwise results are the ones cited
-   at the top of this report.
-4. **Broken import after moving helpers:** `tests/export-import.mjs` imported
-   `../scripts/pnglib.cjs`; updated to `./pnglib.cjs` after the helper moved into
-   `tests/`. `scripts/analyze-reference.mjs` path references updated likewise (the
-   script itself was since removed in round 2 below).
-5. **Pre-existing oddity noted, not changed:** `node_modules` contains `puppeteer`,
-   `puppeteer-core`, `zod` and other packages that are *not* in `package.json` (they
-   were installed ad-hoc for the e2e scripts). With `node_modules/` now untracked and
-   ignored, a fresh `npm install` will **not** include puppeteer — install it
-   (`npm i -D puppeteer`) before running the e2e scripts. Left as-is to avoid changing
-   dependencies during a cleanup pass.
-6. **Tracked build output & dependencies:** `dist/` and all of `node_modules/` were
-   committed previously (~4,700 files); removed from the index and covered by
-   `.gitignore`.
-
----
-
-## 6. Verification summary
-
-- `npm test` → 10/10 pass.
-- `npm run build` → succeeds; CSS bundle 196.75 kB → 177.57 kB (chunk-size warning is
-  pre-existing).
-- Headless feature suite → 32/32 pass, no page/console errors, including the restored
-  Board actions menu.
-- Screenshot pixel-diff across `/`, `/board`, `/docs`, `/thank-you`, `/waitlist`,
-  `/nope` (desktop + mobile, light + dark): 0 px delta everywhere except (a) the board
-  header region where the restored `⋯` button now sits, and (b) docs mobile, where
-  scroll-reveal timing makes captures nondeterministic — confirmed by re-capturing the
-  same build twice (that run also differs), i.e. not caused by this cleanup.
-
----
-
-## 7. Round 2 — further removal of unused files/media (same day)
-
-A second reference sweep over every tracked file (media, fonts, scripts, docs,
-fixtures, all of `src/`):
-
-### Removed
-- **Unused font files** `public/fonts/factor-a/TRIALFactorA-{Regular100,Medium100,Bold100}-*.otf`
-  (~382 KB) and their three `@font-face` rules in `LandingPage.css` — "Factor A" is only
-  ever used at weight **800** (headline `font:800`, `.ol-type-focused`, wordmark inline
-  `font-weight: 800`), so the 400/500/700 faces were never fetched or rendered.
-  Kept: `Extrabold100` (the actual display face) + `Befonts-License.txt`.
-- **`scripts/analyze-reference.mjs`** — one-off PNG palette/ASCII analyzer for the
-  reference design; zero references, its output isn't cited anywhere. With it gone the
-  `scripts/` folder is empty and removed.
-
-### Reorganized / fixed (media given an actual purpose)
-- **`src/assets/images/site-logo.png` → `public/assets/site-logo.png`** and updated the
-  `og:image` / `twitter:image` meta tags in `index.html`. The old URLs pointed at
-  `/src/assets/…`, which Vite does **not** copy into `dist/` — the social-preview image
-  was a guaranteed 404 in production. From `public/` it now ships with the build.
-  (Vite does bundle the splash `<img src="/src/…site-logo-removebg-preview.png">` in
-  `index.html`, so that one is fine where it is.)
-
-### Fixed (pre-existing breakage found while verifying)
-- **Chrome path in 4 e2e scripts** (`export-import`, `invalid-actions`, `pan-extreme`,
-  `performance-repro-cdp`) hardcoded `C:\Program Files (x86)\Google\Chrome\…`, but Chrome
-  is installed at `C:\Program Files\Google\Chrome\…` — every e2e run would have failed at
-  launch. Now resolves the first existing path with a fallback; `node --check` passes.
-
-### Re-audit: confirmed *in use*, therefore kept
-- `demo-icon.svg` / `menu-icon.svg` — referenced dynamically via `<Icon name="demo|menu">`
-  (`/assets/hero/${name}-icon.svg`); a literal grep misses them.
-- Doodle SVGs, `hero-img1.jpg`, favicon, robots.txt, sitemap.xml, Extrabold font,
-  `site-logo-removebg-preview.png` (toolbar/docs/splash), all `tests/fixtures/*` (every
-  fixture is used by an e2e test), all docs, all `src/` files (import sweep found only
-  the 3 `*.test.js`, which `npm test` runs directly).
-
-### Verification (round 2)
-- `npm test` 10/10 · `npm run build` succeeds · zero dangling references to removed files.
-- Live browser check: headline computes to `Factor A 800` with the face **loaded**; all
-  landing images report `naturalWidth > 0`; **no page/request errors**; screenshots of
-  `/` and `#/docs` visually identical to before (headline glyphs, doodles, docs layout).
+| Check | Result |
+|---|---|
+| `npm test` (unit) | 10/10 pass |
+| `npm run build` | succeeds; CSS 177.06 kB, JS 828.89 kB (warning pre-existing) |
+| Headless smoke suite (`tests/smoke-after-cleanup.mjs`) | 22/22 pass, no page/console errors |
+| Font audit (landing) | only `Factor A`/`Factor A Flexible` @800 + DM Sans load; no removed-font requests |
+| Meta/boot-splash image URLs | all 200 |
+| 404 / failed requests across routes | none |
