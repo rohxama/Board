@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useTheme } from '../../context/ThemeContext'
 import siteIcon from '../../assets/images/site-logo-removebg-preview.png'
+import './DocumentationPage.css'
 import {
   GettingStartedIllustration,
   ThemesIllustration,
@@ -330,14 +331,13 @@ function InteractiveCanvasDemo() {
   const renderShape = (s) => {
     const isSelected = s.id === selected
     const commonProps = {
-      key: s.id,
       onClick: () => handleShapeClick(s.id),
       style: { cursor: 'pointer' },
     }
 
     if (s.isEllipse) {
       return (
-        <g {...commonProps}>
+        <g key={s.id} {...commonProps}>
           <ellipse cx={s.x} cy={s.y} rx={s.rx} ry={s.ry} fill={s.fill} stroke={s.stroke} strokeWidth={isSelected ? 2 : 1.5} />
           <text x={s.x} y={s.y + 4} textAnchor="middle" fontSize="9" fontWeight="600" fontFamily="system-ui" fill={s.stroke}>{s.label}</text>
           {isSelected && (
@@ -357,7 +357,7 @@ function InteractiveCanvasDemo() {
       const cx = s.x + s.w / 2, cy = s.y + s.h / 2
       const pts = `${cx},${s.y} ${s.x + s.w},${cy} ${cx},${s.y + s.h} ${s.x},${cy}`
       return (
-        <g {...commonProps}>
+        <g key={s.id} {...commonProps}>
           <polygon points={pts} fill={s.fill} stroke={s.stroke} strokeWidth={isSelected ? 2 : 1.5} />
           <text x={cx} y={cy + 4} textAnchor="middle" fontSize="9" fontWeight="600" fontFamily="system-ui" fill={s.stroke}>{s.label}</text>
           {isSelected && (
@@ -374,7 +374,7 @@ function InteractiveCanvasDemo() {
     }
 
     return (
-      <g {...commonProps}>
+      <g key={s.id} {...commonProps}>
         <rect x={s.x} y={s.y} width={s.w} height={s.h} rx={s.rx || 4} fill={s.fill} stroke={s.stroke} strokeWidth={isSelected ? 2 : 1.5} />
         <text x={s.x + s.w / 2} y={s.y + s.h / 2 + 4} textAnchor="middle" fontSize="9" fontWeight="600" fontFamily="system-ui" fill={s.stroke}>{s.label}</text>
         {isSelected && (

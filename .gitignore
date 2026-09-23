@@ -1,8 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Deploy / tooling
 .vercel
 node_modules/.vite/
-dist/
+
+# Logs & throwaway output
 logs/
 artifacts/
 dev.log
 dev.err
+.tmp-shots/
 
+# Local reference material
+excalidraw/

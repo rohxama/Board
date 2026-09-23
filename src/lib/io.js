@@ -2,7 +2,7 @@
 const sanitize = name => name.replace(/[/\\?%*:|"<>]/g, '_')
 import { sanitizeShape } from './geometry'
 import { newId } from './idGenerator'
-import { getCanvas2DContext, readFileAsText } from './browser'
+import { getCanvas2DContext } from './browser'
 import { getThemeAwareColor, getCurrentTheme, THEME_PAPER } from './themeColors'
 const MAX_IMPORT_BYTES = 25 * 1024 * 1024
 const MAX_IMPORT_SHAPES = 10000

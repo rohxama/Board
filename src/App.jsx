@@ -2,27 +2,26 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { AppStateProvider, useAppState } from './context/AppStateContext'
 import { HistoryProvider, useHistory } from './context/HistoryContext'
 import CanvasStage from './components/Canvas/CanvasStage'
-import Toolbar from './components/Toolbar/DesignToolbar'
+import Toolbar from './components/Toolbar/Toolbar'
 import StylePanel from './components/StylePanel/StylePanel'
-import ZoomControls, { fitViewToContent } from './components/ZoomControls/ZoomControls'
+import ZoomControls from './components/ZoomControls/ZoomControls'
 import SplashScreen from './components/SplashScreen/SplashScreen'
 import PreviousBoardModal from './components/PreviousBoardModal/PreviousBoardModal'
 import NotFoundPage from './components/NotFoundPage/NotFoundPage'
 import ThankYouPage from './components/ThankYouPage/ThankYouPage'
 import WaitlistPage from './components/WaitlistPage/WaitlistPage'
 import DocumentationPage from './components/DocumentationPage/DocumentationPage'
-import './components/DocumentationPage/DocumentationPage.css'
-import OfficelyLanding from './components/OfficelyLanding/OfficelyLanding'
+import LandingPage from './components/LandingPage/LandingPage'
 import CookieConsent from './components/CookieConsent/CookieConsent'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
-import { usePreviousBoard } from './hooks/useVisitorStatus'
+import { usePreviousBoard } from './hooks/usePreviousBoard'
 import { usePageRefresh } from './hooks/usePageRefresh'
 import { ThemeProvider } from './context/ThemeContext'
 import { newId } from './lib/idGenerator'
 import { INITIAL_IMAGE_WIDTH, readImageFile } from './lib/images'
 import { activateBoard, createBoard, loadDiagram, saveDiagram, moveDiagramToTrash } from './lib/storage'
 import { sanitizeShape, updateBoundArrows } from './lib/geometry'
-import { clampScale, zoomAtPoint } from './lib/viewport'
+import { clampScale, zoomAtPoint, fitViewToContent } from './lib/viewport'
 
 const resolveRoute = () => {
   const hash = window.location.hash
@@ -332,7 +331,7 @@ export default function App() {
   const showSplash = route === 'board' && splash !== 'done'
   return (
     <ThemeProvider>
-      {route === 'landing' && <OfficelyLanding />}
+      {route === 'landing' && <LandingPage />}
       {showBoard && (
         <>
           <BoardExperience

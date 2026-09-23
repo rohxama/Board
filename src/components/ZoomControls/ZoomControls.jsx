@@ -3,21 +3,6 @@ import { clampScale, centeredZoom } from '../../lib/viewport'
 
 const ZOOM_LEVELS = [0.25, 0.5, 0.75, 1, 1.5]
 
-export function fitViewToContent(shapes, viewportWidth = window.innerWidth, viewportHeight = window.innerHeight) {
-  const list = shapes || []
-  if (list.length === 0) return null
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
-  list.forEach(s => {
-    const w = s.width || 0, h = s.height || 0
-    if (s.x < minX) minX = s.x; if (s.y < minY) minY = s.y
-    if (s.x + w > maxX) maxX = s.x + w; if (s.y + h > maxY) maxY = s.y + h
-  })
-  const padding = 40
-  const contentW = maxX - minX + padding * 2, contentH = maxY - minY + padding * 2
-  const scale = clampScale(Math.min(viewportWidth / contentW, viewportHeight / contentH))
-  return { scale, x: viewportWidth / 2 - (minX + (maxX - minX) / 2) * scale, y: viewportHeight / 2 - (minY + (maxY - minY) / 2) * scale }
-}
-
 export default function ZoomControls({ view, setView }) {
   const [open, setOpen] = useState(false)
   const [popoverPosition, setPopoverPosition] = useState(null)
