@@ -82,7 +82,7 @@ were pruned; every route was then visually re-verified via screenshots.
   plus puppeteer e2e/perf scripts (`*-e2e.mjs`, `*-repro*.mjs`, `export-import.mjs`,
   `invalid-actions.mjs`, `redo-integrity.mjs`, `smoke-after-cleanup.mjs`) and
   `fixtures/` input diagrams.
-- `scripts/` — maintained tooling only: `analyze-reference.mjs`.
+- `scripts/` — *(removed in round 2; only held one-off analysis scripts)*
 - `docs/` — `PRD.md`, audit/review docs (`frontend-ux-audit.md`,
   `performance-reference-review.md`, `whiteboard-ux-audit.md`) and `docs/reference/`
   (reference design image + static scaffold).
@@ -132,7 +132,8 @@ were pruned; every route was then visually re-verified via screenshots.
    at the top of this report.
 4. **Broken import after moving helpers:** `tests/export-import.mjs` imported
    `../scripts/pnglib.cjs`; updated to `./pnglib.cjs` after the helper moved into
-   `tests/`. `scripts/analyze-reference.mjs` path references updated likewise.
+   `tests/`. `scripts/analyze-reference.mjs` path references updated likewise (the
+   script itself was since removed in round 2 below).
 5. **Pre-existing oddity noted, not changed:** `node_modules` contains `puppeteer`,
    `puppeteer-core`, `zod` and other packages that are *not* in `package.json` (they
    were installed ad-hoc for the e2e scripts). With `node_modules/` now untracked and
@@ -143,7 +144,10 @@ were pruned; every route was then visually re-verified via screenshots.
    committed previously (~4,700 files); removed from the index and covered by
    `.gitignore`.
 
+---
+
 ## 6. Verification summary
+
 - `npm test` → 10/10 pass.
 - `npm run build` → succeeds; CSS bundle 196.75 kB → 177.57 kB (chunk-size warning is
   pre-existing).
@@ -154,3 +158,48 @@ were pruned; every route was then visually re-verified via screenshots.
   header region where the restored `⋯` button now sits, and (b) docs mobile, where
   scroll-reveal timing makes captures nondeterministic — confirmed by re-capturing the
   same build twice (that run also differs), i.e. not caused by this cleanup.
+
+---
+
+## 7. Round 2 — further removal of unused files/media (same day)
+
+A second reference sweep over every tracked file (media, fonts, scripts, docs,
+fixtures, all of `src/`):
+
+### Removed
+- **Unused font files** `public/fonts/factor-a/TRIALFactorA-{Regular100,Medium100,Bold100}-*.otf`
+  (~382 KB) and their three `@font-face` rules in `LandingPage.css` — "Factor A" is only
+  ever used at weight **800** (headline `font:800`, `.ol-type-focused`, wordmark inline
+  `font-weight: 800`), so the 400/500/700 faces were never fetched or rendered.
+  Kept: `Extrabold100` (the actual display face) + `Befonts-License.txt`.
+- **`scripts/analyze-reference.mjs`** — one-off PNG palette/ASCII analyzer for the
+  reference design; zero references, its output isn't cited anywhere. With it gone the
+  `scripts/` folder is empty and removed.
+
+### Reorganized / fixed (media given an actual purpose)
+- **`src/assets/images/site-logo.png` → `public/assets/site-logo.png`** and updated the
+  `og:image` / `twitter:image` meta tags in `index.html`. The old URLs pointed at
+  `/src/assets/…`, which Vite does **not** copy into `dist/` — the social-preview image
+  was a guaranteed 404 in production. From `public/` it now ships with the build.
+  (Vite does bundle the splash `<img src="/src/…site-logo-removebg-preview.png">` in
+  `index.html`, so that one is fine where it is.)
+
+### Fixed (pre-existing breakage found while verifying)
+- **Chrome path in 4 e2e scripts** (`export-import`, `invalid-actions`, `pan-extreme`,
+  `performance-repro-cdp`) hardcoded `C:\Program Files (x86)\Google\Chrome\…`, but Chrome
+  is installed at `C:\Program Files\Google\Chrome\…` — every e2e run would have failed at
+  launch. Now resolves the first existing path with a fallback; `node --check` passes.
+
+### Re-audit: confirmed *in use*, therefore kept
+- `demo-icon.svg` / `menu-icon.svg` — referenced dynamically via `<Icon name="demo|menu">`
+  (`/assets/hero/${name}-icon.svg`); a literal grep misses them.
+- Doodle SVGs, `hero-img1.jpg`, favicon, robots.txt, sitemap.xml, Extrabold font,
+  `site-logo-removebg-preview.png` (toolbar/docs/splash), all `tests/fixtures/*` (every
+  fixture is used by an e2e test), all docs, all `src/` files (import sweep found only
+  the 3 `*.test.js`, which `npm test` runs directly).
+
+### Verification (round 2)
+- `npm test` 10/10 · `npm run build` succeeds · zero dangling references to removed files.
+- Live browser check: headline computes to `Factor A 800` with the face **loaded**; all
+  landing images report `naturalWidth > 0`; **no page/request errors**; screenshots of
+  `/` and `#/docs` visually identical to before (headline glyphs, doodles, docs layout).

@@ -1,12 +1,13 @@
 /* Read-only stress harness: Edge DevTools Protocol; no app source changes. */
 import fs from 'node:fs/promises'
+import { existsSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { spawn } from 'node:child_process'
 
 const ROOT = 'http://127.0.0.1:4183/#/board'
 const OUT = path.resolve('artifacts/performance-repro')
-const EDGE = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe'
+const EDGE = ['C:/Program Files/Google/Chrome/Application/chrome.exe', 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe'].find(p => existsSync(p)) ?? 'C:/Program Files/Google/Chrome/Application/chrome.exe'
 const events = []
 const scenarios = []
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms))

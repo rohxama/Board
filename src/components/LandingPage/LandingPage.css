@@ -1,9 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
 /* Local Factor A trial files: personal visual evaluation only; replace with a Web License before deployment. */
-@font-face { font-family:'Factor A'; src:url('/fonts/factor-a/TRIALFactorA-Regular100-BF6476bc2f568bb.otf') format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
-@font-face { font-family:'Factor A'; src:url('/fonts/factor-a/TRIALFactorA-Medium100-BF6476bc2f5b25b.otf') format('opentype'); font-weight:500; font-style:normal; font-display:swap; }
-@font-face { font-family:'Factor A'; src:url('/fonts/factor-a/TRIALFactorA-Bold100-BF6476bc2f46878.otf') format('opentype'); font-weight:700; font-style:normal; font-display:swap; }
 @font-face { font-family:'Factor A'; src:url('/fonts/factor-a/TRIALFactorA-Extrabold100-BF6476bc2f56e45.otf') format('opentype'); font-weight:800; font-style:normal; font-display:swap; }
 @font-face { font-family:'Factor A Flexible'; src:url('/fonts/factor-a/TRIALFactorA-Extrabold100-BF6476bc2f56e45.otf') format('opentype'); font-weight:800; font-style:normal; font-display:swap; }
 

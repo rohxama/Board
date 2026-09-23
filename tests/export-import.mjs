@@ -11,7 +11,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { decodePNG } from './pnglib.cjs'
 
-const CHROME = 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
+const CHROME = ['C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'].find(p => fs.existsSync(p)) ?? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 const URL = 'http://localhost:5173/'
 const ROOT = 'D:/Board'
 const VITE = path.join(ROOT, 'node_modules', 'vite', 'bin', 'vite.js')

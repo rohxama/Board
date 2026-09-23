@@ -3,8 +3,9 @@
 // then checks: no crash/freeze, coordinates stay finite, objects survive and
 // reappear on return, and frame times stay reasonable.
 import puppeteer from 'puppeteer-core'
+import fs from 'node:fs'
 
-const CHROME = 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
+const CHROME = ['C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'].find(p => fs.existsSync(p)) ?? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 const URL = 'http://localhost:5173/'
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 
